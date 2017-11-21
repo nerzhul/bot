@@ -9,8 +9,8 @@ import (
 
 type rabbitMQPublisherConfig struct {
 	Url             string `yaml:"url"`
-	EventExchange   string `yaml:"achievement-exchange"`
-	EventRoutingKey string `yaml:"achievement-routing-key"`
+	EventExchange   string `yaml:"exchange"`
+	EventRoutingKey string `yaml:"routing-key"`
 }
 
 type gitlabEventPublisher struct {

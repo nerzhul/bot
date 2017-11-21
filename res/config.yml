@@ -1,0 +1,11 @@
+---
+http:
+  port: 8080
+rabbitmq:
+  url: "amqp://guest:guest@localhost:5672/"
+  exchange: "gitlab"
+  routing-key: "gitlab/events"
+projects-mapping:
+  "group/projectname":
+    - "#channel1"
+    - "#channel2"

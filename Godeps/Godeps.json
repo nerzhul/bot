@@ -41,6 +41,15 @@
 			"Rev": "7148bc3a4c3008adfcab60cbebfd0576018f330b"
 		},
 		{
+			"ImportPath": "github.com/satori/go.uuid",
+			"Comment": "v1.1.0-8-g5bf94b6",
+			"Rev": "5bf94b69c6b68ee1b541973bb8e1144db23a194b"
+		},
+		{
+			"ImportPath": "github.com/streadway/amqp",
+			"Rev": "ff791c2d22d3f1588b4e2cc71a9fba5e1da90654"
+		},
+		{
 			"ImportPath": "github.com/valyala/bytebufferpool",
 			"Rev": "e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7"
 		},

@@ -48,6 +48,12 @@ func v1ApiGitlabEvent(c echo.Context) error {
 	eventType := gitlabEventType{Type: c.Request().Header.Get("X-Gitlab-Event")}
 	switch eventType.Type {
 	case "Push Hook":
+		if !handleGitlabPush(c) {
+			var e errorResponse
+			e.Body.Message = "Internal error"
+			c.JSON(http.StatusInternalServerError, e.Body)
+		}
+		return nil
 	case "Tag Push Hook":
 	case "Issue Hook":
 	case "Note Hook":

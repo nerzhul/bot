@@ -6,25 +6,24 @@ import (
 )
 
 type config struct {
-	RabbitMQ struct {
-		Url        string `yaml:"url"`
-		Exchange   string `yaml:"exchange"`
-		RoutingKey string `yaml:"routing-key"`
-	}
+	RabbitMQ rabbitMQPublisherConfig `yaml:"rabbitmq"`
 
 	Http struct {
 		Port uint16 `yaml:"port"`
 	}
+
+	ProjectsMapping map[string][]string `yaml:"projects-mapping"`
 }
 
 var gconfig config
 
 func (c *config) loadDefaultConfiguration() {
 	c.RabbitMQ.Url = "amqp://guest:guest@localhost:5672/"
-	c.RabbitMQ.Exchange = "gitlab"
-	c.RabbitMQ.RoutingKey = "gitlab/events"
+	c.RabbitMQ.EventExchange = "gitlab"
+	c.RabbitMQ.EventRoutingKey = "gitlab/events"
 
 	c.Http.Port = 8080
+	c.ProjectsMapping = make(map[string][]string)
 }
 
 func loadConfiguration(path string) {

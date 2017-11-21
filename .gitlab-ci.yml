@@ -1,0 +1,79 @@
+image: golang:1.9
+
+variables:
+  REPO_NAME: gitlab.com/nerzhul/gitlab-hook
+  SWAGGER_TAG: v3.4.5
+
+before_script:
+  - go version
+  - ./ci/before_script.sh
+  - cd $GOPATH/src/$REPO_NAME
+
+stages:
+  - test
+  - build
+  - release
+  - documentation
+  - deploy
+
+.build_template: &build_template
+  script:
+    - mkdir -p $CI_PROJECT_DIR/artifacts
+    - go build -o $CI_PROJECT_DIR/artifacts/gitlab-hook && cd ..
+
+unittests:
+  stage: test
+  script:
+    - go test $(go list ./... | grep -v /vendor/)
+
+build:
+  <<: *build_template
+  stage: build
+  artifacts:
+    when: on_success
+    expire_in: 1 day
+    paths:
+      - artifacts/gitlab-hook
+
+documentation:swagger:
+  <<: *build_template
+  stage: documentation
+  dependencies:
+    - build
+  script:
+    - mkdir -p $CI_PROJECT_DIR/artifacts && cd main
+    - go get -u github.com/go-swagger/go-swagger/cmd/swagger
+    - $GOPATH/bin/swagger generate spec -o $CI_PROJECT_DIR/artifacts/swagger.json
+  artifacts:
+    when: on_success
+    paths:
+      - artifacts/swagger.json
+
+release:
+  <<: *build_template
+  stage: release
+  only:
+    - tags
+  artifacts:
+    when: on_success
+    paths:
+      - artifacts/gitlab-hook
+
+pages:
+  stage: deploy
+  only:
+    - master
+  dependencies:
+    - documentation:swagger
+  script:
+    # At the beginning we are in go package path, not in CI_PROJECT_DIR
+    - mkdir -p $CI_PROJECT_DIR/public/swagger/
+    - cp artifacts/swagger.json $CI_PROJECT_DIR/public/swagger/
+    - git clone https://github.com/swagger-api/swagger-ui.git $CI_PROJECT_DIR/swagger-ui -b ${SWAGGER_TAG}
+    - cp -R $CI_PROJECT_DIR/swagger-ui/dist/* $CI_PROJECT_DIR/public/swagger/
+    - sed -i 's/http:\/\/petstore.swagger.io\/v2\/swagger.json/https:\/\/nerzhul.gitlab.io\/gitlab-hook\/swagger\/swagger.json/g' $CI_PROJECT_DIR/public/swagger/index.html
+  artifacts:
+    when: on_success
+    expire_in: 10 year
+    paths:
+      - public

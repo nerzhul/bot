@@ -7,6 +7,12 @@ import (
 	"strings"
 )
 
+// swagger:parameters pushGitlabEvent
+type gitlabPushEventParams struct {
+	// in: body
+	Body gitlabPushEvent
+}
+
 type gitlabPushEvent struct {
 	ObjectKind   string `json:"object_kind"`
 	Before       string `json:"before"`

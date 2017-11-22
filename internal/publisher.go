@@ -89,6 +89,19 @@ func (aep *gitlabEventPublisher) Publish(event *gitlabRabbitMQEvent, correlation
 		return false
 	}
 
+	if err := aep.channel.ExchangeDeclare(gconfig.RabbitMQ.EventExchange,
+		"direct",
+		false,
+		false,
+		false,
+		false,
+		amqp.Table{}); err != nil {
+		log.Errorf("Failed to declare exchange %s: %s", gconfig.RabbitMQ.EventExchange, err)
+		// Drop rabbitmq client for a future reconnection
+		rabbitmqPublisher = nil
+		return false
+	}
+
 	toPublish := amqp.Publishing{
 		Body:          jsonEvent,
 		ContentType:   "application/json",

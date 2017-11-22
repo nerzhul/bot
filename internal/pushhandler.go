@@ -103,12 +103,19 @@ func handleGitlabPush(c echo.Context) bool {
 
 	notificationMessage += strings.Replace(lastCommit.Message, "\n", "", -1) + " (" + lastCommit.Url + ")\n"
 
-	rEvent := gitlabRabbitMQEvent{Message: notificationMessage, Channels: channelsToPublish}
+	for _, channel := range channelsToPublish {
+		rEvent := gitlabRabbitMQEvent{
+			Message:     notificationMessage,
+			Channel:     channel,
+			User:        "",
+			MessageType: "notice",
+		}
 
-	if !verifyPublisher() {
-		return false
+		if !verifyPublisher() {
+			return false
+		}
+
+		rabbitmqPublisher.Publish(&rEvent, uuid.NewV4().String())
 	}
-
-	rabbitmqPublisher.Publish(&rEvent, uuid.NewV4().String())
 	return true
 }

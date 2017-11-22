@@ -19,8 +19,10 @@ type gitlabEventPublisher struct {
 }
 
 type gitlabRabbitMQEvent struct {
-	Message  string   `json:"message"`
-	Channels []string `json:"channels"`
+	Message     string `json:"message"`
+	Channel     string `json:"channel"`
+	User        string `json:"user"`
+	MessageType string `json:"message_type"`
 }
 
 func (gre *gitlabRabbitMQEvent) ToJson() ([]byte, error) {

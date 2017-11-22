@@ -95,12 +95,14 @@ func (aep *gitlabEventPublisher) Publish(event *gitlabRabbitMQEvent, correlation
 		MessageId:     uuid.NewV4().String(),
 		Timestamp:     time.Now(),
 		CorrelationId: correlationId,
+		Expiration:    "300000",
+		Type:          "gitlab-event",
 	}
 
 	err = aep.channel.Publish(
 		gconfig.RabbitMQ.EventExchange,   // exchange
 		gconfig.RabbitMQ.EventRoutingKey, // routing key
-		false, // mandatory
+		true,  // mandatory
 		false, // immediate
 		toPublish,
 	)

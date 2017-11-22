@@ -59,7 +59,7 @@ func (aep *gitlabEventPublisher) Init() bool {
 	err = aep.channel.ExchangeDeclare(
 		gconfig.RabbitMQ.EventExchange,
 		"direct",
-		true,
+		false,
 		false,
 		false,
 		false,
@@ -86,19 +86,6 @@ func (aep *gitlabEventPublisher) Publish(event *gitlabRabbitMQEvent, correlation
 	if err != nil {
 		log.Errorf("Failed to publish GitlabEvent to string. Cannot publish to exchange '%s'",
 			gconfig.RabbitMQ.EventExchange)
-		return false
-	}
-
-	if err := aep.channel.ExchangeDeclare(gconfig.RabbitMQ.EventExchange,
-		"direct",
-		false,
-		false,
-		false,
-		false,
-		amqp.Table{}); err != nil {
-		log.Errorf("Failed to declare exchange %s: %s", gconfig.RabbitMQ.EventExchange, err)
-		// Drop rabbitmq client for a future reconnection
-		rabbitmqPublisher = nil
 		return false
 	}
 

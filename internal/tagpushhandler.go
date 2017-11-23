@@ -3,17 +3,18 @@ package internal
 import (
 	"github.com/labstack/echo"
 	"github.com/satori/go.uuid"
-	"strconv"
 	"strings"
 )
 
-// swagger:parameters pushGitlabEvent
-type gitlabPushEventParams struct {
+// swagger:parameters tagPushGitlabEvent
+type gitlabTagPushEventParams struct {
 	// in: body
-	Body gitlabPushEvent
+	Body gitlabTagPushEvent
 }
 
-type gitlabPushEvent struct {
+type gitlabTagPushEvent struct {
+	Project          gitlabProject    `json:"project"`
+	Repository       gitlabRepository `json:"repository"`
 	ObjectKind       string           `json:"object_kind"`
 	Before           string           `json:"before"`
 	After            string           `json:"after"`
@@ -24,48 +25,33 @@ type gitlabPushEvent struct {
 	UserUsername     string           `json:"user_username"`
 	UserAvatar       string           `json:"user_avatar"`
 	ProjectId        uint64           `json:"project_id"`
-	Project          gitlabProject    `json:"project"`
-	Repository       gitlabRepository `json:"repository"`
 	Commits          []gitlabCommit   `json:"commits"`
 	TotalCommitCount uint64           `json:"total_commits_count"`
 }
 
-func handleGitlabPush(c echo.Context) bool {
-	pushEvent := gitlabPushEvent{}
+func handleGitlabTagPush(c echo.Context) bool {
+	tagPushEvent := gitlabTagPushEvent{}
 
-	if !ReadJsonRequest(c.Request().Body, &pushEvent) {
+	if !ReadJsonRequest(c.Request().Body, &tagPushEvent) {
 		return false
 	}
 
-	if pushEvent.TotalCommitCount == 0 || pushEvent.Project.PathWithNamespace == "" {
+	if tagPushEvent.TotalCommitCount == 0 || tagPushEvent.Project.PathWithNamespace == "" {
 		return false
 	}
 
-	channelsToPublish, kExist := gconfig.ProjectsMapping[pushEvent.Project.PathWithNamespace]
+	channelsToPublish, kExist := gconfig.ProjectsMapping[tagPushEvent.Project.PathWithNamespace]
 	if !kExist {
 		log.Warningf("Received hook from project %s but not channel mapped.",
-			pushEvent.Project.PathWithNamespace)
+			tagPushEvent.Project.PathWithNamespace)
 		return true
 	}
 
-	pushEvent.Ref = strings.Replace(pushEvent.Ref, "refs/heads/", "", -1)
+	tagPushEvent.Ref = strings.Replace(tagPushEvent.Ref, "refs/heads/", "", -1)
 
 	var notificationMessage string
-	notificationMessage += "[" + pushEvent.Project.PathWithNamespace + "][" + pushEvent.Ref + "] " +
-		pushEvent.UserName + " pushed " + strconv.FormatUint(pushEvent.TotalCommitCount, 10) + " commit"
-	if pushEvent.TotalCommitCount > 1 {
-		notificationMessage += "s"
-	}
-
-	notificationMessage += ". "
-
-	if pushEvent.TotalCommitCount > 1 {
-		notificationMessage += "Last: "
-	}
-
-	lastCommit := &pushEvent.Commits[0]
-
-	notificationMessage += strings.Replace(lastCommit.Message, "\n", "", -1) + " (" + lastCommit.Url + ")\n"
+	notificationMessage += "[" + tagPushEvent.Project.PathWithNamespace + "] " + tagPushEvent.UserName +
+		" pushed tag " + tagPushEvent.Ref + ".\n"
 
 	for _, channel := range channelsToPublish {
 		rEvent := gitlabRabbitMQEvent{

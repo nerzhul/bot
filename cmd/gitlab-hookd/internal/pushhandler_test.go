@@ -77,7 +77,7 @@ var gitlabPushTest = `{
 var gitlabPushTestResult = "[mike/diaspora][master] John Smith pushed 4 commits. Last: Update Catalan translation to e38cb41. (http://example.com/mike/diaspora/commit/b6568db1bc1dcd7f8b4d5a946b0b91f9dacd7327)\n"
 
 var pushFakeConfig = map[string][]string{
-	"mike/diaspora": []string{
+	"mike/diaspora": {
 		"test_channel",
 	},
 }
@@ -100,7 +100,7 @@ func TestPushHandler(t *testing.T) {
 
 	nstr := pushEvent.toNotificationString()
 	if nstr != gitlabPushTestResult {
-		t.Errorf("Result is : '%s'", nstr)
+		t.Errorf("Result is not conform.\nFound: '%s'\nExpected: %s", nstr, gitlabPushTestResult)
 	}
 
 }

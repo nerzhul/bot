@@ -30,11 +30,18 @@ type gitlabTagPushEvent struct {
 }
 
 func (gevent *gitlabTagPushEvent) verifyEvent() bool {
-	if gevent.TotalCommitCount == 0 || gevent.Project.PathWithNamespace == "" {
+	if gevent.TotalCommitCount != 0 || gevent.Project.PathWithNamespace == "" {
 		return false
 	}
 
 	return true
+}
+
+func (gevent *gitlabTagPushEvent) toNotificationString() string {
+	gevent.Ref = strings.Replace(gevent.Ref, "refs/tags/", "", -1)
+
+	return "[" + gevent.Project.PathWithNamespace + "] " + gevent.UserName +
+		" pushed tag " + gevent.Ref + ".\n"
 }
 
 func handleGitlabTagPush(c echo.Context) bool {

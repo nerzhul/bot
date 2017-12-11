@@ -30,7 +30,7 @@ type gitlabTagPushEvent struct {
 }
 
 func (gevent *gitlabTagPushEvent) verifyEvent() bool {
-	if gevent.TotalCommitCount != 0 || gevent.Project.PathWithNamespace == "" {
+	if gevent.Project.PathWithNamespace == "" {
 		return false
 	}
 

@@ -65,10 +65,12 @@ func handleGitlabPush(c echo.Context) bool {
 	pushEvent := gitlabPushEvent{}
 
 	if !readJSONRequest(c.Request().Body, &pushEvent) {
+		log.Error("Failed to read Gitlab Push event")
 		return false
 	}
 
 	if !pushEvent.verifyEvent() {
+		log.Error("Failed to verify Gitlab Tag Push event")
 		return false
 	}
 
@@ -107,6 +109,7 @@ func handleGitlabPush(c echo.Context) bool {
 		}
 
 		if !verifyPublisher() {
+			log.Error("Failed to publish Gitlab Tag Push event")
 			return false
 		}
 

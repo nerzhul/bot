@@ -29,6 +29,14 @@ type gitlabTagPushEvent struct {
 	TotalCommitCount uint64           `json:"total_commits_count"`
 }
 
+func (gevent *gitlabTagPushEvent) verifyEvent() bool {
+	if gevent.TotalCommitCount == 0 || gevent.Project.PathWithNamespace == "" {
+		return false
+	}
+
+	return true
+}
+
 func handleGitlabTagPush(c echo.Context) bool {
 	tagPushEvent := gitlabTagPushEvent{}
 
@@ -36,7 +44,7 @@ func handleGitlabTagPush(c echo.Context) bool {
 		return false
 	}
 
-	if tagPushEvent.TotalCommitCount == 0 || tagPushEvent.Project.PathWithNamespace == "" {
+	if !tagPushEvent.verifyEvent() {
 		return false
 	}
 

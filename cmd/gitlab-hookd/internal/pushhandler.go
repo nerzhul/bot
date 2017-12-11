@@ -30,6 +30,37 @@ type gitlabPushEvent struct {
 	TotalCommitCount uint64           `json:"total_commits_count"`
 }
 
+func (gevent *gitlabPushEvent) verifyEvent() bool {
+	if gevent.TotalCommitCount == 0 || gevent.Project.PathWithNamespace == "" {
+		return false
+	}
+
+	return true
+}
+
+func (gevent *gitlabPushEvent) toNotificationString() string {
+	gevent.Ref = strings.Replace(gevent.Ref, "refs/heads/", "", -1)
+
+	var notificationMessage string
+	notificationMessage += "[" + gevent.Project.PathWithNamespace + "][" + gevent.Ref + "] " +
+		gevent.UserName + " pushed " + strconv.FormatUint(gevent.TotalCommitCount, 10) + " commit"
+	if gevent.TotalCommitCount > 1 {
+		notificationMessage += "s"
+	}
+
+	notificationMessage += ". "
+
+	if gevent.TotalCommitCount > 1 {
+		notificationMessage += "Last: "
+	}
+
+	lastCommit := &gevent.Commits[0]
+
+	notificationMessage += strings.Replace(lastCommit.Message, "\n", "", -1) + " (" + lastCommit.URL + ")\n"
+
+	return notificationMessage
+}
+
 func handleGitlabPush(c echo.Context) bool {
 	pushEvent := gitlabPushEvent{}
 
@@ -37,7 +68,7 @@ func handleGitlabPush(c echo.Context) bool {
 		return false
 	}
 
-	if pushEvent.TotalCommitCount == 0 || pushEvent.Project.PathWithNamespace == "" {
+	if !pushEvent.verifyEvent() {
 		return false
 	}
 

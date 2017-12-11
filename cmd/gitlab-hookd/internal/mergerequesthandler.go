@@ -44,12 +44,12 @@ func handleGitlabMergeRequest(c echo.Context) bool {
 	mrEvent := gitlabMergeRequestEvent{}
 
 	if !readJSONRequest(c.Request().Body, &mrEvent) {
-		log.Error("Failed to read Gitlab Push event")
+		log.Error("Failed to read Gitlab Merge Request event")
 		return false
 	}
 
 	if !mrEvent.verifyEvent() {
-		log.Error("Failed to verify Gitlab Tag Push event")
+		log.Error("Failed to verify Gitlab Merge Request event")
 		return false
 	}
 
@@ -71,7 +71,7 @@ func handleGitlabMergeRequest(c echo.Context) bool {
 		}
 
 		if !verifyPublisher() {
-			log.Error("Failed to publish Gitlab Tag Push event")
+			log.Error("Failed to publish Gitlab Merge Request event")
 			return false
 		}
 

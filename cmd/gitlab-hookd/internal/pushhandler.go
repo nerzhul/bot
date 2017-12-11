@@ -70,7 +70,7 @@ func handleGitlabPush(c echo.Context) bool {
 	}
 
 	if !pushEvent.verifyEvent() {
-		log.Error("Failed to verify Gitlab Tag Push event")
+		log.Error("Failed to verify Gitlab Push event")
 		return false
 	}
 

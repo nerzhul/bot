@@ -57,7 +57,7 @@ func TestTagPushHandler(t *testing.T) {
 	tagPushEvent := gitlabTagPushEvent{}
 
 	if err := json.Unmarshal([]byte(gitlabTagPushTest), &tagPushEvent); err != nil {
-		t.Errorf("Unable to decode gitlabTagPushTest: %s", err.Error())
+		t.Fatalf("Unable to decode gitlabTagPushTest: %s", err.Error())
 	}
 
 	if !tagPushEvent.verifyEvent() {
@@ -73,5 +73,4 @@ func TestTagPushHandler(t *testing.T) {
 	if nstr != gitlabTagPushTestResult {
 		t.Errorf("Result is not conform.\nFound: '%s'\nExpected: %s", nstr, gitlabTagPushTestResult)
 	}
-
 }

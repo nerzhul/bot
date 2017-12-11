@@ -61,9 +61,15 @@ func v1ApiGitlabEvent(c echo.Context) error {
 			c.JSON(http.StatusInternalServerError, e.Body)
 		}
 		return nil
+	case "Merge Request Hook":
+		if !handleGitlabMergeRequest(c) {
+			var e errorResponse
+			e.Body.Message = "Internal error"
+			c.JSON(http.StatusInternalServerError, e.Body)
+		}
+		return nil
 	case "Issue Hook":
 	case "Note Hook":
-	case "Merge Request Hook":
 	case "Wiki Page Hook":
 	case "Pipeline Hook":
 	case "Build Hook":

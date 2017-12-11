@@ -64,11 +64,7 @@ func handleGitlabTagPush(c echo.Context) bool {
 		return true
 	}
 
-	tagPushEvent.Ref = strings.Replace(tagPushEvent.Ref, "refs/heads/", "", -1)
-
-	var notificationMessage string
-	notificationMessage += "[" + tagPushEvent.Project.PathWithNamespace + "] " + tagPushEvent.UserName +
-		" pushed tag " + tagPushEvent.Ref + ".\n"
+	notificationMessage := tagPushEvent.toNotificationString()
 
 	for _, channel := range channelsToPublish {
 		rEvent := gitlabRabbitMQEvent{

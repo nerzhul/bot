@@ -83,22 +83,7 @@ func handleGitlabPush(c echo.Context) bool {
 
 	pushEvent.Ref = strings.Replace(pushEvent.Ref, "refs/heads/", "", -1)
 
-	var notificationMessage string
-	notificationMessage += "[" + pushEvent.Project.PathWithNamespace + "][" + pushEvent.Ref + "] " +
-		pushEvent.UserName + " pushed " + strconv.FormatUint(pushEvent.TotalCommitCount, 10) + " commit"
-	if pushEvent.TotalCommitCount > 1 {
-		notificationMessage += "s"
-	}
-
-	notificationMessage += ". "
-
-	if pushEvent.TotalCommitCount > 1 {
-		notificationMessage += "Last: "
-	}
-
-	lastCommit := &pushEvent.Commits[0]
-
-	notificationMessage += strings.Replace(lastCommit.Message, "\n", "", -1) + " (" + lastCommit.URL + ")\n"
+	notificationMessage := pushEvent.toNotificationString()
 
 	for _, channel := range channelsToPublish {
 		rEvent := gitlabRabbitMQEvent{

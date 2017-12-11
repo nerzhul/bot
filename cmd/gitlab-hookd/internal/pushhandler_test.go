@@ -86,7 +86,7 @@ func TestPushHandler(t *testing.T) {
 	pushEvent := gitlabPushEvent{}
 
 	if err := json.Unmarshal([]byte(gitlabPushTest), &pushEvent); err != nil {
-		t.Errorf("Unable to decode gitlabPushTest: %s", err.Error())
+		t.Fatalf("Unable to decode gitlabPushTest: %s", err.Error())
 	}
 
 	if !pushEvent.verifyEvent() {
@@ -102,5 +102,4 @@ func TestPushHandler(t *testing.T) {
 	if nstr != gitlabPushTestResult {
 		t.Errorf("Result is not conform.\nFound: '%s'\nExpected: %s", nstr, gitlabPushTestResult)
 	}
-
 }

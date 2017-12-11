@@ -20,7 +20,8 @@ type gitlabMergeRequestEvent struct {
 	Repository       gitlabRepository             `json:"repository"`
 	ObjectAttributes gitlabMergeRequestAttributes `json:"object_attributes"`
 	Labels           []gitlabLabel                `json:"labels"`
-	Changes          gitlabChanges                `json:"changes"`
+	// Changes field is not compliant with doc, ignore it
+	//Changes          gitlabChanges                `json:"changes"`
 }
 
 func (gevent *gitlabMergeRequestEvent) verifyEvent() bool {

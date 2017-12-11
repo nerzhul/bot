@@ -19,11 +19,11 @@ type gitlabPushEvent struct {
 	After            string           `json:"after"`
 	Ref              string           `json:"ref"`
 	CheckoutSha      string           `json:"checkout_sha"`
-	UserId           uint64           `json:"user_id"`
+	UserID           uint64           `json:"user_id"`
 	UserName         string           `json:"user_name"`
 	UserUsername     string           `json:"user_username"`
 	UserAvatar       string           `json:"user_avatar"`
-	ProjectId        uint64           `json:"project_id"`
+	ProjectID        uint64           `json:"project_id"`
 	Project          gitlabProject    `json:"project"`
 	Repository       gitlabRepository `json:"repository"`
 	Commits          []gitlabCommit   `json:"commits"`
@@ -33,7 +33,7 @@ type gitlabPushEvent struct {
 func handleGitlabPush(c echo.Context) bool {
 	pushEvent := gitlabPushEvent{}
 
-	if !ReadJsonRequest(c.Request().Body, &pushEvent) {
+	if !readJSONRequest(c.Request().Body, &pushEvent) {
 		return false
 	}
 
@@ -41,8 +41,8 @@ func handleGitlabPush(c echo.Context) bool {
 		return false
 	}
 
-	channelsToPublish, kExist := gconfig.ProjectsMapping[pushEvent.Project.PathWithNamespace]
-	if !kExist {
+	channelsToPublish, exists := gconfig.ProjectsMapping[pushEvent.Project.PathWithNamespace]
+	if !exists {
 		log.Warningf("Received hook from project %s but not channel mapped.",
 			pushEvent.Project.PathWithNamespace)
 		return true
@@ -65,7 +65,7 @@ func handleGitlabPush(c echo.Context) bool {
 
 	lastCommit := &pushEvent.Commits[0]
 
-	notificationMessage += strings.Replace(lastCommit.Message, "\n", "", -1) + " (" + lastCommit.Url + ")\n"
+	notificationMessage += strings.Replace(lastCommit.Message, "\n", "", -1) + " (" + lastCommit.URL + ")\n"
 
 	for _, channel := range channelsToPublish {
 		rEvent := gitlabRabbitMQEvent{
@@ -79,7 +79,7 @@ func handleGitlabPush(c echo.Context) bool {
 			return false
 		}
 
-		rabbitmqPublisher.Publish(&rEvent, uuid.NewV4().String())
+		rabbitmqPublisher.publish(&rEvent, uuid.NewV4().String())
 	}
 	return true
 }

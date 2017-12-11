@@ -8,7 +8,7 @@ import (
 )
 
 type rabbitMQPublisherConfig struct {
-	Url             string `yaml:"url"`
+	URL             string `yaml:"url"`
 	EventExchange   string `yaml:"exchange"`
 	EventRoutingKey string `yaml:"routing-key"`
 }
@@ -25,7 +25,7 @@ type gitlabRabbitMQEvent struct {
 	MessageType string `json:"message_type"`
 }
 
-func (gre *gitlabRabbitMQEvent) ToJson() ([]byte, error) {
+func (gre *gitlabRabbitMQEvent) ToJSON() ([]byte, error) {
 	jsonStr, err := json.Marshal(gre)
 	if err != nil {
 		return nil, err
@@ -34,19 +34,19 @@ func (gre *gitlabRabbitMQEvent) ToJson() ([]byte, error) {
 	return jsonStr, nil
 }
 
-func NewGitlabEventPublisher() *gitlabEventPublisher {
+func newGitlabEventPublisher() *gitlabEventPublisher {
 	return &gitlabEventPublisher{}
 }
 
-func (aep *gitlabEventPublisher) Init() bool {
+func (aep *gitlabEventPublisher) init() bool {
 	var err error
-	aep.conn, err = amqp.Dial(gconfig.RabbitMQ.Url)
+	aep.conn, err = amqp.Dial(gconfig.RabbitMQ.URL)
 	if err != nil {
 		log.Errorf("Failed to connect to RabbitMQ: %s", err)
 		return false
 	}
 
-	log.Infof("Connected to RabbitMQ on %s", gconfig.RabbitMQ.Url)
+	log.Infof("Connected to RabbitMQ on %s", gconfig.RabbitMQ.URL)
 
 	aep.channel, err = aep.conn.Channel()
 	if err != nil {
@@ -54,7 +54,7 @@ func (aep *gitlabEventPublisher) Init() bool {
 		return false
 	}
 
-	log.Infof("RabbitMQ channel opened on %s", gconfig.RabbitMQ.Url)
+	log.Infof("RabbitMQ channel opened on %s", gconfig.RabbitMQ.URL)
 
 	err = aep.channel.ExchangeDeclare(
 		gconfig.RabbitMQ.EventExchange,
@@ -71,18 +71,18 @@ func (aep *gitlabEventPublisher) Init() bool {
 		return false
 	}
 
-	log.Infof("RabbitMQ exchange %s created on %s", gconfig.RabbitMQ.EventExchange, gconfig.RabbitMQ.Url)
+	log.Infof("RabbitMQ exchange %s created on %s", gconfig.RabbitMQ.EventExchange, gconfig.RabbitMQ.URL)
 
 	return true
 }
 
-func (aep *gitlabEventPublisher) Publish(event *gitlabRabbitMQEvent, correlationId string) bool {
-	if len(correlationId) == 0 {
+func (aep *gitlabEventPublisher) publish(event *gitlabRabbitMQEvent, correlationID string) bool {
+	if len(correlationID) == 0 {
 		log.Fatalf("Cannot send achievement event with empty CorrelationId, aborting.")
 		return false
 	}
 
-	jsonEvent, err := event.ToJson()
+	jsonEvent, err := event.ToJSON()
 	if err != nil {
 		log.Errorf("Failed to publish GitlabEvent to string. Cannot publish to exchange '%s'",
 			gconfig.RabbitMQ.EventExchange)
@@ -94,7 +94,7 @@ func (aep *gitlabEventPublisher) Publish(event *gitlabRabbitMQEvent, correlation
 		ContentType:   "application/json",
 		MessageId:     uuid.NewV4().String(),
 		Timestamp:     time.Now(),
-		CorrelationId: correlationId,
+		CorrelationId: correlationID,
 		Expiration:    "300000",
 		Type:          "gitlab-event",
 	}
@@ -114,15 +114,15 @@ func (aep *gitlabEventPublisher) Publish(event *gitlabRabbitMQEvent, correlation
 		return false
 	}
 
-	log.Infof("[cid=%s] Message published to exchange %s", correlationId, gconfig.RabbitMQ.EventExchange)
+	log.Infof("[cid=%s] Message published to exchange %s", correlationID, gconfig.RabbitMQ.EventExchange)
 
 	return true
 }
 
 func verifyPublisher() bool {
 	if rabbitmqPublisher == nil {
-		rabbitmqPublisher = NewGitlabEventPublisher()
-		if !rabbitmqPublisher.Init() {
+		rabbitmqPublisher = newGitlabEventPublisher()
+		if !rabbitmqPublisher.init() {
 			rabbitmqPublisher = nil
 		}
 	}

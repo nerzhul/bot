@@ -20,11 +20,11 @@ type gitlabTagPushEvent struct {
 	After            string           `json:"after"`
 	Ref              string           `json:"ref"`
 	CheckoutSha      string           `json:"checkout_sha"`
-	UserId           uint64           `json:"user_id"`
+	UserID           uint64           `json:"user_id"`
 	UserName         string           `json:"user_name"`
 	UserUsername     string           `json:"user_username"`
 	UserAvatar       string           `json:"user_avatar"`
-	ProjectId        uint64           `json:"project_id"`
+	ProjectID        uint64           `json:"project_id"`
 	Commits          []gitlabCommit   `json:"commits"`
 	TotalCommitCount uint64           `json:"total_commits_count"`
 }
@@ -32,7 +32,7 @@ type gitlabTagPushEvent struct {
 func handleGitlabTagPush(c echo.Context) bool {
 	tagPushEvent := gitlabTagPushEvent{}
 
-	if !ReadJsonRequest(c.Request().Body, &tagPushEvent) {
+	if !readJSONRequest(c.Request().Body, &tagPushEvent) {
 		return false
 	}
 
@@ -40,8 +40,8 @@ func handleGitlabTagPush(c echo.Context) bool {
 		return false
 	}
 
-	channelsToPublish, kExist := gconfig.ProjectsMapping[tagPushEvent.Project.PathWithNamespace]
-	if !kExist {
+	channelsToPublish, exists := gconfig.ProjectsMapping[tagPushEvent.Project.PathWithNamespace]
+	if !exists {
 		log.Warningf("Received hook from project %s but not channel mapped.",
 			tagPushEvent.Project.PathWithNamespace)
 		return true
@@ -65,7 +65,7 @@ func handleGitlabTagPush(c echo.Context) bool {
 			return false
 		}
 
-		rabbitmqPublisher.Publish(&rEvent, uuid.NewV4().String())
+		rabbitmqPublisher.publish(&rEvent, uuid.NewV4().String())
 	}
 	return true
 }

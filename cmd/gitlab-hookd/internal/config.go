@@ -8,7 +8,7 @@ import (
 type config struct {
 	RabbitMQ rabbitMQPublisherConfig `yaml:"rabbitmq"`
 
-	Http struct {
+	HTTP struct {
 		Port uint16 `yaml:"port"`
 	}
 
@@ -18,11 +18,11 @@ type config struct {
 var gconfig config
 
 func (c *config) loadDefaultConfiguration() {
-	c.RabbitMQ.Url = "amqp://guest:guest@localhost:5672/"
+	c.RabbitMQ.URL = "amqp://guest:guest@localhost:5672/"
 	c.RabbitMQ.EventExchange = "gitlab"
 	c.RabbitMQ.EventRoutingKey = "gitlab/events"
 
-	c.Http.Port = 8080
+	c.HTTP.Port = 8080
 	c.ProjectsMapping = make(map[string][]string)
 }
 

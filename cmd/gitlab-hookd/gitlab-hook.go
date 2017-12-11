@@ -1,3 +1,4 @@
+// main package
 //     Schemes: http, https
 //     Host: localhost
 //     BasePath: /
@@ -14,7 +15,7 @@ package main
 
 import (
 	"github.com/pborman/getopt/v2"
-	"gitlab.com/nerzhul/gitlab-hook/internal"
+	"gitlab.com/nerzhul/gitlab-hook/cmd/gitlab-hookd/internal"
 )
 
 var configFile = ""
@@ -25,9 +26,5 @@ func init() {
 
 func main() {
 	getopt.Parse()
-	internal.GetLogger().Infof("Starting gitlab-hook")
-
 	internal.StartApp(configFile)
-
-	internal.GetLogger().Infof("Stopping gitlab-hook")
 }

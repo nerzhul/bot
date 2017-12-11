@@ -18,13 +18,17 @@ stages:
 
 .build_template: &build_template
   script:
-    - mkdir -p $CI_PROJECT_DIR/artifacts
-    - go build -o $CI_PROJECT_DIR/artifacts/gitlab-hook && cd ..
+    - make build
 
-unittests:
+test:unittests:
   stage: test
   script:
-    - go test $(go list ./... | grep -v /vendor/)
+    - make test
+
+test:lint:
+  stage: test
+  script:
+    - make lint
 
 build:
   <<: *build_template
@@ -41,9 +45,7 @@ documentation:swagger:
   dependencies:
     - build
   script:
-    - mkdir -p $CI_PROJECT_DIR/artifacts
-    - go get -u github.com/go-swagger/go-swagger/cmd/swagger
-    - $GOPATH/bin/swagger generate spec -o $CI_PROJECT_DIR/artifacts/swagger.json
+    - make swagger_doc
   artifacts:
     when: on_success
     paths:
@@ -57,7 +59,7 @@ release:
   artifacts:
     when: on_success
     paths:
-      - artifacts/gitlab-hook
+      - artifacts/*
 
 pages:
   stage: deploy

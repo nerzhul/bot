@@ -104,6 +104,7 @@ func (ep *EventConsumer) Consume(queue string) bool {
 		return false
 	}
 
+	// @TODO pass callback function somewhere
 	go func() {
 		for d := range msgs {
 			ep.log.Infof("Received a message: %s", d.Body)

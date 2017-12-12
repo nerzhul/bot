@@ -20,10 +20,9 @@ func StartApp(configFile string) {
 	loadConfiguration(configFile)
 
 	verifyPublisher()
+	verifyConsumer()
 
 	runSlackClient()
-
-	go verifyConsumer()
 
 	log.Infof("Exiting %s", AppName)
 }

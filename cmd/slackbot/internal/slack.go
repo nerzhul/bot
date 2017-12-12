@@ -34,7 +34,12 @@ func runSlackClient() {
 			log.Infof("User %s sent command on channel %s: %s", event.User, event.Channel, event.Command)
 
 			if !verifyPublisher() {
-				log.Error("Failed to publish command event")
+				log.Error("Failed to verify publisher, no command sent to broker")
+				break
+			}
+
+			if !verifyConsumer() {
+				log.Error("Failed to verify consumer, no command sent to broker")
 				break
 			}
 

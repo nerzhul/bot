@@ -5,13 +5,15 @@ import (
 	"github.com/satori/go.uuid"
 )
 
+var slackRTM *slack.RTM
+
 func runSlackClient() {
 	api := slack.New(gconfig.Slack.ApiKey)
+	slackRTM = api.NewRTM()
 
-	rtm := api.NewRTM()
-	go rtm.ManageConnection()
+	go slackRTM.ManageConnection()
 
-	for msg := range rtm.IncomingEvents {
+	for msg := range slackRTM.IncomingEvents {
 		switch ev := msg.Data.(type) {
 		case *slack.HelloEvent:
 		case *slack.ConnectedEvent:

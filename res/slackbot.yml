@@ -1,0 +1,8 @@
+---
+slack:
+  api-key: "test"
+rabbitmq:
+  url: "amqp://guest:guest@localhost:5672/"
+  exchange: "commands"
+  routing-key: "slackbot"
+  consumer-id: "slackbot"

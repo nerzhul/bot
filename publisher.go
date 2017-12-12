@@ -12,7 +12,7 @@ type RabbitMQPublisherConfig struct {
 	URL             string `yaml:"url"`
 	EventExchange   string `yaml:"exchange"`
 	EventRoutingKey string `yaml:"routing-key"`
-	ExpirationTime  string `yaml:"expiration-time"`
+	ConsumerID      string `yaml:"consumer-id"`
 }
 
 // EventPublisher publication object
@@ -76,7 +76,7 @@ func (ep *EventPublisher) Init() bool {
 }
 
 // Publish publish event
-func (ep *EventPublisher) Publish(event Event, eventType string, correlationID string) bool {
+func (ep *EventPublisher) Publish(event Event, eventType string, correlationID string, replyTo string) bool {
 	if len(correlationID) == 0 {
 		ep.log.Fatalf("Cannot send achievement event with empty CorrelationId, aborting.")
 		return false
@@ -97,6 +97,10 @@ func (ep *EventPublisher) Publish(event Event, eventType string, correlationID s
 		CorrelationId: correlationID,
 		Expiration:    "300000",
 		Type:          eventType,
+	}
+
+	if len(replyTo) > 0 {
+		toPublish.ReplyTo = replyTo
 	}
 
 	err = ep.channel.Publish(

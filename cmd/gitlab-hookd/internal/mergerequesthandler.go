@@ -76,7 +76,7 @@ func handleGitlabMergeRequest(c echo.Context) bool {
 			return false
 		}
 
-		rabbitmqPublisher.publish(&rEvent, uuid.NewV4().String())
+		rabbitmqPublisher.Publish(&rEvent, "gitlab-event", uuid.NewV4().String())
 	}
 	return true
 }

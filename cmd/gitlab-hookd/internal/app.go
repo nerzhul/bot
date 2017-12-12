@@ -3,9 +3,10 @@ package internal
 import (
 	"fmt"
 	"github.com/labstack/echo"
+	"gitlab.com/nerzhul/gitlab-hook"
 )
 
-var rabbitmqPublisher *gitlabEventPublisher
+var rabbitmqPublisher *bot.EventPublisher
 
 // AppName application name
 var AppName = "gitlab-hook"
@@ -26,10 +27,7 @@ func StartApp(configFile string) {
 
 	loadConfiguration(configFile)
 
-	rabbitmqPublisher := newGitlabEventPublisher()
-	if !rabbitmqPublisher.init() {
-		rabbitmqPublisher = nil
-	}
+	verifyPublisher()
 
 	// Bind main thread to HTTP service
 	e := echo.New()

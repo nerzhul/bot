@@ -1,12 +1,13 @@
 package internal
 
 import (
+	"gitlab.com/nerzhul/gitlab-hook"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 )
 
 type config struct {
-	RabbitMQ rabbitMQPublisherConfig `yaml:"rabbitmq"`
+	RabbitMQ bot.RabbitMQPublisherConfig `yaml:"rabbitmq"`
 
 	HTTP struct {
 		Port uint16 `yaml:"port"`

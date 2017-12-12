@@ -1,9 +1,5 @@
 package internal
 
-import "gitlab.com/nerzhul/gitlab-hook"
-
-var rabbitmqPublisher *bot.EventPublisher
-
 // AppName application name
 var AppName = "slackbot"
 
@@ -26,6 +22,8 @@ func StartApp(configFile string) {
 	verifyPublisher()
 
 	runSlackClient()
+
+	go verifyConsumer()
 
 	log.Infof("Exiting %s", AppName)
 }

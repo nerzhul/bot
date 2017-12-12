@@ -8,7 +8,8 @@ import (
 var slackRTM *slack.RTM
 
 func runSlackClient() {
-	api := slack.New(gconfig.Slack.ApiKey)
+	log.Infof("Starting slack client.")
+	api := slack.New(gconfig.Slack.APIKey)
 	slackRTM = api.NewRTM()
 
 	go slackRTM.ManageConnection()
@@ -37,7 +38,12 @@ func runSlackClient() {
 				break
 			}
 
-			rabbitmqPublisher.Publish(&event, "command", uuid.NewV4().String(), gconfig.RabbitMQ.EventRoutingKey)
+			rabbitmqPublisher.Publish(
+				&event,
+				"command",
+				uuid.NewV4().String(),
+				gconfig.RabbitMQ.ConsumerRoutingKey,
+			)
 			break
 		case *slack.PresenceChangeEvent:
 		case *slack.LatencyReport:

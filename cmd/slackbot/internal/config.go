@@ -7,10 +7,10 @@ import (
 )
 
 type config struct {
-	RabbitMQ bot.RabbitMQPublisherConfig `yaml:"rabbitmq"`
+	RabbitMQ bot.RabbitMQConfig `yaml:"rabbitmq"`
 
 	Slack struct {
-		ApiKey string `yaml:"api-key"`
+		APIKey string `yaml:"api-key"`
 	} `yaml:"slack"`
 }
 
@@ -19,7 +19,10 @@ var gconfig config
 func (c *config) loadDefaultConfiguration() {
 	c.RabbitMQ.URL = "amqp://guest:guest@localhost:5672/"
 	c.RabbitMQ.EventExchange = "commands"
-	c.RabbitMQ.EventRoutingKey = "slackbot"
+	c.RabbitMQ.PublisherRoutingKey = "chat-command"
+	c.RabbitMQ.ConsumerRoutingKey = "slackbot"
+	c.RabbitMQ.ConsumerID = "slackbot"
+	c.RabbitMQ.EventQueue = "slackbot"
 }
 
 func loadConfiguration(path string) {

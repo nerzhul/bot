@@ -7,20 +7,12 @@ import (
 	"time"
 )
 
-// RabbitMQPublisherConfig standard publisher configuration
-type RabbitMQPublisherConfig struct {
-	URL             string `yaml:"url"`
-	EventExchange   string `yaml:"exchange"`
-	EventRoutingKey string `yaml:"routing-key"`
-	ConsumerID      string `yaml:"consumer-id"`
-}
-
 // EventPublisher publication object
 type EventPublisher struct {
 	conn    *amqp.Connection
 	channel *amqp.Channel
 	log     *logging.Logger
-	config  *RabbitMQPublisherConfig
+	config  *RabbitMQConfig
 }
 
 // Event interface
@@ -29,7 +21,7 @@ type Event interface {
 }
 
 // NewEventPublisher creates a new EventPublisher with config & logger
-func NewEventPublisher(logger *logging.Logger, config *RabbitMQPublisherConfig) *EventPublisher {
+func NewEventPublisher(logger *logging.Logger, config *RabbitMQConfig) *EventPublisher {
 	return &EventPublisher{
 		log:    logger,
 		config: config,
@@ -104,8 +96,8 @@ func (ep *EventPublisher) Publish(event Event, eventType string, correlationID s
 	}
 
 	err = ep.channel.Publish(
-		ep.config.EventExchange,   // exchange
-		ep.config.EventRoutingKey, // routing key
+		ep.config.EventExchange,       // exchange
+		ep.config.PublisherRoutingKey, // routing key
 		true,  // mandatory
 		false, // immediate
 		toPublish,

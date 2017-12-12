@@ -5,6 +5,8 @@ import (
 	"gitlab.com/nerzhul/gitlab-hook"
 )
 
+var rabbitmqPublisher *bot.EventPublisher
+
 type commandEvent struct {
 	Command string `json:"command"`
 	Channel string `json:"channel"`

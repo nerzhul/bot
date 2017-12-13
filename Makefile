@@ -1,8 +1,7 @@
-PROJECT_NAME := gitlab-hook
-BINARY_NAME := ${PROJECT_NAME}d
+PROJECT_NAME := bot
 REPO_NAME := "gitlab.com/nerzhul/${PROJECT_NAME}"
 PKG_LIST := $(shell go list ${REPO_NAME}/... | grep -v /vendor/)
-BUILD_LD_FLAGS := $(shell echo "-X ${REPO_NAME}/cmd/${BINARY_NAME}/internal.AppBuildDate='`date -u '+%Y-%m-%d_%I:%M:%S%p'`' -X ${REPO_NAME}/cmd/${BINARY_NAME}/internal.AppVersion='`git describe --tags`'")
+# BUILD_LD_FLAGS := $(shell echo "-X ${REPO_NAME}/cmd/${BINARY_NAME}/internal.AppBuildDate='`date -u '+%Y-%m-%d_%I:%M:%S%p'`' -X ${REPO_NAME}/cmd/${BINARY_NAME}/internal.AppVersion='`git describe --tags`'")
 
 .PHONY: all dep doc build test
 
@@ -30,17 +29,22 @@ gitlab-hook: dep
     		mkdir -p ${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/ && \
     		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/gitlab-hookd"
 
+ircbot: dep
+	@cd cmd/ircbot && \
+    		mkdir -p ${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/ && \
+    		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/ircbot"
+
 slackbot: dep
 	@cd cmd/slackbot && \
     		mkdir -p ${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/ && \
     		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/slackbot"
 
-build: gitlab-hook slackbot
+build: gitlab-hook ircbot slackbot
 
 doc: swagger_doc
 
 swagger_doc:
-	@cd cmd/${BINARY_NAME} && \
+	@cd cmd/gitlab-hookd && \
 		mkdir -p ${CI_PROJECT_DIR}/artifacts && \
 		go get -u github.com/go-swagger/go-swagger/cmd/swagger && \
 		${GOPATH}/bin/swagger generate spec -o ${CI_PROJECT_DIR}/artifacts/swagger.json

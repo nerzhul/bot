@@ -66,6 +66,8 @@ func (ep *EventConsumer) DeclareQueue(name string) bool {
 		return false
 	}
 
+	ep.log.Infof("Queue %s declared on RabbitMQ", name)
+
 	return true
 }
 
@@ -84,11 +86,20 @@ func (ep *EventConsumer) BindExchange(queue string, exchange string, routingKey 
 		return false
 	}
 
+	ep.log.Infof("Exchange %s bound with queue %s using routing key %s on RabbitMQ", exchange, queue, routingKey)
 	return true
 }
 
+// ConsumeCallback callback function called on consuming
+type ConsumeCallback func(<-chan amqp.Delivery)
+
 // Consume consume events on queue
-func (ep *EventConsumer) Consume(queue string) bool {
+func (ep *EventConsumer) Consume(queue string, cb ConsumeCallback) bool {
+	if cb == nil {
+		ep.log.Fatalf("ConsumeCallback is nil!")
+		return false
+	}
+
 	msgs, err := ep.channel.Consume(
 		queue,                // queue
 		ep.config.ConsumerID, // consumer
@@ -104,12 +115,9 @@ func (ep *EventConsumer) Consume(queue string) bool {
 		return false
 	}
 
-	// @TODO pass callback function somewhere
-	go func() {
-		for d := range msgs {
-			ep.log.Infof("Received a message: %s", d.Body)
-		}
-	}()
+	go cb(msgs)
+
+	ep.log.Infof("Start consuming on queue %s", queue)
 
 	return true
 }

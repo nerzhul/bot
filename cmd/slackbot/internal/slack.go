@@ -21,7 +21,7 @@ func runSlackClient() {
 			break
 		case *slack.MessageEvent:
 			// Ignore non command
-			if ev.Text[0] != '!' {
+			if len(ev.Text) < 2  || ev.Text[0] != '!' {
 				break
 			}
 

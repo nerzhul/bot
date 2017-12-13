@@ -108,7 +108,8 @@ func (ep *EventPublisher) Publish(event Event, eventType string, correlationID s
 		return false
 	}
 
-	ep.log.Infof("[cid=%s] Message published to exchange %s", correlationID, ep.config.EventExchange)
+	ep.log.Infof("[cid=%s] Message published to exchange %s (routing-key %s)", correlationID, ep.config.EventExchange,
+		ep.config.PublisherRoutingKey)
 
 	return true
 }

@@ -94,7 +94,7 @@ func handleGitlabPush(c echo.Context) bool {
 		}
 
 		if !verifyPublisher() {
-			log.Error("Failed to publish Gitlab Tag Push event")
+			log.Error("Failed to publish Gitlab Push event")
 			return false
 		}
 

@@ -1,7 +1,7 @@
 image: golang:1.9
 
 variables:
-  REPO_NAME: gitlab.com/nerzhul/gitlab-hook
+  REPO_NAME: gitlab.com/nerzhul/bot
   SWAGGER_TAG: v3.4.5
 
 before_script:

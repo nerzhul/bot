@@ -15,7 +15,7 @@ package main
 
 import (
 	"github.com/pborman/getopt/v2"
-	"gitlab.com/nerzhul/gitlab-hook/cmd/gitlab-hookd/internal"
+	"gitlab.com/nerzhul/bot/cmd/gitlab-hookd/internal"
 )
 
 var configFile = ""

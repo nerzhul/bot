@@ -2,7 +2,7 @@ package internal
 
 import (
 	"encoding/json"
-	"gitlab.com/nerzhul/gitlab-hook"
+	"gitlab.com/nerzhul/bot"
 )
 
 var rabbitmqPublisher *bot.EventPublisher

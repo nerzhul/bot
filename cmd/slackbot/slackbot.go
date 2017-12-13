@@ -15,7 +15,7 @@ package main
 
 import (
 	"github.com/pborman/getopt/v2"
-	"gitlab.com/nerzhul/gitlab-hook/cmd/slackbot/internal"
+	"gitlab.com/nerzhul/bot/cmd/slackbot/internal"
 )
 
 var configFile = ""

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/nlopes/slack"
 	"github.com/streadway/amqp"
-	"gitlab.com/nerzhul/gitlab-hook"
+	"gitlab.com/nerzhul/bot"
 )
 
 var rabbitmqConsumer *bot.EventConsumer

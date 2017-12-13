@@ -3,7 +3,7 @@ package internal
 import (
 	"fmt"
 	"github.com/labstack/echo"
-	"gitlab.com/nerzhul/gitlab-hook"
+	"gitlab.com/nerzhul/bot"
 )
 
 var rabbitmqPublisher *bot.EventPublisher

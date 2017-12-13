@@ -1,5 +1,5 @@
 {
-	"ImportPath": "gitlab.com/nerzhul/gitlab-hook",
+	"ImportPath": "gitlab.com/nerzhul/bot",
 	"GoVersion": "go1.9",
 	"GodepVersion": "v79",
 	"Packages": [

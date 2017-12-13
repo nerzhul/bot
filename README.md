@@ -1,6 +1,6 @@
 # Gitlab-Hook 
 
-[![pipeline status](https://gitlab.com/nerzhul/gitlab-hook/badges/master/pipeline.svg)](https://gitlab.com/nerzhul/gitlab-hook/commits/master)
+[![pipeline status](https://gitlab.com/nerzhul/bot/badges/master/pipeline.svg)](https://gitlab.com/nerzhul/bot/commits/master)
 
 # Documentation
 

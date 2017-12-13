@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"gitlab.com/nerzhul/gitlab-hook"
+	"gitlab.com/nerzhul/bot"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 )

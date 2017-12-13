@@ -2,13 +2,12 @@ package internal
 
 import (
 	"encoding/json"
-	"github.com/nlopes/slack"
 	"github.com/streadway/amqp"
 	"gitlab.com/nerzhul/bot"
+	"strings"
 )
 
 var rabbitmqConsumer *bot.EventConsumer
-var slackMsgID = 0
 
 func consumeCommandResponses(msgs <-chan amqp.Delivery) {
 	for d := range msgs {
@@ -18,14 +17,17 @@ func consumeCommandResponses(msgs <-chan amqp.Delivery) {
 			log.Errorf("Failed to decode command response : %v", err)
 		}
 
-		// Send message on slack
-		slackMsgID++
-		slackRTM.SendMessage(&slack.OutgoingMessage{
-			ID:      slackMsgID,
-			Type:    "message",
-			Channel: response.Channel,
-			Text:    response.Message,
-		})
+		if ircConn == nil {
+			d.Nack(false, true)
+		}
+
+		for _, msg := range strings.Split(response.Message, "\n") {
+			if response.MessageType == "notice" {
+				ircConn.Notice(response.Channel, msg)
+			} else {
+				ircConn.Privmsg(response.Channel, msg)
+			}
+		}
 
 		d.Ack(false)
 	}

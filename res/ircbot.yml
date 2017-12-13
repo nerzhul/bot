@@ -1,0 +1,13 @@
+---
+irc:
+  server: "chat.freenode.net"
+  port: 6697
+  ssl: true
+  name: "ircbot"
+rabbitmq:
+  url: "amqp://guest:guest@localhost:5672/"
+  exchange: "commands"
+  publisher-routing-key: "chat-command"
+  consumer-id: "ircbot"
+  consumer-routing-key: "ircbot"
+  queue: "ircbot"

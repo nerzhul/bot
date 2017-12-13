@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo"
 	"github.com/satori/go.uuid"
+	"gitlab.com/nerzhul/bot"
 	"strings"
 )
 
@@ -64,7 +65,7 @@ func handleGitlabMergeRequest(c echo.Context) bool {
 	notificationMessage := mrEvent.toNotificationString()
 
 	for _, channel := range channelsToPublish {
-		rEvent := gitlabRabbitMQEvent{
+		rEvent := bot.CommandResponse{
 			Message:     notificationMessage,
 			Channel:     channel,
 			User:        "",

@@ -3,6 +3,7 @@ package internal
 import (
 	"github.com/labstack/echo"
 	"github.com/satori/go.uuid"
+	"gitlab.com/nerzhul/bot"
 	"strconv"
 	"strings"
 )
@@ -86,7 +87,7 @@ func handleGitlabPush(c echo.Context) bool {
 	notificationMessage := pushEvent.toNotificationString()
 
 	for _, channel := range channelsToPublish {
-		rEvent := gitlabRabbitMQEvent{
+		rEvent := bot.CommandResponse{
 			Message:     notificationMessage,
 			Channel:     channel,
 			User:        "",

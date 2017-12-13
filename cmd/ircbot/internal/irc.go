@@ -41,7 +41,20 @@ func onIRCJoin(conn *irc.Conn, line *irc.Line) {
 		return
 	}
 
-	log.Infof("Channel %s joined on %s", line.Args[0], conn.Config().Server)
+	if line.Nick == conn.Me().Nick {
+		log.Infof("Channel %s joined on %s", line.Args[0], conn.Config().Server)
+	}
+
+	channelCfg := gconfig.getIRCChannelConfig(line.Args[0])
+	if channelCfg == nil || !channelCfg.Hello {
+		return
+	}
+
+	if line.Nick == conn.Me().Nick {
+		conn.Privmsg(line.Args[0], fmt.Sprintf("Hello %s!", line.Args[0]))
+	} else {
+		conn.Privmsg(line.Args[0], fmt.Sprintf("Hello %s!", line.Nick))
+	}
 }
 
 func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
@@ -59,6 +72,12 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 	// If it's a private message, channel is user
 	if channel == conn.Me().Nick {
 		channel = line.Nick
+	} else {
+		// We are on a channel, verify we answer commands
+		channelCfg := gconfig.getIRCChannelConfig(channel)
+		if channelCfg == nil || !channelCfg.AnswerCommands {
+			return
+		}
 	}
 
 	ce := commandEvent{

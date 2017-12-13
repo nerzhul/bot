@@ -9,10 +9,10 @@ import (
 )
 
 type ircChannelConfig struct {
-	Name     string `yaml:"name"`
-	Password string `yaml:"string"`
-	Passive  bool   `yaml:"passive"`
-	Hello    bool   `yaml:"hello"`
+	Name           string `yaml:"name"`
+	Password       string `yaml:"string"`
+	AnswerCommands bool   `yaml:"answer-commands"`
+	Hello          bool   `yaml:"hello"`
 }
 
 type config struct {
@@ -42,6 +42,18 @@ func (c *config) loadDefaultConfiguration() {
 	c.IRC.Port = 6697
 	c.IRC.SSL = true
 	c.IRC.Name = fmt.Sprintf("ircbot%d", time.Now())
+}
+
+func (c *config) getIRCChannelConfig(name string) *ircChannelConfig {
+	for _, channelCfg := range c.IRC.Channels {
+		if channelCfg.Name != name {
+			continue
+		}
+
+		return &channelCfg
+	}
+
+	return nil
 }
 
 func loadConfiguration(path string) {

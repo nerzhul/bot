@@ -25,10 +25,17 @@ dep:
 	@go get -u github.com/tools/godep
 	@godep restore
 
-build: dep
-	@cd cmd/${BINARY_NAME} && \
-		mkdir -p ${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/ && \
-		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/${BINARY_NAME}"
+gitlab-hook: dep
+	@cd cmd/gitlab-hookd && \
+    		mkdir -p ${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/ && \
+    		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/gitlab-hookd"
+
+slackbot: dep
+	@cd cmd/slackbot && \
+    		mkdir -p ${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/ && \
+    		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/slackbot"
+
+build: gitlab-hook slackbot
 
 doc: swagger_doc
 

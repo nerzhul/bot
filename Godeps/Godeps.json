@@ -7,6 +7,23 @@
 	],
 	"Deps": [
 		{
+			"ImportPath": "github.com/fluffle/goirc/client",
+			"Rev": "a7abc67ac229ff40f2b09dbb4851585d99ec1aca"
+		},
+		{
+			"ImportPath": "github.com/fluffle/goirc/logging",
+			"Rev": "a7abc67ac229ff40f2b09dbb4851585d99ec1aca"
+		},
+		{
+			"ImportPath": "github.com/fluffle/goirc/state",
+			"Rev": "a7abc67ac229ff40f2b09dbb4851585d99ec1aca"
+		},
+		{
+			"ImportPath": "github.com/golang/mock/gomock",
+			"Comment": "v1.0.0-77-gf67f708",
+			"Rev": "f67f7081ddcd0f92a20c1d58e7cd8b23253d15c7"
+		},
+		{
 			"ImportPath": "github.com/labstack/echo",
 			"Comment": "3.2.4-1-g7fe7f34",
 			"Rev": "7fe7f348ebb04b38116d9207751b5979588165e7"
@@ -69,6 +86,14 @@
 		{
 			"ImportPath": "golang.org/x/crypto/acme/autocert",
 			"Rev": "9f005a07e0d31d45e6656d241bb5c0f2efd4bc94"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "d866cfc389cec985d6fda2859936a575a55a3ab6"
+		},
+		{
+			"ImportPath": "golang.org/x/net/proxy",
+			"Rev": "d866cfc389cec985d6fda2859936a575a55a3ab6"
 		},
 		{
 			"ImportPath": "golang.org/x/net/websocket",

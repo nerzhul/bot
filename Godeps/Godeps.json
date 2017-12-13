@@ -32,6 +32,11 @@
 			"Rev": "6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c"
 		},
 		{
+			"ImportPath": "github.com/nlopes/slack",
+			"Comment": "v0.1.0-10-g5cde21b",
+			"Rev": "5cde21b8b96a43fc3435a1f514123d14fd7eabdc"
+		},
+		{
 			"ImportPath": "github.com/op/go-logging",
 			"Comment": "v1-7-g970db52",
 			"Rev": "970db520ece77730c7e4724c61121037378659d9"
@@ -64,6 +69,10 @@
 		{
 			"ImportPath": "golang.org/x/crypto/acme/autocert",
 			"Rev": "9f005a07e0d31d45e6656d241bb5c0f2efd4bc94"
+		},
+		{
+			"ImportPath": "golang.org/x/net/websocket",
+			"Rev": "d866cfc389cec985d6fda2859936a575a55a3ab6"
 		},
 		{
 			"ImportPath": "golang.org/x/sys/unix",

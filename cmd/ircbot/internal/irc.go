@@ -5,6 +5,7 @@ import (
 	"fmt"
 	irc "github.com/fluffle/goirc/client"
 	"github.com/satori/go.uuid"
+	"strings"
 	"time"
 )
 
@@ -63,11 +64,6 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 	}
 
 	text := line.Text()
-
-	if line.Nick == "NickServ" {
-		log.Infof("NicksServ message: %s", text)
-	}
-
 	if len(text) < 2 || text[0] != '!' {
 		return
 	}
@@ -111,6 +107,25 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 	)
 }
 
+func onIRCNotice(conn *irc.Conn, line *irc.Line) {
+	if len(line.Args) == 0 {
+		return
+	}
+
+	text := line.Text()
+
+	if line.Nick == "NickServ" {
+		if strings.Contains(text, "This nickname is registered") {
+			log.Infof("Authentication request from NickServ on %s", conn.Config().Server)
+			conn.Privmsg(line.Nick, fmt.Sprintf("IDENTIFY %s", gconfig.IRC.Password))
+		} else if strings.Contains(text, "You are now identified for") {
+			log.Infof("Authentication succeed on %s", conn.Config().Server)
+		} else if strings.Contains(text, "Invalid password for") {
+			log.Infof("Authentication failed on %s", conn.Config().Server)
+		}
+	}
+}
+
 func runIRCClient() {
 	for {
 		cfg := irc.NewConfig(gconfig.IRC.Name)
@@ -129,6 +144,7 @@ func runIRCClient() {
 		ircConn.HandleFunc(irc.KICK, onIRCKick)
 		ircConn.HandleFunc(irc.JOIN, onIRCJoin)
 		ircConn.HandleFunc(irc.PRIVMSG, onIRCPrivMsg)
+		ircConn.HandleFunc(irc.NOTICE, onIRCNotice)
 
 		if err := ircConn.Connect(); err != nil {
 			log.Errorf("Connection error: %s\n", err.Error())

@@ -63,6 +63,11 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 	}
 
 	text := line.Text()
+
+	if line.Nick == "NickServ" {
+		log.Infof("NicksServ message: %s", text)
+	}
+
 	if len(text) < 2 || text[0] != '!' {
 		return
 	}

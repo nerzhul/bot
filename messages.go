@@ -10,6 +10,7 @@ type CommandResponse struct {
 	MessageType string `json:"message_type"`
 }
 
+// ToJSON converts CommandResponse to json string
 func (gre *CommandResponse) ToJSON() ([]byte, error) {
 	jsonStr, err := json.Marshal(gre)
 	if err != nil {

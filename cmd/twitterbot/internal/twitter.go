@@ -1,33 +1,72 @@
 package internal
 
 import (
+	"fmt"
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
+	"github.com/satori/go.uuid"
+	"gitlab.com/nerzhul/bot"
+	"time"
 )
 
 func runTwitterClient() {
-	config := oauth1.NewConfig(gconfig.Twitter.ConsumerKey, gconfig.Twitter.ConsumerSecret)
-	token := oauth1.NewToken(gconfig.Twitter.Token, gconfig.Twitter.TokenSecret)
-	httpClient := config.Client(oauth1.NoContext, token)
+	lastTweetID := int64(0)
+	for {
+		config := oauth1.NewConfig(gconfig.Twitter.ConsumerKey, gconfig.Twitter.ConsumerSecret)
+		token := oauth1.NewToken(gconfig.Twitter.Token, gconfig.Twitter.TokenSecret)
+		httpClient := config.Client(oauth1.NoContext, token)
 
-	// Twitter client
-	client := twitter.NewClient(httpClient)
+		// Twitter client
+		client := twitter.NewClient(httpClient)
 
-	tweets, resp, err := client.Timelines.HomeTimeline(&twitter.HomeTimelineParams{
-		Count: 20,
-	})
+		htp := &twitter.HomeTimelineParams{
+			Count: 20,
+		}
 
-	if err != nil {
-		log.Errorf("Failed to get home timeline: %s", err.Error())
-		return
-	}
+		if lastTweetID != 0 {
+			htp.SinceID = lastTweetID
+		}
 
-	if resp.StatusCode != 200 {
-		log.Errorf("Failed to get home timeline: %d %s", resp.StatusCode, resp.Status)
-		return
-	}
+		tweets, resp, err := client.Timelines.HomeTimeline(htp)
 
-	for i, tweet := range tweets {
-		log.Infof("tweet %d: %v", i, tweet)
+		if err != nil {
+			log.Errorf("Failed to get home timeline: %s", err.Error())
+			time.Sleep(time.Second * 60)
+			continue
+		}
+
+		if resp.StatusCode != 200 {
+			log.Errorf("Failed to get home timeline: %d %s", resp.StatusCode, resp.Status)
+			time.Sleep(time.Second * 60)
+			continue
+		}
+
+		for _, tweet := range tweets {
+			tm := &bot.TweetMessage{
+				Message: tweet.Text,
+				User:    fmt.Sprintf("%s @%s", tweet.User.Name, tweet.User.ScreenName),
+				Date:    tweet.CreatedAt,
+			}
+
+			if !verifyPublisher() {
+				log.Errorf("Failed to verify publisher, ignoring current messages.")
+				break
+			}
+
+			rabbitmqPublisher.Publish(
+				tm,
+				"tweet",
+				uuid.NewV4().String(),
+				"",
+				3600000,
+			)
+
+			// Try to update the last ID only after publishing
+			if tweet.ID > lastTweetID {
+				lastTweetID = tweet.ID
+			}
+		}
+
+		time.Sleep(time.Second * 60)
 	}
 }

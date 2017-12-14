@@ -21,7 +21,7 @@ func runSlackClient() {
 			break
 		case *slack.MessageEvent:
 			// Ignore non command
-			if len(ev.Text) < 2  || ev.Text[0] != '!' {
+			if len(ev.Text) < 2 || ev.Text[0] != '!' {
 				break
 			}
 
@@ -48,6 +48,7 @@ func runSlackClient() {
 				"command",
 				uuid.NewV4().String(),
 				gconfig.RabbitMQ.ConsumerRoutingKey,
+				300000,
 			)
 			break
 		case *slack.PresenceChangeEvent:

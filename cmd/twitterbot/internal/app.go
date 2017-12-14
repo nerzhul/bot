@@ -19,6 +19,8 @@ func StartApp(configFile string) {
 
 	loadConfiguration(configFile)
 
+	verifyPublisher()
+
 	runTwitterClient()
 
 	log.Infof("Exiting %s", AppName)

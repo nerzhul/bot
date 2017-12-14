@@ -99,7 +99,13 @@ func handleGitlabPush(c echo.Context) bool {
 			return false
 		}
 
-		rabbitmqPublisher.Publish(&rEvent, "gitlab-event", uuid.NewV4().String(), "")
+		rabbitmqPublisher.Publish(
+			&rEvent,
+			"gitlab-event",
+			uuid.NewV4().String(),
+			"",
+			300000,
+		)
 	}
 	return true
 }

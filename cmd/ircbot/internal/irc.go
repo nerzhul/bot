@@ -107,6 +107,7 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 		"command",
 		uuid.NewV4().String(),
 		gconfig.RabbitMQ.ConsumerRoutingKey,
+		300000,
 	)
 }
 

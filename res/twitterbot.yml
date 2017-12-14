@@ -6,7 +6,7 @@ twitter:
   token-secret: "token-secret"
 rabbitmq:
   url: "amqp://guest:guest@localhost:5672/"
-  exchange: "commands"
+  exchange: "twitter"
   publisher-routing-key: "slackbot"
   consumer-id: "twitterbot"
   consumer-routing-key: "twitterbot"

@@ -8,3 +8,5 @@ rabbitmq:
   consumer-id: "slackbot"
   consumer-routing-key: "slackbot"
   queue: "slackbot"
+
+twitter-rabbitmq-exchange: "twitter"

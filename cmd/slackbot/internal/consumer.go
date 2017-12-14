@@ -10,25 +10,48 @@ import (
 var rabbitmqConsumer *bot.EventConsumer
 var slackMsgID = 0
 
-func consumeCommandResponses(msgs <-chan amqp.Delivery) {
+func consumeResponses(msgs <-chan amqp.Delivery) {
 	for d := range msgs {
-		response := bot.CommandResponse{}
-		err := json.Unmarshal(d.Body, &response)
-		if err != nil {
-			log.Errorf("Failed to decode command response : %v", err)
+		if d.Type == "tweet" {
+			consumeTwitterResponse(&d)
+		} else {
+			response := bot.CommandResponse{}
+			err := json.Unmarshal(d.Body, &response)
+			if err != nil {
+				log.Errorf("Failed to decode command response : %v", err)
+			}
+
+			// Send message on slack
+			slackMsgID++
+			slackRTM.SendMessage(&slack.OutgoingMessage{
+				ID:      slackMsgID,
+				Type:    "message",
+				Channel: response.Channel,
+				Text:    response.Message,
+			})
+
+			d.Ack(false)
 		}
-
-		// Send message on slack
-		slackMsgID++
-		slackRTM.SendMessage(&slack.OutgoingMessage{
-			ID:      slackMsgID,
-			Type:    "message",
-			Channel: response.Channel,
-			Text:    response.Message,
-		})
-
-		d.Ack(false)
 	}
+}
+
+func consumeTwitterResponse(msg *amqp.Delivery) {
+	tweet := bot.TweetMessage{}
+	err := json.Unmarshal(msg.Body, &tweet)
+	if err != nil {
+		log.Errorf("Failed to decode tweet : %v", err)
+	}
+
+	// Send message on slack
+	//slackMsgID++
+	//slackRTM.SendMessage(&slack.OutgoingMessage{
+	//	ID:      slackMsgID,
+	//	Type:    "message",
+	//	Channel: response.Channel,
+	//	Text:    response.Message,
+	//})
+
+	msg.Ack(false)
 }
 
 func verifyConsumer() bool {
@@ -39,18 +62,34 @@ func verifyConsumer() bool {
 			return false
 		}
 
-		if !rabbitmqConsumer.DeclareQueue(gconfig.RabbitMQ.EventQueue) {
+		if !rabbitmqConsumer.DeclareQueue(gconfig.RabbitMQ.EventQueue + "/commands") {
 			rabbitmqConsumer = nil
 			return false
 		}
 
-		if !rabbitmqConsumer.BindExchange(gconfig.RabbitMQ.EventQueue,
+		if !rabbitmqConsumer.BindExchange(gconfig.RabbitMQ.EventQueue+"/commands",
 			gconfig.RabbitMQ.EventExchange, gconfig.RabbitMQ.ConsumerRoutingKey) {
 			rabbitmqConsumer = nil
 			return false
 		}
 
-		if !rabbitmqConsumer.Consume(gconfig.RabbitMQ.EventQueue, consumeCommandResponses, false) {
+		if !rabbitmqConsumer.DeclareQueue(gconfig.RabbitMQ.EventQueue + "/twitter") {
+			rabbitmqConsumer = nil
+			return false
+		}
+
+		if !rabbitmqConsumer.BindExchange(gconfig.RabbitMQ.EventQueue+"/twitter",
+			gconfig.TwitterRabbitMQExchange, gconfig.RabbitMQ.ConsumerRoutingKey) {
+			rabbitmqConsumer = nil
+			return false
+		}
+
+		if !rabbitmqConsumer.Consume(gconfig.RabbitMQ.EventQueue+"/commands", consumeResponses, false) {
+			rabbitmqConsumer = nil
+			return false
+		}
+
+		if !rabbitmqConsumer.Consume(gconfig.RabbitMQ.EventQueue+"/twitter", consumeResponses, false) {
 			rabbitmqConsumer = nil
 			return false
 		}

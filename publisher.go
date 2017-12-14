@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"fmt"
 	"github.com/op/go-logging"
 	"github.com/satori/go.uuid"
 	"github.com/streadway/amqp"
@@ -68,7 +69,7 @@ func (ep *EventPublisher) Init() bool {
 }
 
 // Publish publish event
-func (ep *EventPublisher) Publish(event Event, eventType string, correlationID string, replyTo string) bool {
+func (ep *EventPublisher) Publish(event Event, eventType string, correlationID string, replyTo string, expirationMs uint32) bool {
 	if len(correlationID) == 0 {
 		ep.log.Fatalf("Cannot send achievement event with empty CorrelationId, aborting.")
 		return false
@@ -87,8 +88,11 @@ func (ep *EventPublisher) Publish(event Event, eventType string, correlationID s
 		MessageId:     uuid.NewV4().String(),
 		Timestamp:     time.Now(),
 		CorrelationId: correlationID,
-		Expiration:    "300000",
 		Type:          eventType,
+	}
+
+	if expirationMs != 0 {
+		toPublish.Expiration = fmt.Sprintf("%d", expirationMs)
 	}
 
 	if len(replyTo) > 0 {

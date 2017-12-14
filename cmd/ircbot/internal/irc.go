@@ -64,6 +64,9 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 	}
 
 	text := line.Text()
+
+	log.Debug(line.Text())
+
 	if len(text) < 2 || text[0] != '!' {
 		return
 	}
@@ -114,6 +117,8 @@ func onIRCNotice(conn *irc.Conn, line *irc.Line) {
 
 	text := line.Text()
 
+	log.Debug(line.Text())
+
 	if line.Nick == "NickServ" {
 		if strings.Contains(text, "This nickname is registered") {
 			log.Infof("Authentication request from NickServ on %s", conn.Config().Server)
@@ -124,6 +129,15 @@ func onIRCNotice(conn *irc.Conn, line *irc.Line) {
 			log.Infof("Authentication failed on %s", conn.Config().Server)
 		}
 	}
+}
+
+func onIRCError(conn *irc.Conn, line *irc.Line) {
+	if len(line.Args) == 0 {
+		return
+	}
+
+	text := line.Text()
+	log.Warningf("Received error %s and args %v", text, line.Args)
 }
 
 func runIRCClient() {
@@ -145,6 +159,7 @@ func runIRCClient() {
 		ircConn.HandleFunc(irc.JOIN, onIRCJoin)
 		ircConn.HandleFunc(irc.PRIVMSG, onIRCPrivMsg)
 		ircConn.HandleFunc(irc.NOTICE, onIRCNotice)
+		ircConn.HandleFunc(irc.ERROR, onIRCError)
 
 		if err := ircConn.Connect(); err != nil {
 			log.Errorf("Connection error: %s\n", err.Error())

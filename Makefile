@@ -23,23 +23,25 @@ msan: dep ## Run memory sanitizer
 dep:
 	@go get -u github.com/tools/godep
 	@godep restore
+	mkdir -p ${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/
 
 gitlab-hook: dep
 	@cd cmd/gitlab-hookd && \
-    		mkdir -p ${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/ && \
     		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/gitlab-hookd"
 
 ircbot: dep
 	@cd cmd/ircbot && \
-    		mkdir -p ${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/ && \
     		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/ircbot"
 
 slackbot: dep
 	@cd cmd/slackbot && \
-    		mkdir -p ${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/ && \
     		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/slackbot"
 
-build: gitlab-hook ircbot slackbot
+twitterbot: dep
+	@cd cmd/twitterbot && \
+    		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/twitterbot"
+
+build: gitlab-hook ircbot slackbot twitterbot
 
 doc: swagger_doc
 

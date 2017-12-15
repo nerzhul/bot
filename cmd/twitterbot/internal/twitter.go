@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"fmt"
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
 	"github.com/satori/go.uuid"
@@ -43,9 +42,10 @@ func runTwitterClient() {
 
 		for _, tweet := range tweets {
 			tm := &bot.TweetMessage{
-				Message: tweet.Text,
-				User:    fmt.Sprintf("%s @%s", tweet.User.Name, tweet.User.ScreenName),
-				Date:    tweet.CreatedAt,
+				Message:        tweet.Text,
+				Username:       tweet.User.Name,
+				UserScreenName: tweet.User.ScreenName,
+				Date:           tweet.CreatedAt,
 			}
 
 			if !verifyPublisher() {

@@ -22,11 +22,13 @@ func (gre *CommandResponse) ToJSON() ([]byte, error) {
 
 // TweetMessage twitter reduced message for transport on rabbitmq
 type TweetMessage struct {
-	Message string `json:"message"`
-	User    string `json:"user"`
-	Date    string `json:"date"`
+	Message        string `json:"message"`
+	Username       string `json:"username"`
+	UserScreenName string `json:"userèscreen_name"`
+	Date           string `json:"date"`
 }
 
+// ToJSON converts to json
 func (ce *TweetMessage) ToJSON() ([]byte, error) {
 	jsonStr, err := json.Marshal(ce)
 	if err != nil {

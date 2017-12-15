@@ -94,20 +94,20 @@ func (ep *EventConsumer) BindExchange(queue string, exchange string, routingKey 
 type ConsumeCallback func(<-chan amqp.Delivery)
 
 // Consume consume events on queue
-func (ep *EventConsumer) Consume(queue string, cb ConsumeCallback, autoAck bool) bool {
+func (ep *EventConsumer) Consume(queue string, consumerID string, cb ConsumeCallback, autoAck bool) bool {
 	if cb == nil {
 		ep.log.Fatalf("ConsumeCallback is nil!")
 		return false
 	}
 
 	msgs, err := ep.channel.Consume(
-		queue,                // queue
-		ep.config.ConsumerID, // consumer
-		autoAck,              // auto-ack
-		false,                // exclusive
-		false,                // no-local
-		false,                // no-wait
-		nil,                  // args
+		queue,      // queue
+		consumerID, // consumer
+		autoAck,    // auto-ack
+		false,      // exclusive
+		false,      // no-local
+		false,      // no-wait
+		nil,        // args
 	)
 
 	if err != nil {

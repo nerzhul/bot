@@ -34,9 +34,15 @@ func (c *config) loadDefaultConfiguration() {
 	c.RabbitMQ.URL = "amqp://guest:guest@localhost:5672/"
 	c.RabbitMQ.EventExchange = "commands"
 	c.RabbitMQ.PublisherRoutingKey = "chat-command"
-	c.RabbitMQ.ConsumerRoutingKey = "ircbot"
-	c.RabbitMQ.ConsumerID = "ircbot"
-	c.RabbitMQ.EventQueue = "ircbot"
+	c.RabbitMQ.Consumers = map[string]bot.RabbitMQConsumer{
+		"ircbot": {
+			RoutingKey:      "ircbot",
+			ConsumerID:      "ircbot",
+			Queue:           "ircbot",
+			Exchange:        "commands",
+			ExchangeDurable: false,
+		},
+	}
 
 	c.IRC.Server = "chat.freenode.net"
 	c.IRC.Port = 6697

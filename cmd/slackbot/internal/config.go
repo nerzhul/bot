@@ -9,10 +9,9 @@ import (
 type config struct {
 	RabbitMQ bot.RabbitMQConfig `yaml:"rabbitmq"`
 
-	TwitterRabbitMQExchange string `yaml:"twitter-rabbitmq-exchange"`
-
 	Slack struct {
-		APIKey string `yaml:"api-key"`
+		APIKey         string `yaml:"api-key"`
+		TwitterChannel string `yaml:"twitter-channel"`
 	} `yaml:"slack"`
 }
 
@@ -22,11 +21,25 @@ func (c *config) loadDefaultConfiguration() {
 	c.RabbitMQ.URL = "amqp://guest:guest@localhost:5672/"
 	c.RabbitMQ.EventExchange = "commands"
 	c.RabbitMQ.PublisherRoutingKey = "chat-command"
-	c.RabbitMQ.ConsumerRoutingKey = "slackbot"
-	c.RabbitMQ.ConsumerID = "slackbot"
-	c.RabbitMQ.EventQueue = "slackbot"
 
-	c.TwitterRabbitMQExchange = "twitter"
+	c.RabbitMQ.Consumers = map[string]bot.RabbitMQConsumer{
+		"commands": {
+			RoutingKey:      "slackbot",
+			ConsumerID:      "slackbot/commands",
+			Queue:           "slackbot/commands",
+			Exchange:        "commands",
+			ExchangeDurable: false,
+		},
+		"twitter": {
+			RoutingKey:      "slackbot",
+			ConsumerID:      "slackbot/twitter",
+			Queue:           "slackbot/twitter",
+			Exchange:        "twitter",
+			ExchangeDurable: false,
+		},
+	}
+
+	c.Slack.TwitterChannel = "channel-id"
 }
 
 func loadConfiguration(path string) {

@@ -5,12 +5,13 @@ import (
 	"github.com/satori/go.uuid"
 )
 
+var slackAPI *slack.Client
 var slackRTM *slack.RTM
 
 func runSlackClient() {
 	log.Infof("Starting slack client.")
-	api := slack.New(gconfig.Slack.APIKey)
-	slackRTM = api.NewRTM()
+	slackAPI = slack.New(gconfig.Slack.APIKey)
+	slackRTM = slackAPI.NewRTM()
 
 	go slackRTM.ManageConnection()
 
@@ -43,11 +44,16 @@ func runSlackClient() {
 				break
 			}
 
+			consumerCfg := gconfig.RabbitMQ.GetConsumer("commands")
+			if consumerCfg == nil {
+				log.Fatalf("RabbitMQ consumer configuration 'commands' not found, aborting.")
+			}
+
 			rabbitmqPublisher.Publish(
 				&event,
 				"command",
 				uuid.NewV4().String(),
-				gconfig.RabbitMQ.ConsumerRoutingKey,
+				consumerCfg.RoutingKey,
 				300000,
 			)
 			break

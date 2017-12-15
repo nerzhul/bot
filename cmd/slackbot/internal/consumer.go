@@ -107,6 +107,11 @@ func verifyConsumer() bool {
 				return false
 			}
 
+			if !rabbitmqConsumer.DeclareExchange(consumerCfg.Exchange, consumerCfg.ExchangeDurable) {
+				rabbitmqConsumer = nil
+				return false
+			}
+
 			if !rabbitmqConsumer.BindExchange(consumerCfg.Queue, consumerCfg.Exchange, consumerCfg.RoutingKey) {
 				rabbitmqConsumer = nil
 				return false

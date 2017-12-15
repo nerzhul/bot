@@ -45,6 +45,33 @@ func (ep *EventConsumer) Init() bool {
 	return true
 }
 
+// DeclareExchange declare exchange on event consumer
+func (ep *EventConsumer) DeclareExchange(name string, durable bool) bool {
+	if ep.channel == nil {
+		ep.log.Fatalf("Implementation error: Consumer channel is nil")
+		return false
+	}
+
+	err := ep.channel.ExchangeDeclare(
+		name,
+		"direct",
+		durable,
+		false,
+		false,
+		false,
+		nil,
+	)
+
+	if err != nil {
+		ep.log.Errorf("Failed to declare exchange %s: %s", name, err.Error())
+		return false
+	}
+
+	ep.log.Infof("Exchange %s declared on RabbitMQ", name)
+
+	return true
+}
+
 // DeclareQueue declare queue with name
 func (ep *EventConsumer) DeclareQueue(name string) bool {
 	if ep.channel == nil {

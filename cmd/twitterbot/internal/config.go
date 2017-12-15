@@ -23,9 +23,15 @@ func (c *config) loadDefaultConfiguration() {
 	c.RabbitMQ.URL = "amqp://guest:guest@localhost:5672/"
 	c.RabbitMQ.EventExchange = "commands"
 	c.RabbitMQ.PublisherRoutingKey = "slackbot"
-	c.RabbitMQ.ConsumerRoutingKey = "twitterbot"
-	c.RabbitMQ.ConsumerID = "twitterbot"
-	c.RabbitMQ.EventQueue = "twitterbot"
+	c.RabbitMQ.Consumers = map[string]bot.RabbitMQConsumer{
+		"twitterbot": {
+			RoutingKey:      "twitterbot",
+			ConsumerID:      "twitterbot",
+			Queue:           "twitterbot",
+			Exchange:        "commands",
+			ExchangeDurable: false,
+		},
+	}
 
 	c.Twitter.ConsumerKey = "consumer-key"
 	c.Twitter.ConsumerSecret = "consumer-secret"

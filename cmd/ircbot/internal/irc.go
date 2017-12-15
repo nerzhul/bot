@@ -102,11 +102,16 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 		return
 	}
 
+	consumerCfg := gconfig.RabbitMQ.GetConsumer("ircbot")
+	if consumerCfg == nil {
+		log.Fatalf("RabbitMQ consumer configuration 'ircbot' not found, aborting.")
+	}
+
 	rabbitmqPublisher.Publish(
 		&ce,
 		"command",
 		uuid.NewV4().String(),
-		gconfig.RabbitMQ.ConsumerRoutingKey,
+		consumerCfg.RoutingKey,
 		300000,
 	)
 }

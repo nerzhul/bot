@@ -41,18 +41,22 @@ func verifyConsumer() bool {
 			return false
 		}
 
-		if !rabbitmqConsumer.DeclareQueue(gconfig.RabbitMQ.EventQueue) {
+		consumerCfg := gconfig.RabbitMQ.GetConsumer("ircbot")
+		if consumerCfg == nil {
+			log.Fatalf("RabbitMQ consumer configuration 'ircbot' not found, aborting.")
+		}
+
+		if !rabbitmqConsumer.DeclareQueue(consumerCfg.Queue) {
 			rabbitmqConsumer = nil
 			return false
 		}
 
-		if !rabbitmqConsumer.BindExchange(gconfig.RabbitMQ.EventQueue,
-			gconfig.RabbitMQ.EventExchange, gconfig.RabbitMQ.ConsumerRoutingKey) {
+		if !rabbitmqConsumer.BindExchange(consumerCfg.Queue, consumerCfg.Exchange, consumerCfg.RoutingKey) {
 			rabbitmqConsumer = nil
 			return false
 		}
 
-		if !rabbitmqConsumer.Consume(gconfig.RabbitMQ.EventQueue, consumeCommandResponses, false) {
+		if !rabbitmqConsumer.Consume(consumerCfg.Queue, consumerCfg.ConsumerID, consumeCommandResponses, false) {
 			rabbitmqConsumer = nil
 			return false
 		}

@@ -28,7 +28,7 @@ load_rc_config $name
 : ${gitlab_hookd_group:="gitlab-hook"}
 
 pidfile="/var/run/${name}.pid"
-procname=/var/tmp/gitlab_runner/bin/uc-exploratoryd
+procname=/usr/local/bin/gitlab-hookd
 command="/usr/sbin/daemon"
 command_args="-f -p ${pidfile} ${procname}"
 if [ "x${gitlab_hookd_config}" != "x" ]; then

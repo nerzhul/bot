@@ -43,6 +43,8 @@ twitterbot: dep
 
 build: gitlab-hook ircbot slackbot twitterbot
 
+install: build
+
 doc: swagger_doc
 
 swagger_doc:

@@ -44,6 +44,16 @@ twitterbot: dep
 build: gitlab-hook ircbot slackbot twitterbot
 
 install: build
+	@install -d /usr/local/etc/rc.d && \
+		install -d /usr/local/bin && \
+		install -m 0755 "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/gitlab-hookd" /usr/local/bin/gitlab-hookd && \
+		install -m 0755 res/freebsd/gitlab-hook.sh /usr/local/etc/rc.d/gitlab-hook && \
+		install -m 0755 "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/ircbot" /usr/local/bin/ircbot && \
+		install -m 0755 res/freebsd/ircbot.sh /usr/local/etc/rc.d/ircbot && \
+		install -m 0755 "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/slackbot" /usr/local/bin/slackbot && \
+		install -m 0755 res/freebsd/slackbot.sh /usr/local/etc/rc.d/slackbot && \
+		install -m 0755 "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/twitterbot" /usr/local/bin/twitterbot && \
+		install -m 0755 res/freebsd/twitterbot.sh /usr/local/etc/rc.d/twitterbot
 
 doc: swagger_doc
 

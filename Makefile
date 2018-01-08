@@ -25,6 +25,10 @@ dep:
 	@godep restore
 	mkdir -p ${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/
 
+commandhandler: dep
+	@cd cmd/commandhandler && \
+    		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/commandhandler"
+
 gitlab-hook: dep
 	@cd cmd/gitlab-hookd && \
     		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/gitlab-hookd"
@@ -41,7 +45,7 @@ twitterbot: dep
 	@cd cmd/twitterbot && \
     		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/twitterbot"
 
-build: gitlab-hook ircbot slackbot twitterbot
+build: commandhandler gitlab-hook ircbot slackbot twitterbot
 
 install: build
 	install -d /usr/local/etc/rc.d

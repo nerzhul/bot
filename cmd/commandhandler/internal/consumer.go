@@ -17,8 +17,11 @@ func consumeCommandQueries(msgs <-chan amqp.Delivery) {
 		}
 
 		// Consume command queries
-
-		d.Ack(false)
+		if handleCommand(&query) {
+			d.Ack(false)
+		} else {
+			d.Nack(false, true)
+		}
 	}
 }
 

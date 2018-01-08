@@ -56,9 +56,10 @@ func runTwitterClient() {
 			rabbitmqPublisher.Publish(
 				tm,
 				"tweet",
-				uuid.NewV4().String(),
-				"",
-				3600000,
+				&bot.EventOptions{
+					CorrelationID: uuid.NewV4().String(),
+					ExpirationMs:  3600000,
+				},
 			)
 
 			// Try to update the last ID only after publishing

@@ -16,8 +16,13 @@ func consumeCommandQueries(msgs <-chan amqp.Delivery) {
 			log.Errorf("Failed to decode command event : %v", err)
 		}
 
+		if router == nil {
+			router = &commandRouter{}
+			router.init()
+		}
+
 		// Consume command queries
-		if handleCommand(&query) {
+		if router.handleCommand(&query, d.CorrelationId, d.ReplyTo) {
 			d.Ack(false)
 		} else {
 			d.Nack(false, true)

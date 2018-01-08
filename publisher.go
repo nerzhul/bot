@@ -21,6 +21,14 @@ type Event interface {
 	ToJSON() ([]byte, error)
 }
 
+// EventOptions event options on publication
+type EventOptions struct {
+	CorrelationID string
+	ReplyTo       string
+	ExpirationMs  uint32
+	RoutingKey    string
+}
+
 // NewEventPublisher creates a new EventPublisher with config & logger
 func NewEventPublisher(logger *logging.Logger, config *RabbitMQConfig) *EventPublisher {
 	return &EventPublisher{
@@ -69,8 +77,8 @@ func (ep *EventPublisher) Init() bool {
 }
 
 // Publish publish event
-func (ep *EventPublisher) Publish(event Event, eventType string, correlationID string, replyTo string, expirationMs uint32) bool {
-	if len(correlationID) == 0 {
+func (ep *EventPublisher) Publish(event Event, eventType string, options *EventOptions) bool {
+	if len(options.CorrelationID) == 0 {
 		ep.log.Fatalf("Cannot send achievement event with empty CorrelationId, aborting.")
 		return false
 	}
@@ -87,23 +95,29 @@ func (ep *EventPublisher) Publish(event Event, eventType string, correlationID s
 		ContentType:   "application/json",
 		MessageId:     uuid.NewV4().String(),
 		Timestamp:     time.Now(),
-		CorrelationId: correlationID,
+		CorrelationId: options.CorrelationID,
 		Type:          eventType,
 	}
 
-	if expirationMs != 0 {
-		toPublish.Expiration = fmt.Sprintf("%d", expirationMs)
+	if options.ExpirationMs != 0 {
+		toPublish.Expiration = fmt.Sprintf("%d", options.ExpirationMs)
 	}
 
-	if len(replyTo) > 0 {
-		toPublish.ReplyTo = replyTo
+	if len(options.ReplyTo) > 0 {
+		toPublish.ReplyTo = options.ReplyTo
+	}
+
+	routingKey := options.RoutingKey
+	// If routing key not set, use global options
+	if len(routingKey) == 0 {
+		routingKey = ep.config.PublisherRoutingKey
 	}
 
 	err = ep.channel.Publish(
-		ep.config.EventExchange,       // exchange
-		ep.config.PublisherRoutingKey, // routing key
-		true,  // mandatory
-		false, // immediate
+		ep.config.EventExchange, // exchange
+		routingKey,              // routing key
+		true,                    // mandatory
+		false,                   // immediate
 		toPublish,
 	)
 
@@ -112,8 +126,8 @@ func (ep *EventPublisher) Publish(event Event, eventType string, correlationID s
 		return false
 	}
 
-	ep.log.Infof("[cid=%s] Message published to exchange %s (routing-key %s)", correlationID, ep.config.EventExchange,
-		ep.config.PublisherRoutingKey)
+	ep.log.Infof("[cid=%s] Message published to exchange %s (routing-key %s)",
+		options.CorrelationID, ep.config.EventExchange, routingKey)
 
 	return true
 }

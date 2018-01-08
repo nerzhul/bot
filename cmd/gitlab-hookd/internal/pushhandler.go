@@ -102,9 +102,10 @@ func handleGitlabPush(c echo.Context) bool {
 		rabbitmqPublisher.Publish(
 			&rEvent,
 			"gitlab-event",
-			uuid.NewV4().String(),
-			"",
-			300000,
+			&bot.EventOptions{
+				CorrelationID: uuid.NewV4().String(),
+				ExpirationMs:  300000,
+			},
 		)
 	}
 	return true

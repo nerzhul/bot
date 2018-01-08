@@ -111,9 +111,11 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 	rabbitmqPublisher.Publish(
 		&ce,
 		"command",
-		uuid.NewV4().String(),
-		consumerCfg.RoutingKey,
-		300000,
+		&bot.EventOptions{
+			CorrelationID: uuid.NewV4().String(),
+			ReplyTo:       consumerCfg.RoutingKey,
+			ExpirationMs:  300000,
+		},
 	)
 }
 

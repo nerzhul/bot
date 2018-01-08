@@ -3,6 +3,7 @@ package internal
 import (
 	"fmt"
 	"gitlab.com/nerzhul/bot"
+	"sort"
 	"strings"
 )
 
@@ -22,12 +23,18 @@ func (r *commandRouter) init() {
 		"b64decode": r.handlerB64decode,
 		"b64encode": r.handlerB64encode,
 		"help":      r.handlerHelp,
+		"md5":       r.handlerMD5,
+		"sha1":      r.handlerSHA1,
+		"sha256":    r.handlerSHA256,
+		"sha512":    r.handlerSHA512,
+		"strlen":    r.handlerStrlen,
 	}
 
 	r.commandList = []string{}
 	for k := range r.commandHandlers {
 		r.commandList = append(r.commandList, k)
 	}
+	sort.Strings(r.commandList)
 
 	log.Infof("Router init done (%d commands registered).", len(r.commandList))
 }

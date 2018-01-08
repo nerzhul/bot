@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"hash/crc32"
 )
 
 func (r *commandRouter) handlerB64decode(args string, user string, channel string) *string {
@@ -41,6 +42,12 @@ func (r *commandRouter) handlerReverse(args string, user string, channel string)
 func (r *commandRouter) handlerStrlen(args string, user string, channel string) *string {
 	result := new(string)
 	*result = fmt.Sprintf("Length: %d", len(args))
+	return result
+}
+
+func (r *commandRouter) handlerCRC32(args string, user string, channel string) *string {
+	result := new(string)
+	*result = fmt.Sprintf("Result: %d", crc32.ChecksumIEEE([]byte(args)))
 	return result
 }
 

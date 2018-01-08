@@ -22,6 +22,7 @@ func (r *commandRouter) init() {
 	r.commandHandlers = map[string]commandHandler{
 		"b64decode": r.handlerB64decode,
 		"b64encode": r.handlerB64encode,
+		"crc32":     r.handlerCRC32,
 		"help":      r.handlerHelp,
 		"md5":       r.handlerMD5,
 		"sha1":      r.handlerSHA1,

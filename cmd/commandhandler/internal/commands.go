@@ -19,7 +19,9 @@ func (r *commandRouter) init() {
 	log.Infof("Initialize command router...")
 
 	r.commandHandlers = map[string]commandHandler{
-		"help": r.handlerHelp,
+		"b64decode": r.handlerB64decode,
+		"b64encode": r.handlerB64encode,
+		"help":      r.handlerHelp,
 	}
 
 	r.commandList = []string{}

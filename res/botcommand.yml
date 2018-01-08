@@ -1,0 +1,10 @@
+---
+rabbitmq:
+  url: "amqp://guest:guest@localhost:5672/"
+  exchange: "commands"
+  consumers:
+    - queue: "botcommand.direct"
+      exchange: "commands"
+      exchange-durable: false
+      routing-key: "chat-command"
+      consumer-id: "botcommand"

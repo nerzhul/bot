@@ -46,6 +46,8 @@ build: gitlab-hook ircbot slackbot twitterbot
 install: build
 	install -d /usr/local/etc/rc.d
 	install -d /usr/local/bin
+	install -m 0755 "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/commandhandler" /usr/local/bin/commandhandler
+	install -m 0755 res/freebsd/commandhandler.sh /usr/local/etc/rc.d/commandhandler
 	install -m 0755 "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/gitlab-hookd" /usr/local/bin/gitlab-hookd
 	install -m 0755 res/freebsd/gitlab-hook.sh /usr/local/etc/rc.d/gitlab-hook
 	install -m 0755 "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/ircbot" /usr/local/bin/ircbot

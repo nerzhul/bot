@@ -9,6 +9,8 @@ var AppVersion = "[unk]"
 // AppBuildDate application build date
 var AppBuildDate = "[unk]"
 
+var router *commandRouter
+
 // StartApp initiate components
 // Should be called from main function
 func StartApp(configFile string) {

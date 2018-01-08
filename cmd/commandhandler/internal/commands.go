@@ -28,6 +28,7 @@ func (r *commandRouter) init() {
 		"sha256":    r.handlerSHA256,
 		"sha512":    r.handlerSHA512,
 		"strlen":    r.handlerStrlen,
+		"reverse":   r.handlerReverse,
 	}
 
 	r.commandList = []string{}

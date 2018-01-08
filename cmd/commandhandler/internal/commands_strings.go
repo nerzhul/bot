@@ -27,6 +27,17 @@ func (r *commandRouter) handlerB64encode(args string, user string, channel strin
 	return result
 }
 
+func (r *commandRouter) handlerReverse(args string, user string, channel string) *string {
+	runes := []rune(args)
+	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
+		runes[i], runes[j] = runes[j], runes[i]
+	}
+
+	result := new(string)
+	*result = string(runes)
+	return result
+}
+
 func (r *commandRouter) handlerStrlen(args string, user string, channel string) *string {
 	result := new(string)
 	*result = fmt.Sprintf("Length: %d", len(args))

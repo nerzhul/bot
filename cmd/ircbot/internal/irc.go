@@ -5,6 +5,7 @@ import (
 	"fmt"
 	irc "github.com/fluffle/goirc/client"
 	"github.com/satori/go.uuid"
+	"gitlab.com/nerzhul/bot"
 	"strings"
 	"time"
 )
@@ -84,7 +85,7 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 		}
 	}
 
-	ce := commandEvent{
+	ce := bot.CommandEvent{
 		Command: text[1:],
 		Channel: channel,
 		User:    line.Nick,

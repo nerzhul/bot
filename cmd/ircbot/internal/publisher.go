@@ -1,26 +1,10 @@
 package internal
 
 import (
-	"encoding/json"
 	"gitlab.com/nerzhul/bot"
 )
 
 var rabbitmqPublisher *bot.EventPublisher
-
-type commandEvent struct {
-	Command string `json:"command"`
-	Channel string `json:"channel"`
-	User    string `json:"user"`
-}
-
-func (ce *commandEvent) ToJSON() ([]byte, error) {
-	jsonStr, err := json.Marshal(ce)
-	if err != nil {
-		return nil, err
-	}
-
-	return jsonStr, nil
-}
 
 func verifyPublisher() bool {
 	if rabbitmqPublisher == nil {

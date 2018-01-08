@@ -10,10 +10,10 @@ var rabbitmqConsumer *bot.EventConsumer
 
 func consumeCommandQueries(msgs <-chan amqp.Delivery) {
 	for d := range msgs {
-		response := bot.CommandResponse{}
-		err := json.Unmarshal(d.Body, &response)
+		query := bot.CommandEvent{}
+		err := json.Unmarshal(d.Body, &query)
 		if err != nil {
-			log.Errorf("Failed to decode command response : %v", err)
+			log.Errorf("Failed to decode command event : %v", err)
 		}
 
 		// Consume command queries

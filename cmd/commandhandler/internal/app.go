@@ -22,11 +22,7 @@ func StartApp(configFile string) {
 	verifyPublisher()
 	verifyConsumer()
 
-	run()
+	runProcessor()
 
 	log.Infof("Exiting %s", AppName)
-}
-
-func run() {
-
 }

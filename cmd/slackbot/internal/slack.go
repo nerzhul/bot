@@ -3,6 +3,7 @@ package internal
 import (
 	"github.com/nlopes/slack"
 	"github.com/satori/go.uuid"
+	"gitlab.com/nerzhul/bot"
 )
 
 var slackAPI *slack.Client
@@ -26,10 +27,10 @@ func runSlackClient() {
 				break
 			}
 
-			event := commandEvent{
-				ev.Text[1:],
-				ev.Channel,
-				ev.User,
+			event := bot.CommandEvent{
+				Command: ev.Text[1:],
+				Channel: ev.Channel,
+				User:    ev.User,
 			}
 
 			log.Infof("User %s sent command on channel %s: %s", event.User, event.Channel, event.Command)

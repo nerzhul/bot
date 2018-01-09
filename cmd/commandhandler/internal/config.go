@@ -8,6 +8,11 @@ import (
 
 type config struct {
 	RabbitMQ bot.RabbitMQConfig `yaml:"rabbitmq"`
+	Scaleway struct {
+		URL           string `yaml:"url"`
+		Token         string `yaml:"token"`
+		BuildServerID string `yaml:"build-server-id"`
+	} `yaml:"scaleway"`
 }
 
 var gconfig config
@@ -25,6 +30,7 @@ func (c *config) loadDefaultConfiguration() {
 			ExchangeDurable: false,
 		},
 	}
+	c.Scaleway.URL = "https://cp-par1.scaleway.com"
 }
 
 func loadConfiguration(path string) {

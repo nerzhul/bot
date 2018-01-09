@@ -4,7 +4,7 @@ rabbitmq:
   exchange: "commands"
   consumers:
     commandhandler:
-      queue: "botcommand.direct"
+      commqueue: "botcommand.direct"
       exchange: "commands"
       exchange-durable: false
       routing-key: "chat-command"

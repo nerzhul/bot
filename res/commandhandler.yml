@@ -9,3 +9,7 @@ rabbitmq:
       exchange-durable: false
       routing-key: "chat-command"
       consumer-id: "botcommand"
+scaleway:
+  url: "https://cp-par1.scaleway.com"
+  token: ""
+  build-server-id: ""

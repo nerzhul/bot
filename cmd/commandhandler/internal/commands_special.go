@@ -61,8 +61,13 @@ func (r *commandRouter) handlerStartBuilder(args string, user string, channel st
 
 	sar := &scalewayActionResponse{}
 	if err := json.NewDecoder(resp.Body).Decode(sar); err != nil {
-		log.Errorf("Failed to decode scaleway response when starting builder. Respose was: %s",
-			ioutil.ReadAll(resp.Body))
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Errorf("Failed to read body on start builder error.")
+		} else {
+			log.Errorf("Failed to start builder (code %d). Response was: %s",
+				resp.StatusCode, body)
+		}
 		return nil
 	}
 

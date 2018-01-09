@@ -20,17 +20,17 @@ func (r *commandRouter) init() {
 	log.Infof("Initialize command router...")
 
 	r.commandHandlers = map[string]commandHandler{
-		"b64decode":     r.handlerB64decode,
-		"b64encode":     r.handlerB64encode,
-		"crc32":         r.handlerCRC32,
-		"help":          r.handlerHelp,
-		"md5":           r.handlerMD5,
-		"sha1":          r.handlerSHA1,
-		"sha256":        r.handlerSHA256,
-		"sha512":        r.handlerSHA512,
-		"start-builder": r.handlerStartBuilder,
-		"strlen":        r.handlerStrlen,
-		"reverse":       r.handlerReverse,
+		"b64decode": r.handlerB64decode,
+		"b64encode": r.handlerB64encode,
+		"crc32":     r.handlerCRC32,
+		"help":      r.handlerHelp,
+		"md5":       r.handlerMD5,
+		"sha1":      r.handlerSHA1,
+		"sha256":    r.handlerSHA256,
+		"sha512":    r.handlerSHA512,
+		"builder":   r.handlerStartBuilder,
+		"strlen":    r.handlerStrlen,
+		"reverse":   r.handlerReverse,
 	}
 
 	r.commandList = []string{}

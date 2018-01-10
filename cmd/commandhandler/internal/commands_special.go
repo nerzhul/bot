@@ -79,7 +79,7 @@ func (r *commandRouter) handlerStartBuilder(args string, user string, channel st
 		}
 
 		result := new(string)
-		*result = "Unable to start builder. Error: " + ser.Message
+		*result = "Unable to modify builder state. Error: " + ser.Message
 		return result
 	}
 

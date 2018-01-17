@@ -37,6 +37,10 @@ ircbot: dep
 	@cd cmd/ircbot && \
     		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/ircbot"
 
+matterbot: dep
+	@cd cmd/matterbot && \
+    		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/matterbot"
+
 slackbot: dep
 	@cd cmd/slackbot && \
     		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/slackbot"
@@ -45,7 +49,7 @@ twitterbot: dep
 	@cd cmd/twitterbot && \
     		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/twitterbot"
 
-build: commandhandler gitlab-hook ircbot slackbot twitterbot
+build: commandhandler gitlab-hook ircbot matterbot slackbot twitterbot
 
 install: build
 	install -d /usr/local/etc/rc.d
@@ -56,6 +60,8 @@ install: build
 	install -m 0755 res/freebsd/gitlab-hook.sh /usr/local/etc/rc.d/gitlab-hook
 	install -m 0755 "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/ircbot" /usr/local/bin/ircbot
 	install -m 0755 res/freebsd/ircbot.sh /usr/local/etc/rc.d/ircbot
+	install -m 0755 "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/matterbot" /usr/local/bin/matterbot
+	install -m 0755 res/freebsd/matterbot.sh /usr/local/etc/rc.d/matterbot
 	install -m 0755 "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/slackbot" /usr/local/bin/slackbot
 	install -m 0755 res/freebsd/slackbot.sh /usr/local/etc/rc.d/slackbot
 	install -m 0755 "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/twitterbot" /usr/local/bin/twitterbot

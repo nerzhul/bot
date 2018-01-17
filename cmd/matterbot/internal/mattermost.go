@@ -14,6 +14,7 @@ var mClient mattermostClient
 
 func runMattermostClient() {
 	mClient.init()
+	mClient.login()
 }
 
 func (m *mattermostClient) init() {

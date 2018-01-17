@@ -14,12 +14,14 @@ rabbitmq:
   exchange: "commands"
   publisher-routing-key: "chat-command"
   consumers:
-    - queue: "mattermost/commands"
+    commands:
+      queue: "mattermost/commands"
       exchange: "commands"
       exchange-durable: false
       routing-key: "mattermost"
       consumer-id: "mattermost/commands"
-    - queue: "mattermost/twitter"
+    twitter:
+      queue: "mattermost/twitter"
       exchange: "twitter"
       exchange-durable: false
       routing-key: "mattermost"

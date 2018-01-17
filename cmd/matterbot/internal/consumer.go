@@ -2,8 +2,7 @@ package internal
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/nlopes/slack"
+	//"fmt"
 	"github.com/streadway/amqp"
 	"gitlab.com/nerzhul/bot"
 	"time"
@@ -38,12 +37,12 @@ func consumeCommandResponse(msg *amqp.Delivery) {
 
 	// Send message on slack
 	slackMsgID++
-	slackRTM.SendMessage(&slack.OutgoingMessage{
-		ID:      slackMsgID,
-		Type:    "message",
-		Channel: response.Channel,
-		Text:    response.Message,
-	})
+	//slackRTM.SendMessage(&slack.OutgoingMessage{
+	//	ID:      slackMsgID,
+	//	Type:    "message",
+	//	Channel: response.Channel,
+	//	Text:    response.Message,
+	//})
 
 	msg.Ack(false)
 }
@@ -64,26 +63,26 @@ func consumeTwitterResponse(msg *amqp.Delivery) {
 		return
 	}
 
-	slackTweet := fmt.Sprintf("<https://twitter.com/%s|%s> @%s \n%s\n",
-		tweet.UserScreenName, tweet.Username, tweet.UserScreenName, tweet.Message)
+	//slackTweet := fmt.Sprintf("<https://twitter.com/%s|%s> @%s \n%s\n",
+	//	tweet.UserScreenName, tweet.Username, tweet.UserScreenName, tweet.Message)
+	//
+	//params := slack.PostMessageParameters{}
+	//attachment := slack.Attachment{
+	//	Text:  "Actions",
+	//	Color: "#1da1f2",
+	//	Actions: []slack.AttachmentAction{
+	//		{
+	//			Name:  "retweet",
+	//			Type:  "button",
+	//			Text:  "Retweet",
+	//			Value: "retweet",
+	//		},
+	//	},
+	//}
+	//params.Attachments = []slack.Attachment{attachment}
 
-	params := slack.PostMessageParameters{}
-	attachment := slack.Attachment{
-		Text:  "Actions",
-		Color: "#1da1f2",
-		Actions: []slack.AttachmentAction{
-			{
-				Name:  "retweet",
-				Type:  "button",
-				Text:  "Retweet",
-				Value: "retweet",
-			},
-		},
-	}
-	params.Attachments = []slack.Attachment{attachment}
-
-	// Send message on slack
-	slackAPI.PostMessage(gconfig.Slack.TwitterChannel, slackTweet, params)
+	// Send message on mattermost
+	//slackAPI.PostMessage(gconfig.Slack.TwitterChannel, slackTweet, params)
 
 	msg.Ack(false)
 }

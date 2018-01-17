@@ -7,12 +7,14 @@ rabbitmq:
   exchange: "commands"
   publisher-routing-key: "chat-command"
   consumers:
-    - queue: "slackbot/commands"
+    commands:
+      queue: "slackbot/commands"
       exchange: "commands"
       exchange-durable: false
       routing-key: "slackbot"
       consumer-id: "slackbot/commands"
-    - queue: "slackbot/twitter"
+    twitter:
+      queue: "slackbot/twitter"
       exchange: "twitter"
       exchange-durable: false
       routing-key: "slackbot"

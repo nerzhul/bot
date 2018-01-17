@@ -31,16 +31,16 @@ func (c *config) loadDefaultConfiguration() {
 
 	c.RabbitMQ.Consumers = map[string]bot.RabbitMQConsumer{
 		"commands": {
-			RoutingKey:      "slackbot",
-			ConsumerID:      "slackbot/commands",
-			Queue:           "slackbot/commands",
+			RoutingKey:      "matterbot",
+			ConsumerID:      "matterbot/commands",
+			Queue:           "matterbot/commands",
 			Exchange:        "commands",
 			ExchangeDurable: false,
 		},
 		"twitter": {
-			RoutingKey:      "slackbot",
-			ConsumerID:      "slackbot/twitter",
-			Queue:           "slackbot/twitter",
+			RoutingKey:      "matterbot",
+			ConsumerID:      "matterbot/twitter",
+			Queue:           "matterbot/twitter",
 			Exchange:        "twitter",
 			ExchangeDurable: false,
 		},

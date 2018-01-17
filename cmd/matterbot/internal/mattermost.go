@@ -5,6 +5,7 @@ import (
 	"github.com/satori/go.uuid"
 	"gitlab.com/nerzhul/bot"
 	"strings"
+	"time"
 )
 
 type mattermostClient struct {
@@ -16,16 +17,28 @@ type mattermostClient struct {
 var mClient mattermostClient
 
 func runMattermostClient() {
-	mClient.init()
-	if mClient.isMattermostUp() {
-		mClient.createChannelIfNeeded(gconfig.Mattermost.TwitterChannel, model.CHANNEL_OPEN)
-	}
+	for {
+		mClient.init()
+		if mClient.isMattermostUp() {
+			mClient.createChannelIfNeeded(gconfig.Mattermost.TwitterChannel, model.CHANNEL_OPEN)
+		}
 
-	mClient.run()
+		mClient.run()
+
+		mClient.deinit()
+		log.Warning("Connection to mattermost lost, retrying in 60s...")
+		time.Sleep(time.Second * 60)
+	}
 }
 
 func (m *mattermostClient) init() {
 	m.client = model.NewAPIv4Client(gconfig.Mattermost.URL)
+}
+
+func (m *mattermostClient) deinit() {
+	mClient.client = nil
+	mClient.user = nil
+	mClient.team = nil
 }
 
 func (m *mattermostClient) login() bool {
@@ -48,17 +61,12 @@ func (m *mattermostClient) run() bool {
 
 	webSocketClient.Listen()
 
-	go func() {
-		for {
-			select {
-			case resp := <-webSocketClient.EventChannel:
-				m.handleWebSocketResponse(resp)
-			}
+	for {
+		select {
+		case resp := <-webSocketClient.EventChannel:
+			m.handleWebSocketResponse(resp)
 		}
-	}()
-
-	// You can block forever with
-	select {}
+	}
 	return true
 }
 
@@ -126,12 +134,12 @@ func (m *mattermostClient) handleWebSocketResponse(event *model.WebSocketEvent) 
 	if event == nil {
 		return
 	}
-	log.Infof("Event received type: %s", event.Event)
+
+	log.Debugf("Event received type: %s", event.Event)
 	if event.Event != model.WEBSOCKET_EVENT_POSTED {
 		return
 	}
 
-	// @TODO
 	post := model.PostFromJson(strings.NewReader(event.Data["post"].(string)))
 	if post != nil {
 		log.Debugf("Post received: %s", post)

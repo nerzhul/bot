@@ -3,9 +3,13 @@
 	"GoVersion": "go1.9",
 	"GodepVersion": "v79",
 	"Packages": [
-		"./..."
+		"./cmd/..."
 	],
 	"Deps": [
+		{
+			"ImportPath": "github.com/alecthomas/log4go",
+			"Rev": "d146e6b86faab5f7e4d135cc63b749d74bf0d4a6"
+		},
 		{
 			"ImportPath": "github.com/cenkalti/backoff",
 			"Comment": "v1.1.0-3-g309aa71",
@@ -47,6 +51,11 @@
 			"Rev": "53e6ce116135b80d037921a7fdd5138cf32d7a8a"
 		},
 		{
+			"ImportPath": "github.com/gorilla/websocket",
+			"Comment": "v1.2.0-26-g292fd08",
+			"Rev": "292fd08b2560ad524ee37396253d71570339a821"
+		},
+		{
 			"ImportPath": "github.com/labstack/echo",
 			"Comment": "3.2.4-1-g7fe7f34",
 			"Rev": "7fe7f348ebb04b38116d9207751b5979588165e7"
@@ -62,6 +71,11 @@
 			"Rev": "57409ada9da0f2afad6664c49502f8c50fbd8476"
 		},
 		{
+			"ImportPath": "github.com/mattermost/mattermost-server/model",
+			"Comment": "v4.6.0-rc2-14-gd35d9484f",
+			"Rev": "d35d9484f4918f8f6fc3d48a74ede7eb6db33b7b"
+		},
+		{
 			"ImportPath": "github.com/mattn/go-colorable",
 			"Comment": "v0.0.9-8-g6fcc0c1",
 			"Rev": "6fcc0c1fd9b620311d821b106a400b35dc95c497"
@@ -70,6 +84,26 @@
 			"ImportPath": "github.com/mattn/go-isatty",
 			"Comment": "v0.0.3-7-g6ca4dbf",
 			"Rev": "6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c"
+		},
+		{
+			"ImportPath": "github.com/nicksnyder/go-i18n/i18n",
+			"Comment": "v1.10.0-1-gaa0ce51",
+			"Rev": "aa0ce51472e0a9982717fd19cf02cb08b1e433aa"
+		},
+		{
+			"ImportPath": "github.com/nicksnyder/go-i18n/i18n/bundle",
+			"Comment": "v1.10.0-1-gaa0ce51",
+			"Rev": "aa0ce51472e0a9982717fd19cf02cb08b1e433aa"
+		},
+		{
+			"ImportPath": "github.com/nicksnyder/go-i18n/i18n/language",
+			"Comment": "v1.10.0-1-gaa0ce51",
+			"Rev": "aa0ce51472e0a9982717fd19cf02cb08b1e433aa"
+		},
+		{
+			"ImportPath": "github.com/nicksnyder/go-i18n/i18n/translation",
+			"Comment": "v1.10.0-1-gaa0ce51",
+			"Rev": "aa0ce51472e0a9982717fd19cf02cb08b1e433aa"
 		},
 		{
 			"ImportPath": "github.com/nlopes/slack",
@@ -84,6 +118,16 @@
 		{
 			"ImportPath": "github.com/pborman/getopt/v2",
 			"Rev": "7148bc3a4c3008adfcab60cbebfd0576018f330b"
+		},
+		{
+			"ImportPath": "github.com/pborman/uuid",
+			"Comment": "v1.1-4-ge533369",
+			"Rev": "e533369306653d193b93dae055f6083cbf8ba54f"
+		},
+		{
+			"ImportPath": "github.com/pelletier/go-toml",
+			"Comment": "v1.0.1-14-g9bf0212",
+			"Rev": "9bf0212445a9fb4769aca5d2d86fbc381af39d52"
 		},
 		{
 			"ImportPath": "github.com/satori/go.uuid",
@@ -108,6 +152,14 @@
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/acme/autocert",
+			"Rev": "9f005a07e0d31d45e6656d241bb5c0f2efd4bc94"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/bcrypt",
+			"Rev": "9f005a07e0d31d45e6656d241bb5c0f2efd4bc94"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/blowfish",
 			"Rev": "9f005a07e0d31d45e6656d241bb5c0f2efd4bc94"
 		},
 		{

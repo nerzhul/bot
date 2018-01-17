@@ -2,6 +2,9 @@ package internal
 
 import (
 	"github.com/mattermost/mattermost-server/model"
+	"github.com/satori/go.uuid"
+	"gitlab.com/nerzhul/bot"
+	"strings"
 )
 
 type mattermostClient struct {
@@ -14,7 +17,11 @@ var mClient mattermostClient
 
 func runMattermostClient() {
 	mClient.init()
-	mClient.login()
+	if mClient.isMattermostUp() {
+		mClient.createChannelIfNeeded(gconfig.Mattermost.TwitterChannel, model.CHANNEL_OPEN)
+	}
+
+	mClient.run()
 }
 
 func (m *mattermostClient) init() {
@@ -22,13 +29,16 @@ func (m *mattermostClient) init() {
 }
 
 func (m *mattermostClient) login() bool {
-	if user, resp := m.client.Login(gconfig.Mattermost.Email, gconfig.Mattermost.Password); resp.Error != nil {
+	var resp *model.Response
+	if m.user, resp = m.client.Login(gconfig.Mattermost.Email, gconfig.Mattermost.Password); resp.Error != nil {
 		log.Error("There was a problem logging into the Mattermost server. Ensure login is correct.")
 		return false
-	} else {
-		m.user = user
 	}
 
+	return true
+}
+
+func (m *mattermostClient) run() bool {
 	// Lets start listening to some channels via the websocket!
 	webSocketClient, err := model.NewWebSocketClient4(gconfig.Mattermost.WsURL, m.client.AuthToken)
 	if err != nil {
@@ -47,20 +57,16 @@ func (m *mattermostClient) login() bool {
 		}
 	}()
 
-	m.createChannelIfNeeded(gconfig.Mattermost.TwitterChannel, model.CHANNEL_OPEN)
-
 	// You can block forever with
 	select {}
-
 	return true
 }
 
 func (m *mattermostClient) findTeam() bool {
-	if team, resp := m.client.GetTeamByName(gconfig.Mattermost.Team, ""); resp.Error != nil {
+	var resp *model.Response
+	if m.team, resp = m.client.GetTeamByName(gconfig.Mattermost.Team, ""); resp.Error != nil {
 		log.Errorf("Failed to get team '%s', maybe we are not a member of this team.", gconfig.Mattermost.Team)
 		return false
-	} else {
-		m.team = team
 	}
 
 	return true
@@ -87,15 +93,18 @@ func (m *mattermostClient) isMattermostUp() bool {
 	return true
 }
 
-func (m *mattermostClient) createChannelIfNeeded(channelName string, channelType string) {
+func (m *mattermostClient) createChannelIfNeeded(channelName string, channelType string) bool {
 	if m.client == nil || m.team == nil {
 		log.Errorf("Client or team is nil, cannot create channel")
-		return
+		return false
 	}
 
 	if _, resp := m.client.GetChannelByName(channelName, m.team.Id, ""); resp.Error != nil {
-		log.Errorf("Failed to get channel %s", channelName)
-		return
+		log.Infof("Failed to get channels %s. Error: %s. Trying to create channel",
+			channelName, resp.Error.Message)
+	} else {
+		// Channel already exists, ignore
+		return true
 	}
 
 	// Looks like we need to create the logging channel
@@ -107,11 +116,66 @@ func (m *mattermostClient) createChannelIfNeeded(channelName string, channelType
 	channel.TeamId = m.team.Id
 	if _, resp := m.client.CreateChannel(channel); resp.Error != nil {
 		log.Errorf("Failed to create channel '%s'", channelName)
-		return
+		return false
 	}
+
+	return true
 }
 
 func (m *mattermostClient) handleWebSocketResponse(event *model.WebSocketEvent) {
+	if event == nil {
+		return
+	}
+	log.Infof("Event received type: %s", event.Event)
+	if event.Event != model.WEBSOCKET_EVENT_POSTED {
+		return
+	}
+
 	// @TODO
-	log.Infof("Event received")
+	post := model.PostFromJson(strings.NewReader(event.Data["post"].(string)))
+	if post != nil {
+		log.Debugf("Post received: %s", post)
+		// ignore bot events
+		if post.UserId == mClient.user.Id {
+			return
+		}
+
+		// Ignore non command
+		if len(post.Message) < 2 || post.Message[0] != '!' {
+			return
+		}
+
+		event := bot.CommandEvent{
+			Command: post.Message[1:],
+			Channel: event.Broadcast.ChannelId,
+			User:    event.Broadcast.UserId,
+		}
+
+		log.Infof("User %s sent command on channel %s: %s", event.User, event.Channel, event.Command)
+
+		if !verifyPublisher() {
+			log.Error("Failed to verify publisher, no command sent to broker")
+			return
+		}
+
+		if !verifyConsumer() {
+			log.Error("Failed to verify consumer, no command sent to broker")
+			return
+		}
+
+		consumerCfg := gconfig.RabbitMQ.GetConsumer("commands")
+		if consumerCfg == nil {
+			log.Fatalf("RabbitMQ consumer configuration 'commands' not found, aborting.")
+		}
+
+		rabbitmqPublisher.Publish(
+			&event,
+			"command",
+			&bot.EventOptions{
+				CorrelationID: uuid.NewV4().String(),
+				ReplyTo:       consumerCfg.RoutingKey,
+				ExpirationMs:  300000,
+			},
+		)
+	}
 }

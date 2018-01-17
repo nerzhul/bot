@@ -3,13 +3,13 @@ package internal
 import (
 	"encoding/json"
 	//"fmt"
+	"github.com/mattermost/mattermost-server/model"
 	"github.com/streadway/amqp"
 	"gitlab.com/nerzhul/bot"
 	"time"
 )
 
 var rabbitmqConsumer *bot.EventConsumer
-var slackMsgID = 0
 
 func consumeResponses(msgs <-chan amqp.Delivery) {
 	for d := range msgs {
@@ -35,14 +35,20 @@ func consumeCommandResponse(msg *amqp.Delivery) {
 		log.Errorf("Failed to decode command response : %v", err)
 	}
 
-	// Send message on slack
-	slackMsgID++
-	//slackRTM.SendMessage(&slack.OutgoingMessage{
-	//	ID:      slackMsgID,
-	//	Type:    "message",
-	//	Channel: response.Channel,
-	//	Text:    response.Message,
-	//})
+	// Send message on mattermost
+	post := &model.Post{
+		ChannelId: response.Channel,
+		Message:   response.Message,
+	}
+
+	// TODO: see if this is useful
+	// post.RootId = replyToId
+
+	if _, resp := mClient.client.CreatePost(post); resp.Error != nil {
+		log.Errorf("Failed to send a message to '%s' channel.", response.Channel)
+		msg.Nack(false, true)
+		return
+	}
 
 	msg.Ack(false)
 }

@@ -20,7 +20,7 @@ func runMattermostClient() {
 	for {
 		mClient.init()
 		if mClient.isMattermostUp() {
-			mClient.createChannelIfNeeded(gconfig.Mattermost.TwitterChannel, model.CHANNEL_OPEN)
+			mClient.createChannelIfNeeded(gconfig.Mattermost.TwitterChannel, model.CHANNEL_PRIVATE)
 		}
 
 		mClient.run()

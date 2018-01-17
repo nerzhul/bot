@@ -64,8 +64,15 @@ func (m *mattermostClient) run() bool {
 	for {
 		select {
 		case resp := <-webSocketClient.EventChannel:
-			m.handleWebSocketResponse(resp)
+			if !m.handleWebSocketResponse(resp) {
+				goto end
+			}
 		}
+	}
+
+end:
+	if webSocketClient != nil {
+		webSocketClient.Close()
 	}
 	return true
 }
@@ -130,14 +137,14 @@ func (m *mattermostClient) createChannelIfNeeded(channelName string, channelType
 	return true
 }
 
-func (m *mattermostClient) handleWebSocketResponse(event *model.WebSocketEvent) {
+func (m *mattermostClient) handleWebSocketResponse(event *model.WebSocketEvent) bool {
 	if event == nil {
-		return
+		return false
 	}
 
 	log.Debugf("Event received type: %s", event.Event)
 	if event.Event != model.WEBSOCKET_EVENT_POSTED {
-		return
+		return true
 	}
 
 	post := model.PostFromJson(strings.NewReader(event.Data["post"].(string)))
@@ -145,12 +152,12 @@ func (m *mattermostClient) handleWebSocketResponse(event *model.WebSocketEvent) 
 		log.Debugf("Post received: %s", post)
 		// ignore bot events
 		if post.UserId == mClient.user.Id {
-			return
+			return true
 		}
 
 		// Ignore non command
 		if len(post.Message) < 2 || post.Message[0] != '!' {
-			return
+			return true
 		}
 
 		event := bot.CommandEvent{
@@ -163,12 +170,12 @@ func (m *mattermostClient) handleWebSocketResponse(event *model.WebSocketEvent) 
 
 		if !verifyPublisher() {
 			log.Error("Failed to verify publisher, no command sent to broker")
-			return
+			return true
 		}
 
 		if !verifyConsumer() {
 			log.Error("Failed to verify consumer, no command sent to broker")
-			return
+			return true
 		}
 
 		consumerCfg := gconfig.RabbitMQ.GetConsumer("commands")
@@ -186,4 +193,6 @@ func (m *mattermostClient) handleWebSocketResponse(event *model.WebSocketEvent) 
 			},
 		)
 	}
+
+	return true
 }

@@ -46,6 +46,8 @@ func (m *mattermostClient) login() bool {
 		}
 	}()
 
+	m.createChannelIfNeeded(gconfig.Mattermost.TwitterChannel, model.CHANNEL_OPEN)
+
 	// You can block forever with
 	select {}
 
@@ -82,6 +84,30 @@ func (m *mattermostClient) isMattermostUp() bool {
 	}
 
 	return true
+}
+
+func (m *mattermostClient) createChannelIfNeeded(channelName string, channelType string) {
+	if m.client == nil || m.team == nil {
+		log.Errorf("Client or team is nil, cannot create channel")
+		return
+	}
+
+	if _, resp := m.client.GetChannelByName(channelName, m.team.Id, ""); resp.Error != nil {
+		log.Errorf("Failed to get channel %s", channelName)
+		return
+	}
+
+	// Looks like we need to create the logging channel
+	channel := &model.Channel{}
+	channel.Name = channelName
+	channel.DisplayName = channelName
+	channel.Purpose = ""
+	channel.Type = channelType
+	channel.TeamId = m.team.Id
+	if _, resp := m.client.CreateChannel(channel); resp.Error != nil {
+		log.Errorf("Failed to create channel '%s'", channelName)
+		return
+	}
 }
 
 func (m *mattermostClient) handleWebSocketResponse(event *model.WebSocketEvent) {

@@ -1,0 +1,26 @@
+---
+mattermost:
+  url:
+  ws-url:
+  username: "bot"
+  password: "password"
+  email: "bot@bot.local"
+  user-first: "Bot"
+  user-last: "Bot"
+  team: "MyTeam"
+  twitter-channel: "channel-id"
+rabbitmq:
+  url: "amqp://guest:guest@localhost:5672/"
+  exchange: "commands"
+  publisher-routing-key: "chat-command"
+  consumers:
+    - queue: "mattermost/commands"
+      exchange: "commands"
+      exchange-durable: false
+      routing-key: "mattermost"
+      consumer-id: "mattermost/commands"
+    - queue: "mattermost/twitter"
+      exchange: "twitter"
+      exchange-durable: false
+      routing-key: "mattermost"
+      consumer-id: "mattermost/twitter"

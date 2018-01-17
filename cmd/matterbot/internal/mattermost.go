@@ -112,4 +112,5 @@ func (m *mattermostClient) createChannelIfNeeded(channelName string, channelType
 
 func (m *mattermostClient) handleWebSocketResponse(event *model.WebSocketEvent) {
 	// @TODO
+	log.Infof("Event received")
 }

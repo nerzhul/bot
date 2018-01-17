@@ -1,7 +1,7 @@
 ---
 mattermost:
-  url:
-  ws-url:
+  url: "http://localhost:8065"
+  ws-url: "ws://localhost:8065"
   username: "bot"
   password: "password"
   email: "bot@bot.local"

@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	//"fmt"
 	"fmt"
+	"github.com/labstack/echo"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/streadway/amqp"
 	"gitlab.com/nerzhul/bot"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -78,6 +80,47 @@ func consumeIRCResponse(msg *amqp.Delivery) {
 	chanInfo := mClient.getChannelInfo(channelName)
 	if chanInfo == nil {
 		log.Errorf("Unable to find mattermost channel %s", channelName)
+		msg.Nack(false, true)
+		return
+	}
+
+	mwe := mattermostWebhookEvent{
+		Text:     ircChatEvent.Message,
+		Username: ircChatEvent.User,
+		Channel:  ircChatEvent.Channel,
+	}
+	mweStr, err := mwe.toJSON()
+
+	if err != nil {
+		log.Errorf("Failed to marshal mattermostWebhookEvent for channel %s and from user %s.",
+			ircChatEvent.Channel, ircChatEvent.User)
+		msg.Nack(false, false)
+		return
+	}
+
+	req, err := http.NewRequest("POST", "https://hub.unix-experience.fr/hooks/11a9qmiirpdc3c5ip8xx1h5nyy",
+		strings.NewReader(string(mweStr)))
+	if err != nil {
+		log.Errorf("Failed to create POST request for mattermostWebhookEvent to mattermost, requeing.")
+		msg.Nack(false, true)
+		return
+	}
+
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Errorf("Failed to POST mattermostWebhookEvent to mattermost, requeing.")
+		msg.Nack(false, true)
+		return
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		log.Errorf("Mattermost didn't accept our mattermostWebhookEvent. Code: %d", resp.StatusCode)
 		msg.Nack(false, true)
 		return
 	}

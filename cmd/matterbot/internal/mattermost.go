@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"encoding/json"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/satori/go.uuid"
 	"gitlab.com/nerzhul/bot"
@@ -13,6 +14,23 @@ type mattermostClient struct {
 	user   *model.User
 	team   *model.Team
 	//channels map[string]*model.Channel
+}
+
+type mattermostWebhookEvent struct {
+	Text     string `json:"text"`
+	Username string `json:"username"`
+	Channel  string `json:"username"`
+}
+
+// toJSON convert achievement event to byte string
+// Returns non nil error when marshaling failed
+func (ae *mattermostWebhookEvent) toJSON() ([]byte, error) {
+	jsonStr, err := json.Marshal(ae)
+	if err != nil {
+		return nil, err
+	}
+
+	return jsonStr, nil
 }
 
 var mClient mattermostClient

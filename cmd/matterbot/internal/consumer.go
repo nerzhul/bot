@@ -3,6 +3,7 @@ package internal
 import (
 	"encoding/json"
 	//"fmt"
+	"fmt"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/streadway/amqp"
 	"gitlab.com/nerzhul/bot"
@@ -43,9 +44,6 @@ func consumeCommandResponse(msg *amqp.Delivery) {
 		Message:   response.Message,
 	}
 
-	// TODO: see if this is useful
-	// post.RootId = replyToId
-
 	if _, resp := mClient.client.CreatePost(post); resp.Error != nil {
 		log.Errorf("Failed to send a message to '%s' channel.", response.Channel)
 		msg.Nack(false, true)
@@ -72,6 +70,28 @@ func consumeIRCResponse(msg *amqp.Delivery) {
 	}
 
 	log.Debugf("Received IRC event %v", ircChatEvent)
+
+	channelName := fmt.Sprintf("test-%s", ircChatEvent.Channel)
+	mClient.createChannelIfNeeded(channelName, model.CHANNEL_OPEN)
+
+	chanInfo := mClient.getChannelInfo(channelName)
+	if chanInfo == nil {
+		log.Errorf("Unable to find mattermost channel %s", channelName)
+		msg.Nack(false, true)
+		return
+	}
+
+	post := &model.Post{
+		ChannelId: chanInfo.Id,
+		Message:   fmt.Sprintf("Message from %s:\n%s", ircChatEvent.User, ircChatEvent.Message),
+	}
+
+	if _, resp := mClient.client.CreatePost(post); resp.Error != nil {
+		log.Errorf("Failed to send a message to '%s' channel.", channelName)
+		msg.Nack(false, true)
+		return
+	}
+
 	msg.Ack(false)
 }
 

@@ -12,6 +12,7 @@ type mattermostClient struct {
 	client *model.Client4
 	user   *model.User
 	team   *model.Team
+	//channels map[string]*model.Channel
 }
 
 var mClient mattermostClient
@@ -33,12 +34,14 @@ func runMattermostClient() {
 
 func (m *mattermostClient) init() {
 	m.client = model.NewAPIv4Client(gconfig.Mattermost.URL)
+	//m.channels = make(map[string]*model.Channel)
 }
 
 func (m *mattermostClient) deinit() {
-	mClient.client = nil
-	mClient.user = nil
-	mClient.team = nil
+	m.client = nil
+	m.user = nil
+	m.team = nil
+	//m.channels = nil
 }
 
 func (m *mattermostClient) login() bool {
@@ -108,17 +111,26 @@ func (m *mattermostClient) isMattermostUp() bool {
 	return true
 }
 
+func (m *mattermostClient) getChannelInfo(channelName string) *model.Channel {
+	var channel *model.Channel
+	var resp *model.Response
+
+	if channel, resp = m.client.GetChannelByName(channelName, m.team.Id, ""); resp.Error != nil {
+		log.Infof("Failed to get channel %s. Error: %s. Trying to create channel",
+			channelName, resp.Error.Message)
+		return nil
+	}
+
+	return channel
+}
+
 func (m *mattermostClient) createChannelIfNeeded(channelName string, channelType string) bool {
 	if m.client == nil || m.team == nil {
 		log.Errorf("Client or team is nil, cannot create channel")
 		return false
 	}
 
-	if _, resp := m.client.GetChannelByName(channelName, m.team.Id, ""); resp.Error != nil {
-		log.Infof("Failed to get channels %s. Error: %s. Trying to create channel",
-			channelName, resp.Error.Message)
-	} else {
-		// Channel already exists, ignore
+	if m.getChannelInfo(channelName) != nil {
 		return true
 	}
 

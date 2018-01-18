@@ -12,6 +12,7 @@ type config struct {
 	Mattermost struct {
 		URL            string `yaml:"url"`
 		WsURL          string `yaml:"ws-url"`
+		IRCWebhookURL  string `yaml:"irc-webhook-url"`
 		Email          string `yaml:"email"`
 		Password       string `yaml:"password"`
 		Username       string `yaml:"username"`
@@ -55,6 +56,7 @@ func (c *config) loadDefaultConfiguration() {
 
 	c.Mattermost.URL = "http://localhost:8065"
 	c.Mattermost.WsURL = "ws://localhost:8065"
+	c.Mattermost.IRCWebhookURL = "http://localhost:8065/hooks/blah"
 	c.Mattermost.Username = "bot"
 	c.Mattermost.Password = "password"
 	c.Mattermost.Email = "bot@bot.local"

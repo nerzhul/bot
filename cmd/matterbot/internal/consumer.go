@@ -98,7 +98,7 @@ func consumeIRCResponse(msg *amqp.Delivery) {
 		return
 	}
 
-	req, err := http.NewRequest("POST", "https://hub.unix-experience.fr/hooks/11a9qmiirpdc3c5ip8xx1h5nyy",
+	req, err := http.NewRequest("POST", gconfig.Mattermost.IRCWebhookURL,
 		strings.NewReader(string(mweStr)))
 	if err != nil {
 		log.Errorf("Failed to create POST request for mattermostWebhookEvent to mattermost, requeing.")

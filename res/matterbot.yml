@@ -2,6 +2,7 @@
 mattermost:
   url: "http://localhost:8065"
   ws-url: "ws://localhost:8065"
+  irc-webhook-url: "http://localhost:8065/hooks/blah"
   username: "bot"
   password: "password"
   email: "bot@bot.local"

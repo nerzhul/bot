@@ -37,6 +37,13 @@ func (c *config) loadDefaultConfiguration() {
 			Exchange:        "commands",
 			ExchangeDurable: false,
 		},
+		"irc": {
+			RoutingKey:      "irc-chat",
+			ConsumerID:      "matterbot/irc",
+			Queue:           "matterbot/irc",
+			Exchange:        "commands",
+			ExchangeDurable: false,
+		},
 		"twitter": {
 			RoutingKey:      "matterbot",
 			ConsumerID:      "matterbot/twitter",

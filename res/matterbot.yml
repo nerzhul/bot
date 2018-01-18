@@ -20,6 +20,12 @@ rabbitmq:
       exchange-durable: false
       routing-key: "mattermost"
       consumer-id: "mattermost/commands"
+    irc:
+      queue: "mattermost/irc"
+      exchange: "commands"
+      exchange-durable: false
+      routing-key: "irc-chat"
+      consumer-id: "mattermost/irc"
     twitter:
       queue: "mattermost/twitter"
       exchange: "twitter"

@@ -13,7 +13,9 @@ var rabbitmqConsumer *bot.EventConsumer
 
 func consumeResponses(msgs <-chan amqp.Delivery) {
 	for d := range msgs {
-		if d.Type == "tweet" {
+		if d.Type == "irc-chat" {
+			consumeIRCResponse(&d)
+		} else if d.Type == "tweet" {
 			consumeTwitterResponse(&d)
 		} else {
 			consumeCommandResponse(&d)
@@ -50,6 +52,26 @@ func consumeCommandResponse(msg *amqp.Delivery) {
 		return
 	}
 
+	msg.Ack(false)
+}
+
+func consumeIRCResponse(msg *amqp.Delivery) {
+	if !mClient.isMattermostUp() {
+		log.Warningf("Mattermost client is not ready, waiting 1sec...")
+		time.Sleep(time.Second * 1)
+		msg.Nack(false, true)
+		return
+	}
+
+	ircChatEvent := bot.IRCChatEvent{}
+	err := json.Unmarshal(msg.Body, &ircChatEvent)
+	if err != nil {
+		log.Errorf("Failed to decode tweet : %v", err)
+		msg.Nack(false, false)
+		return
+	}
+
+	log.Debugf("Received IRC event %v", ircChatEvent)
 	msg.Ack(false)
 }
 
@@ -101,7 +123,7 @@ func verifyConsumer() bool {
 			return false
 		}
 
-		for _, consumerName := range []string{"commands", "twitter"} {
+		for _, consumerName := range []string{"commands", "irc", "twitter"} {
 			consumerCfg := gconfig.RabbitMQ.GetConsumer(consumerName)
 			if consumerCfg == nil {
 				log.Fatalf("RabbitMQ consumer configuration '%s' not found, aborting.", consumerName)

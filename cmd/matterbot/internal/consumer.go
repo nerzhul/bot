@@ -125,20 +125,6 @@ func consumeIRCResponse(msg *amqp.Delivery) {
 		return
 	}
 
-	post := &model.Post{
-		ChannelId: chanInfo.Id,
-		Message:   fmt.Sprintf("Message from %s:\n%s", ircChatEvent.User, ircChatEvent.Message),
-		Props: model.StringInterface{
-			"username": ircChatEvent.User,
-		},
-	}
-
-	if _, resp := mClient.client.CreatePost(post); resp.Error != nil {
-		log.Errorf("Failed to send a message to '%s' channel.", channelName)
-		msg.Nack(false, true)
-		return
-	}
-
 	msg.Ack(false)
 }
 

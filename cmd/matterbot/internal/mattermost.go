@@ -26,8 +26,8 @@ func runMattermostClient() {
 		mClient.run()
 
 		mClient.deinit()
-		log.Warning("Connection to mattermost lost, retrying in 60s...")
-		time.Sleep(time.Second * 60)
+		log.Warning("Connection to mattermost lost, retrying in 15s...")
+		time.Sleep(time.Second * 15)
 	}
 }
 

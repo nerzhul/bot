@@ -19,7 +19,7 @@ type mattermostClient struct {
 type mattermostWebhookEvent struct {
 	Text     string `json:"text"`
 	Username string `json:"username"`
-	Channel  string `json:"username"`
+	Channel  string `json:"channel"`
 }
 
 // toJSON convert achievement event to byte string

@@ -85,6 +85,9 @@ func consumeIRCResponse(msg *amqp.Delivery) {
 	post := &model.Post{
 		ChannelId: chanInfo.Id,
 		Message:   fmt.Sprintf("Message from %s:\n%s", ircChatEvent.User, ircChatEvent.Message),
+		Props: model.StringInterface{
+			"username": ircChatEvent.User,
+		},
 	}
 
 	if _, resp := mClient.client.CreatePost(post); resp.Error != nil {

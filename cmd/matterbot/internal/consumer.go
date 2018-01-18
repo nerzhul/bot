@@ -7,6 +7,7 @@ import (
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/streadway/amqp"
 	"gitlab.com/nerzhul/bot"
+	"strings"
 	"time"
 )
 
@@ -71,7 +72,7 @@ func consumeIRCResponse(msg *amqp.Delivery) {
 
 	log.Debugf("Received IRC event %v", ircChatEvent)
 
-	channelName := fmt.Sprintf("test-%s", ircChatEvent.Channel)
+	channelName := strings.Replace(fmt.Sprintf("test-%s", ircChatEvent.Channel), "#", "irc-", -1)
 	mClient.createChannelIfNeeded(channelName, model.CHANNEL_OPEN)
 
 	chanInfo := mClient.getChannelInfo(channelName)

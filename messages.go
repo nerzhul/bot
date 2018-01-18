@@ -19,6 +19,24 @@ func (ce *CommandEvent) ToJSON() ([]byte, error) {
 	return jsonStr, nil
 }
 
+// IRCChatEvent event sent when a chat message arrives on a channel
+type IRCChatEvent struct {
+	Type    string `json:"type"`
+	Message string `json:"message"`
+	Channel string `json:"channel"`
+	User    string `json:"user"`
+}
+
+// ToJSON converts IRCChatEvent to JSON
+func (ice *IRCChatEvent) ToJSON() ([]byte, error) {
+	jsonStr, err := json.Marshal(ice)
+	if err != nil {
+		return nil, err
+	}
+
+	return jsonStr, nil
+}
+
 // CommandResponse command response received on RabbitMQ from command handler
 type CommandResponse struct {
 	Channel     string `json:"channel"`

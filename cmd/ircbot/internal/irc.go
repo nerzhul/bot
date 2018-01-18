@@ -66,19 +66,48 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 
 	text := line.Text()
 
-	log.Debug(line.Text())
-
-	if len(text) < 2 || text[0] != '!' {
+	if len(text) < 2 {
 		return
 	}
 
 	channel := line.Args[0]
 
-	// If it's a private message, channel is user
 	if channel == conn.Me().Nick {
 		channel = line.Nick
-	} else {
-		// We are on a channel, verify we answer commands
+	}
+
+	if !verifyPublisher() {
+		log.Error("Failed to verify publisher, no message sent to broker")
+		return
+	}
+
+	if !verifyConsumer() {
+		log.Error("Failed to verify consumer, no message sent to broker")
+		return
+	}
+
+	if text[0] != '!' {
+		ice := bot.IRCChatEvent{
+			Type:    "privmsg",
+			Message: text,
+			Channel: channel,
+			User:    line.Nick,
+		}
+
+		rabbitmqPublisher.Publish(
+			&ice,
+			"irc-chat",
+			&bot.EventOptions{
+				CorrelationID: uuid.NewV4().String(),
+				ExpirationMs:  1800000,
+				RoutingKey:    "irc-chat",
+			},
+		)
+		return
+	}
+
+	if channel != conn.Me().Nick {
+		// We are on a channel, verify if we answer to commands
 		channelCfg := gconfig.getIRCChannelConfig(channel)
 		if channelCfg == nil || !channelCfg.AnswerCommands {
 			return
@@ -92,16 +121,6 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 	}
 
 	log.Infof("User %s sent command on channel %s: %s", ce.User, ce.Channel, ce.Command)
-
-	if !verifyPublisher() {
-		log.Error("Failed to verify publisher, no command sent to broker")
-		return
-	}
-
-	if !verifyConsumer() {
-		log.Error("Failed to verify consumer, no command sent to broker")
-		return
-	}
 
 	consumerCfg := gconfig.RabbitMQ.GetConsumer("ircbot")
 	if consumerCfg == nil {

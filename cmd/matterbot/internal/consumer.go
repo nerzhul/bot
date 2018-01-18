@@ -87,13 +87,13 @@ func consumeIRCResponse(msg *amqp.Delivery) {
 	mwe := mattermostWebhookEvent{
 		Text:     ircChatEvent.Message,
 		Username: ircChatEvent.User,
-		Channel:  ircChatEvent.Channel,
+		Channel:  channelName,
 	}
 	mweStr, err := mwe.toJSON()
 
 	if err != nil {
 		log.Errorf("Failed to marshal mattermostWebhookEvent for channel %s and from user %s.",
-			ircChatEvent.Channel, ircChatEvent.User)
+			channelName, ircChatEvent.User)
 		msg.Nack(false, false)
 		return
 	}

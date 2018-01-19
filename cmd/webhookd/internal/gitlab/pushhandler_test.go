@@ -1,4 +1,4 @@
-package internal
+package gitlab
 
 import (
 	"encoding/json"

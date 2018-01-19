@@ -6,7 +6,10 @@ rabbitmq:
   exchange: "gitlab"
   exchange-durable: true
   routing-key: "gitlab/events"
-projects-mapping:
+gitlab-projects-mapping:
   "group/projectname":
     - "#channel1"
     - "#channel2"
+mattermost:
+  enable-hook: true
+  token: "mattermostsecret"

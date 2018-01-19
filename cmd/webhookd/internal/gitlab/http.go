@@ -1,7 +1,8 @@
-package internal
+package gitlab
 
 import (
 	"github.com/labstack/echo"
+	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/common"
 	"net/http"
 )
 
@@ -14,15 +15,6 @@ type gitlabEventResponse struct {
 	}
 }
 
-// swagger:response errorResponse
-type errorResponse struct {
-	// in: body
-	Body struct {
-		// required: true
-		Message string `json:"message,required"`
-	}
-}
-
 // swagger:parameters pushGitlabEvent
 type gitlabEventType struct {
 	// X-Gitlab-Event header
@@ -32,6 +24,7 @@ type gitlabEventType struct {
 	Type string
 }
 
+// V1ApiGitlabEvent Gitlab hook event
 // swagger:route POST /v1/gitlab/event gitlab pushGitlabEvent
 //
 // Fetch user's achievements
@@ -44,26 +37,26 @@ type gitlabEventType struct {
 //    400: errorResponse
 //    403: errorResponse
 //    500: errorResponse
-func v1ApiGitlabEvent(c echo.Context) error {
+func V1ApiGitlabEvent(c echo.Context) error {
 	eventType := gitlabEventType{Type: c.Request().Header.Get("X-Gitlab-Event")}
 	switch eventType.Type {
 	case "Push Hook":
 		if !handleGitlabPush(c) {
-			var e errorResponse
+			var e common.ErrorResponse
 			e.Body.Message = "Internal error"
 			c.JSON(http.StatusInternalServerError, e.Body)
 		}
 		return nil
 	case "Tag Push Hook":
 		if !handleGitlabTagPush(c) {
-			var e errorResponse
+			var e common.ErrorResponse
 			e.Body.Message = "Internal error"
 			c.JSON(http.StatusInternalServerError, e.Body)
 		}
 		return nil
 	case "Merge Request Hook":
 		if !handleGitlabMergeRequest(c) {
-			var e errorResponse
+			var e common.ErrorResponse
 			e.Body.Message = "Internal error"
 			c.JSON(http.StatusInternalServerError, e.Body)
 		}
@@ -73,11 +66,11 @@ func v1ApiGitlabEvent(c echo.Context) error {
 	case "Wiki Page Hook":
 	case "Pipeline Hook":
 	case "Build Hook":
-		log.Warningf("Unhandled X-Gitlab-Event %s", eventType.Type)
+		common.Log.Warningf("Unhandled X-Gitlab-Event %s", eventType.Type)
 		return nil
 		break
 	default:
-		var e errorResponse
+		var e common.ErrorResponse
 		e.Body.Message = "Invalid request"
 		c.JSON(http.StatusBadRequest, e.Body)
 		return nil

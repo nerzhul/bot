@@ -1,4 +1,4 @@
-package internal
+package gitlab
 
 type gitlabUser struct {
 	Name      string `json:"name"`

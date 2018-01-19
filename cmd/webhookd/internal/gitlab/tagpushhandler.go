@@ -1,9 +1,11 @@
-package internal
+package gitlab
 
 import (
 	"github.com/labstack/echo"
 	"github.com/satori/go.uuid"
 	"gitlab.com/nerzhul/bot"
+	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/common"
+	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/rabbitmq"
 	"strings"
 )
 
@@ -48,19 +50,19 @@ func (gevent *gitlabTagPushEvent) toNotificationString() string {
 func handleGitlabTagPush(c echo.Context) bool {
 	tagPushEvent := gitlabTagPushEvent{}
 
-	if !readJSONRequest(c.Request().Body, &tagPushEvent) {
-		log.Error("Failed to read Gitlab Tag Push event")
+	if !common.ReadJSONRequest(c.Request().Body, &tagPushEvent) {
+		common.Log.Error("Failed to read Gitlab Tag Push event")
 		return false
 	}
 
 	if !tagPushEvent.verifyEvent() {
-		log.Error("Failed to verify Gitlab Tag Push event")
+		common.Log.Error("Failed to verify Gitlab Tag Push event")
 		return false
 	}
 
-	channelsToPublish, exists := gconfig.ProjectsMapping[tagPushEvent.Project.PathWithNamespace]
+	channelsToPublish, exists := common.GConfig.GitlabProjectsMapping[tagPushEvent.Project.PathWithNamespace]
 	if !exists {
-		log.Warningf("Received hook from project %s but not channel mapped.",
+		common.Log.Warningf("Received hook from project %s but not channel mapped.",
 			tagPushEvent.Project.PathWithNamespace)
 		return true
 	}
@@ -75,12 +77,12 @@ func handleGitlabTagPush(c echo.Context) bool {
 			MessageType: "notice",
 		}
 
-		if !verifyPublisher() {
-			log.Error("Failed to publish Gitlab Tag Push event notification")
+		if !rabbitmq.VerifyPublisher() {
+			common.Log.Error("Failed to publish Gitlab Tag Push event notification")
 			return false
 		}
 
-		rabbitmqPublisher.Publish(
+		rabbitmq.Publisher.Publish(
 			&rEvent,
 			"gitlab-event",
 			&bot.EventOptions{

@@ -1,20 +1,22 @@
-package internal
+package common
 
 import (
 	"github.com/op/go-logging"
 	"os"
 )
 
-var log = logging.MustGetLogger(AppName)
+// Log global logger
+var Log = logging.MustGetLogger("webhook")
 var format = logging.MustStringFormatter(
 	`%{color}%{time:15:04:05.000} %{shortfunc} - %{level:.5s} %{color:reset} %{message}`,
 )
 
-func initLogger() {
+// InitLogger initialize logger
+func InitLogger(name string) {
 	stderrLog := logging.NewLogBackend(os.Stderr, "", 0)
-	syslogBackend, err := logging.NewSyslogBackend(AppName)
+	syslogBackend, err := logging.NewSyslogBackend(name)
 	if err != nil {
-		log.Error("Failed to setup logs syslog backend.")
+		Log.Error("Failed to setup logs syslog backend.")
 	}
 	logging.SetBackend(logging.NewBackendFormatter(stderrLog, format), syslogBackend)
 }

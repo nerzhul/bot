@@ -1,11 +1,11 @@
-package internal
+package common
 
 import (
 	"encoding/json"
 	"io"
 )
 
-func readJSONRequest(payload io.ReadCloser, decodedPayload interface{}) bool {
+func ReadJSONRequest(payload io.ReadCloser, decodedPayload interface{}) bool {
 	decoder := json.NewDecoder(payload)
 	defer payload.Close()
 	if err := decoder.Decode(&decodedPayload); err != nil {

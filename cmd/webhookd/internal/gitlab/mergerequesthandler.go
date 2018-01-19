@@ -1,10 +1,12 @@
-package internal
+package gitlab
 
 import (
 	"fmt"
 	"github.com/labstack/echo"
 	"github.com/satori/go.uuid"
 	"gitlab.com/nerzhul/bot"
+	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/common"
+	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/rabbitmq"
 	"strings"
 )
 
@@ -45,19 +47,19 @@ func (gevent *gitlabMergeRequestEvent) toNotificationString() string {
 func handleGitlabMergeRequest(c echo.Context) bool {
 	mrEvent := gitlabMergeRequestEvent{}
 
-	if !readJSONRequest(c.Request().Body, &mrEvent) {
-		log.Error("Failed to read Gitlab Merge Request event")
+	if !common.ReadJSONRequest(c.Request().Body, &mrEvent) {
+		common.Log.Error("Failed to read Gitlab Merge Request event")
 		return false
 	}
 
 	if !mrEvent.verifyEvent() {
-		log.Error("Failed to verify Gitlab Merge Request event")
+		common.Log.Error("Failed to verify Gitlab Merge Request event")
 		return false
 	}
 
-	channelsToPublish, exists := gconfig.ProjectsMapping[mrEvent.Project.PathWithNamespace]
+	channelsToPublish, exists := common.GConfig.GitlabProjectsMapping[mrEvent.Project.PathWithNamespace]
 	if !exists {
-		log.Warningf("Received hook from project %s but not channel mapped.",
+		common.Log.Warningf("Received hook from project %s but not channel mapped.",
 			mrEvent.Project.PathWithNamespace)
 		return true
 	}
@@ -72,12 +74,12 @@ func handleGitlabMergeRequest(c echo.Context) bool {
 			MessageType: "notice",
 		}
 
-		if !verifyPublisher() {
-			log.Error("Failed to publish Gitlab Merge Request event")
+		if !rabbitmq.VerifyPublisher() {
+			common.Log.Error("Failed to publish Gitlab Merge Request event")
 			return false
 		}
 
-		rabbitmqPublisher.Publish(
+		rabbitmq.Publisher.Publish(
 			&rEvent,
 			"gitlab-event",
 			&bot.EventOptions{

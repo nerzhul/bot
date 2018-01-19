@@ -65,5 +65,5 @@ func V1ApiMattermostCommand(c echo.Context) error {
 	mcrp := mattermostCommandResponse{}
 	mcrp.Body.ResponseType = "in_channel"
 	mcrp.Body.Text = "This is a test"
-	return c.JSON(http.StatusBadRequest, mcrp.Body)
+	return c.JSON(http.StatusOK, mcrp.Body)
 }

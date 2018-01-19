@@ -14,6 +14,11 @@ type config struct {
 	}
 
 	GitlabProjectsMapping map[string][]string `yaml:"gitlab-projects-mapping"`
+
+	Mattermost struct {
+		EnableHook bool   `yaml:"enable-hook"`
+		Token      string `yaml:"token"`
+	} `yaml:"mattermost"`
 }
 
 // GConfig global configuration
@@ -27,6 +32,9 @@ func (c *config) loadDefaultConfiguration() {
 
 	c.HTTP.Port = 8080
 	c.GitlabProjectsMapping = make(map[string][]string)
+
+	c.Mattermost.EnableHook = true
+	c.Mattermost.Token = ""
 }
 
 // LoadConfiguration load configuration from path

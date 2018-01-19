@@ -32,7 +32,9 @@ func StartApp(configFile string) {
 	// Bind main thread to HTTP service
 	e := echo.New()
 	e.POST("/v1/gitlab/event", gitlab.V1ApiGitlabEvent)
-	e.POST("/v1/mattermost/command", v1ApiMattermostCommand)
+	if common.GConfig.Mattermost.EnableHook {
+		e.POST("/v1/mattermost/command", v1ApiMattermostCommand)
+	}
 
 	httpListeningAddress := fmt.Sprintf(":%d", common.GConfig.HTTP.Port)
 

@@ -29,9 +29,9 @@ commandhandler: dep
 	@cd cmd/commandhandler && \
     		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/commandhandler"
 
-gitlab-hook: dep
-	@cd cmd/gitlab-hookd && \
-    		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/gitlab-hookd"
+webhook: dep
+	@cd cmd/webhookd && \
+    		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/webhook"
 
 ircbot: dep
 	@cd cmd/ircbot && \
@@ -49,15 +49,15 @@ twitterbot: dep
 	@cd cmd/twitterbot && \
     		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/twitterbot"
 
-build: commandhandler gitlab-hook ircbot matterbot slackbot twitterbot
+build: commandhandler webhook ircbot matterbot slackbot twitterbot
 
 install: build
 	install -d /usr/local/etc/rc.d
 	install -d /usr/local/bin
 	install -m 0755 "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/commandhandler" /usr/local/bin/commandhandler
 	install -m 0755 res/freebsd/commandhandler.sh /usr/local/etc/rc.d/commandhandler
-	install -m 0755 "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/gitlab-hookd" /usr/local/bin/gitlab-hookd
-	install -m 0755 res/freebsd/gitlab-hook.sh /usr/local/etc/rc.d/gitlab-hook
+	install -m 0755 "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/webhook" /usr/local/bin/webhook
+	install -m 0755 res/freebsd/webhook.sh /usr/local/etc/rc.d/webhook
 	install -m 0755 "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/ircbot" /usr/local/bin/ircbot
 	install -m 0755 res/freebsd/ircbot.sh /usr/local/etc/rc.d/ircbot
 	install -m 0755 "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/matterbot" /usr/local/bin/matterbot
@@ -70,7 +70,7 @@ install: build
 doc: swagger_doc
 
 swagger_doc:
-	@cd cmd/gitlab-hookd && \
+	@cd cmd/webhook && \
 		mkdir -p ${CI_PROJECT_DIR}/artifacts && \
 		go get -u github.com/go-swagger/go-swagger/cmd/swagger && \
 		${GOPATH}/bin/swagger generate spec -o ${CI_PROJECT_DIR}/artifacts/swagger.json

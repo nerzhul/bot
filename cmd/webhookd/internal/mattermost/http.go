@@ -35,6 +35,7 @@ type mattermostCommandResponse struct {
 	}
 }
 
+// V1ApiMattermostCommand handle mattermost commands through HTTP
 // swagger:route POST /v1/mattermost/commands mattermost-command getMattermostCommandResult
 //
 // Handle mattermost commands

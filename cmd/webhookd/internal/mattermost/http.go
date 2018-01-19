@@ -31,7 +31,12 @@ type mattermostCommandResponse struct {
 		// Response type
 		// required: true
 		ResponseType string `json:"response_type"`
-		Text         string `json:"text"`
+		// The response content
+		// required: true
+		Text string `json:"text"`
+		// Overwrite username
+		// required: false
+		Username string `json:"username"`
 	}
 }
 
@@ -63,7 +68,8 @@ func V1ApiMattermostCommand(c echo.Context) error {
 	}
 
 	mcrp := mattermostCommandResponse{}
-	mcrp.Body.ResponseType = "in_channel"
+	mcrp.Body.ResponseType = "ephemeral"
 	mcrp.Body.Text = "This is a test"
+	mcrp.Body.Username = common.GConfig.Mattermost.ResponseUsername
 	return c.JSON(http.StatusOK, mcrp.Body)
 }

@@ -16,8 +16,9 @@ type config struct {
 	GitlabProjectsMapping map[string][]string `yaml:"gitlab-projects-mapping"`
 
 	Mattermost struct {
-		EnableHook bool   `yaml:"enable-hook"`
-		Token      string `yaml:"token"`
+		EnableHook       bool   `yaml:"enable-hook"`
+		Token            string `yaml:"token"`
+		ResponseUsername string `yaml:"response-username"`
 	} `yaml:"mattermost"`
 }
 
@@ -35,6 +36,7 @@ func (c *config) loadDefaultConfiguration() {
 
 	c.Mattermost.EnableHook = true
 	c.Mattermost.Token = ""
+	c.Mattermost.ResponseUsername = "webhook"
 }
 
 // LoadConfiguration load configuration from path

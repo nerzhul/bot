@@ -13,3 +13,4 @@ gitlab-projects-mapping:
 mattermost:
   enable-hook: true
   token: "mattermostsecret"
+  response-username: "webhook"

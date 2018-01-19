@@ -20,6 +20,11 @@ type config struct {
 		Token            string `yaml:"token"`
 		ResponseUsername string `yaml:"response-username"`
 	} `yaml:"mattermost"`
+
+	Slack struct {
+		EnableHook bool   `yaml:"enable-hook"`
+		Token      string `yaml:"token"`
+	} `yaml:"slack"`
 }
 
 // GConfig global configuration
@@ -37,6 +42,9 @@ func (c *config) loadDefaultConfiguration() {
 	c.Mattermost.EnableHook = true
 	c.Mattermost.Token = ""
 	c.Mattermost.ResponseUsername = "webhook"
+
+	c.Slack.EnableHook = true
+	c.Slack.Token = ""
 }
 
 // LoadConfiguration load configuration from path

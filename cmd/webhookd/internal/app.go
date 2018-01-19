@@ -7,6 +7,7 @@ import (
 	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/gitlab"
 	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/mattermost"
 	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/rabbitmq"
+	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/slack"
 )
 
 // AppName application name
@@ -32,9 +33,17 @@ func StartApp(configFile string) {
 
 	// Bind main thread to HTTP service
 	e := echo.New()
+	common.Log.Info("Binding URL /v1/gitlab/event")
 	e.POST("/v1/gitlab/event", gitlab.V1ApiGitlabEvent)
+
 	if common.GConfig.Mattermost.EnableHook {
+		common.Log.Info("Binding URL /v1/mattermost/command")
 		e.POST("/v1/mattermost/command", mattermost.V1ApiMattermostCommand)
+	}
+
+	if common.GConfig.Slack.EnableHook {
+		common.Log.Info("Binding URL /v1/slack/command")
+		e.POST("/v1/slack/command", slack.V1ApiSlackCommand)
 	}
 
 	httpListeningAddress := fmt.Sprintf(":%d", common.GConfig.HTTP.Port)

@@ -1,4 +1,4 @@
-package mattermost
+package slack
 
 import (
 	"github.com/labstack/echo"
@@ -6,8 +6,8 @@ import (
 	"net/http"
 )
 
-// swagger:parameters getMattermostCommandResult
-type mattermostCommandRequest struct {
+// swagger:parameters getSlackCommandResult
+type slackCommandRequest struct {
 	// User ID
 	//
 	// in: body
@@ -24,8 +24,8 @@ type mattermostCommandRequest struct {
 	UserName    string `json:"user_name" form:"user_name" query:"user_name"`
 }
 
-// swagger:response mattermostCommandResponse
-type mattermostCommandResponse struct {
+// swagger:response slackCommandResponse
+type slackCommandResponse struct {
 	// in: body
 	Body struct {
 		// Response type
@@ -34,44 +34,40 @@ type mattermostCommandResponse struct {
 		// The response content
 		// required: true
 		Text string `json:"text"`
-		// Overwrite username
-		// required: false
-		Username string `json:"username"`
 	}
 }
 
-// V1ApiMattermostCommand handle mattermost commands through HTTP
-// swagger:route POST /v1/mattermost/commands mattermost-command getMattermostCommandResult
+// V1ApiSlackCommand handle slack commands through HTTP
+// swagger:route POST /v1/slack/commands slack-command getSlackCommandResult
 //
-// Handle mattermost commands
+// Handle slack commands
 //
 // Security:
 //    jwtToken: read
 //
 // Responses:
-//    200: mattermostCommandResponse
+//    200: slackCommandResponse
 //    400: errorResponse
 //    403: errorResponse
 //    500: errorResponse
-func V1ApiMattermostCommand(c echo.Context) error {
-	mcr := new(mattermostCommandRequest)
+func V1ApiSlackCommand(c echo.Context) error {
+	mcr := new(slackCommandRequest)
 	if err := c.Bind(mcr); err != nil {
-		common.Log.Errorf("Malformed request sent from %s, refusing Mattermost command", c.RealIP())
+		common.Log.Errorf("Malformed request sent from %s, refusing slack command", c.RealIP())
 		var e common.ErrorResponse
 		e.Body.Message = "Bad request"
 		return c.JSON(http.StatusBadRequest, e.Body)
 	}
 
-	if mcr.Token != common.GConfig.Mattermost.Token {
-		common.Log.Errorf("Invalid token sent from %s, refusing Mattermost command", c.RealIP())
+	if mcr.Token != common.GConfig.Slack.Token {
+		common.Log.Errorf("Invalid token sent from %s, refusing slack command", c.RealIP())
 		var e common.ErrorResponse
 		e.Body.Message = "Forbidden"
 		return c.JSON(http.StatusForbidden, e.Body)
 	}
 
-	mcrp := mattermostCommandResponse{}
+	mcrp := slackCommandResponse{}
 	mcrp.Body.ResponseType = "ephemeral"
 	mcrp.Body.Text = "This is a test"
-	mcrp.Body.Username = common.GConfig.Mattermost.ResponseUsername
 	return c.JSON(http.StatusOK, mcrp.Body)
 }

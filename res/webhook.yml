@@ -14,3 +14,6 @@ mattermost:
   enable-hook: true
   token: "mattermostsecret"
   response-username: "webhook"
+slack:
+  enable-hook: true
+  token: "slacksecret"

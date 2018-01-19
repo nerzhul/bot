@@ -51,13 +51,15 @@ type mattermostCommandResponse struct {
 func V1ApiMattermostCommand(c echo.Context) error {
 	mcr := new(mattermostCommandRequest)
 	if err := c.Bind(mcr); err != nil {
-		return c.JSON(http.StatusBadRequest, nil)
+		var e common.ErrorResponse
+		e.Body.Message = "Forbidden"
+		return c.JSON(http.StatusBadRequest, e.Body)
 	}
 
 	if mcr.Token != common.GConfig.Mattermost.Token {
 		var e common.ErrorResponse
 		e.Body.Message = "Forbidden"
-		return c.JSON(http.StatusForbidden, nil)
+		return c.JSON(http.StatusForbidden, e.Body)
 	}
 
 	mcrp := mattermostCommandResponse{}

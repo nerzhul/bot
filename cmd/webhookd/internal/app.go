@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/echo"
 	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/common"
 	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/gitlab"
+	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/mattermost"
 	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/rabbitmq"
 )
 
@@ -33,7 +34,7 @@ func StartApp(configFile string) {
 	e := echo.New()
 	e.POST("/v1/gitlab/event", gitlab.V1ApiGitlabEvent)
 	if common.GConfig.Mattermost.EnableHook {
-		e.POST("/v1/mattermost/command", v1ApiMattermostCommand)
+		e.POST("/v1/mattermost/command", mattermost.V1ApiMattermostCommand)
 	}
 
 	httpListeningAddress := fmt.Sprintf(":%d", common.GConfig.HTTP.Port)

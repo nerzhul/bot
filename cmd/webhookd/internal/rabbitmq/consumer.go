@@ -1,14 +1,53 @@
 package rabbitmq
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/streadway/amqp"
 	"gitlab.com/nerzhul/bot"
 	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/common"
+	"io/ioutil"
+	"net/http"
 )
 
 // Consumer rabbitmq consummer
 var Consumer *bot.EventConsumer
+
+func pushCommandResponse(response *bot.CommandResponse) bool {
+	common.Log.Debugf("Received command response for user %s (callback %s)", response.User, response.Channel)
+	pushResponse := fmt.Sprintf(`{"response_type": "ephemeral", "text": "%s"}`, response.Message)
+	req, err := http.NewRequest("POST", response.Channel, bytes.NewBuffer([]byte(pushResponse)))
+	if err != nil {
+		common.Log.Errorf("HTTP request error: %v", err)
+		return false
+	}
+
+	// Add token
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		common.Log.Errorf("Failed to read body when pushing command response to %s.", response.Channel)
+		return false
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		common.Log.Errorf("Failed to push response to %s. Server sent: %s.", response.Channel, body)
+		return false
+	}
+
+	common.Log.Infof("Command response pushed to %s.", response.Channel)
+	return true
+}
 
 func consumeCommandResponses(msgs <-chan amqp.Delivery) {
 	for d := range msgs {
@@ -18,14 +57,11 @@ func consumeCommandResponses(msgs <-chan amqp.Delivery) {
 			common.Log.Errorf("Failed to decode command response : %v", err)
 		}
 
-		common.Log.Debugf("command response %v", response)
-		if response.MessageType == "notice" {
-			// ircConn.Notice(response.Channel, msg)
+		if !pushCommandResponse(&response) {
+			d.Nack(false, false)
 		} else {
-			// ircConn.Privmsg(response.Channel, msg)
+			d.Ack(false)
 		}
-
-		d.Ack(false)
 	}
 }
 

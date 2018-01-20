@@ -108,5 +108,6 @@ func V1ApiMattermostCommand(c echo.Context) error {
 			RoutingKey:    "chat-command",
 		},
 	)
+
 	return c.JSON(http.StatusOK, nil)
 }

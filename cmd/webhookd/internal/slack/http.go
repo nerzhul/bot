@@ -1,8 +1,12 @@
 package slack
 
 import (
+	"fmt"
 	"github.com/labstack/echo"
+	"github.com/satori/go.uuid"
+	"gitlab.com/nerzhul/bot"
 	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/common"
+	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/rabbitmq"
 	"net/http"
 )
 
@@ -66,8 +70,41 @@ func V1ApiSlackCommand(c echo.Context) error {
 		return c.JSON(http.StatusForbidden, e.Body)
 	}
 
-	mcrp := slackCommandResponse{}
-	mcrp.Body.ResponseType = "ephemeral"
-	mcrp.Body.Text = "This is a test"
-	return c.JSON(http.StatusOK, mcrp.Body)
+	if !rabbitmq.VerifyPublisher() {
+		common.Log.Error("Failed to verify publisher, no command sent to broker")
+		var e common.ErrorResponse
+		e.Body.Message = "Server error"
+		return c.JSON(http.StatusInternalServerError, e.Body)
+	}
+
+	if !rabbitmq.VerifyPublisher() {
+		common.Log.Error("Failed to verify consumer, no command sent to broker")
+		var e common.ErrorResponse
+		e.Body.Message = "Server error"
+		return c.JSON(http.StatusInternalServerError, e.Body)
+	}
+
+	consumerCfg := common.GConfig.RabbitMQ.GetConsumer("webhook")
+	if consumerCfg == nil {
+		common.Log.Fatalf("RabbitMQ consumer configuration 'webhook' not found, aborting.")
+	}
+
+	event := bot.CommandEvent{
+		Command: fmt.Sprintf("%s %s", mcr.Command[1:], mcr.Text),
+		Channel: mcr.ResponseURL,
+		User:    mcr.UserName,
+	}
+
+	rabbitmq.Publisher.Publish(
+		&event,
+		"command",
+		&bot.EventOptions{
+			CorrelationID: uuid.NewV4().String(),
+			ReplyTo:       consumerCfg.RoutingKey,
+			ExpirationMs:  300000,
+			RoutingKey:    "chat-command",
+		},
+	)
+
+	return c.JSON(http.StatusOK, nil)
 }

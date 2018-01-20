@@ -58,7 +58,7 @@
 		{
 			"ImportPath": "github.com/labstack/echo",
 			"Comment": "3.2.6",
-			"Rev": "7fe7f348ebb04b38116d9207751b5979588165e7"
+			"Rev": "3.2.6"
 		},
 		{
 			"ImportPath": "github.com/labstack/gommon/color",

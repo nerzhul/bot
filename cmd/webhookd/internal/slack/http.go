@@ -41,6 +41,8 @@ type slackCommandResponse struct {
 	}
 }
 
+type slackCommandEmptyResponse struct{}
+
 // V1ApiSlackCommand handle slack commands through HTTP
 // swagger:route POST /v1/slack/commands slack-command getSlackCommandResult
 //
@@ -106,5 +108,5 @@ func V1ApiSlackCommand(c echo.Context) error {
 		},
 	)
 
-	return c.JSON(http.StatusOK, nil)
+	return c.JSON(http.StatusOK, slackCommandEmptyResponse{})
 }

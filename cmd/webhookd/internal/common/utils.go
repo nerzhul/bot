@@ -5,6 +5,7 @@ import (
 	"io"
 )
 
+// ReadJSONRequest Helper to decode a json payload
 func ReadJSONRequest(payload io.ReadCloser, decodedPayload interface{}) bool {
 	decoder := json.NewDecoder(payload)
 	defer payload.Close()

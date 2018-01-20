@@ -107,5 +107,6 @@ func V1ApiSlackCommand(c echo.Context) error {
 	)
 
 	scr := slackCommandResponse{}
+	scr.Body.Text = " "
 	return c.JSON(http.StatusOK, scr.Body)
 }

@@ -66,7 +66,7 @@ func V1ApiMattermostCommand(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, e.Body)
 	}
 
-	if mcr.Token != common.GConfig.Mattermost.Token {
+	if common.GConfig.IsMattermostTokenAllowed(mcr.Token) {
 		common.Log.Errorf("Invalid token sent from %s, refusing Mattermost command", c.RealIP())
 		var e common.ErrorResponse
 		e.Body.Message = "Forbidden"

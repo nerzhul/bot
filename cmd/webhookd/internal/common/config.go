@@ -16,14 +16,14 @@ type config struct {
 	GitlabProjectsMapping map[string][]string `yaml:"gitlab-projects-mapping"`
 
 	Mattermost struct {
-		EnableHook       bool   `yaml:"enable-hook"`
-		Token            string `yaml:"token"`
-		ResponseUsername string `yaml:"response-username"`
+		EnableHook       bool     `yaml:"enable-hook"`
+		Tokens           []string `yaml:"tokens"`
+		ResponseUsername string   `yaml:"response-username"`
 	} `yaml:"mattermost"`
 
 	Slack struct {
-		EnableHook bool   `yaml:"enable-hook"`
-		Token      string `yaml:"token"`
+		EnableHook bool     `yaml:"enable-hook"`
+		Tokens     []string `yaml:"tokens"`
 	} `yaml:"slack"`
 }
 
@@ -40,11 +40,11 @@ func (c *config) loadDefaultConfiguration() {
 	c.GitlabProjectsMapping = make(map[string][]string)
 
 	c.Mattermost.EnableHook = true
-	c.Mattermost.Token = ""
+	c.Mattermost.Tokens = []string{}
 	c.Mattermost.ResponseUsername = "webhook"
 
 	c.Slack.EnableHook = true
-	c.Slack.Token = ""
+	c.Slack.Tokens = []string{}
 }
 
 // LoadConfiguration load configuration from path
@@ -69,4 +69,24 @@ func LoadConfiguration(path string) {
 	}
 
 	Log.Infof("Configuration loaded from '%s'.", path)
+}
+
+// IsMattermostTokenAllowed verify if mattermost token is allowed to connect
+func (c *config) IsMattermostTokenAllowed(token string) bool {
+	for _, t := range c.Mattermost.Tokens {
+		if t == token {
+			return true
+		}
+	}
+	return false
+}
+
+// IsSlackTokenAllowed verify if mattermost token is allowed to connect
+func (c *config) IsSlackTokenAllowed(token string) bool {
+	for _, t := range c.Slack.Tokens {
+		if t == token {
+			return true
+		}
+	}
+	return false
 }

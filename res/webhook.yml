@@ -19,8 +19,8 @@ gitlab-projects-mapping:
     - "#channel2"
 mattermost:
   enable-hook: true
-  token: "mattermostsecret"
+  tokens: []
   response-username: "webhook"
 slack:
   enable-hook: true
-  token: "slacksecret"
+  tokens: []

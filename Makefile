@@ -70,7 +70,7 @@ install: build
 doc: swagger_doc
 
 swagger_doc:
-	@cd cmd/webhook && \
+	@cd cmd/webhookd && \
 		mkdir -p ${CI_PROJECT_DIR}/artifacts && \
 		go get -u github.com/go-swagger/go-swagger/cmd/swagger && \
 		${GOPATH}/bin/swagger generate spec -o ${CI_PROJECT_DIR}/artifacts/swagger.json

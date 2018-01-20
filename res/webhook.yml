@@ -6,6 +6,13 @@ rabbitmq:
   exchange: "gitlab"
   exchange-durable: true
   routing-key: "gitlab/events"
+  consumers:
+    webhook:
+      queue: "webhook/commands"
+      exchange: "commands"
+      exchange-durable: false
+      routing-key: "webhook"
+      consumer-id: "webhook/commands"
 gitlab-projects-mapping:
   "group/projectname":
     - "#channel1"

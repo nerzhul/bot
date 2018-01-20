@@ -29,6 +29,7 @@ func StartApp(configFile string) {
 
 	common.LoadConfiguration(configFile)
 
+	rabbitmq.VerifyConsumer()
 	rabbitmq.VerifyPublisher()
 
 	// Bind main thread to HTTP service

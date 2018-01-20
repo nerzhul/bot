@@ -63,7 +63,7 @@ func V1ApiSlackCommand(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, e.Body)
 	}
 
-	if common.GConfig.IsSlackTokenAllowed(mcr.Token) {
+	if !common.GConfig.IsSlackTokenAllowed(mcr.Token) {
 		common.Log.Errorf("Invalid token sent from %s, refusing slack command", c.RealIP())
 		var e common.ErrorResponse
 		e.Body.Message = "Forbidden"

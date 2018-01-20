@@ -105,6 +105,7 @@ func V1ApiMattermostCommand(c echo.Context) error {
 			CorrelationID: uuid.NewV4().String(),
 			ReplyTo:       consumerCfg.RoutingKey,
 			ExpirationMs:  300000,
+			RoutingKey:    "chat-command",
 		},
 	)
 	return c.JSON(http.StatusOK, nil)

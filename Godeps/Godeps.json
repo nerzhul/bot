@@ -57,7 +57,7 @@
 		},
 		{
 			"ImportPath": "github.com/labstack/echo",
-			"Comment": "3.2.4-1-g7fe7f34",
+			"Comment": "3.2.6",
 			"Rev": "7fe7f348ebb04b38116d9207751b5979588165e7"
 		},
 		{

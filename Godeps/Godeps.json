@@ -11,6 +11,11 @@
 			"Rev": "d146e6b86faab5f7e4d135cc63b749d74bf0d4a6"
 		},
 		{
+			"ImportPath": "github.com/briandowns/openweathermap",
+			"Comment": "0.9-7-g722564b",
+			"Rev": "722564b6cf670ef4a8fce54d8913ac9a13e88ec1"
+		},
+		{
 			"ImportPath": "github.com/cenkalti/backoff",
 			"Comment": "v1.1.0-3-g309aa71",
 			"Rev": "309aa717adbf351e92864cbedf9cca0b769a4b5a"

@@ -24,7 +24,7 @@ func (r *commandRouter) handlerWeather(args string, user string, channel string)
 			"Temperature %.2f° (min %.2f°, max %.2f°)", args, w.Wind.Speed, w.Main.Humidity,
 			w.Main.Temp, w.Main.TempMin, w.Main.TempMax)
 	} else {
-		*result = fmt.Sprintf("Weather for %s: %s | Wind speed: %.2f | Humidity: %d%% | "+
+		*result = fmt.Sprintf("Weather for %s: %s | Wind speed: %.2fm/s | Humidity: %d%% | "+
 			"Temperature %.2f° (min %.2f°, max %.2f°)", args, w.Weather[0].Description, w.Wind.Speed, w.Main.Humidity,
 			w.Main.Temp, w.Main.TempMin, w.Main.TempMax)
 	}

@@ -31,6 +31,7 @@ func (r *commandRouter) init() {
 		"builder":   r.handlerStartBuilder,
 		"strlen":    r.handlerStrlen,
 		"reverse":   r.handlerReverse,
+		"weather":   r.handlerWeather,
 	}
 
 	r.commandList = []string{}

@@ -13,3 +13,7 @@ scaleway:
   url: "https://cp-par1.scaleway.com"
   token: ""
   build-server-id: ""
+openweathermap:
+  apikey: ""
+  lang: "en"
+  unit: "C"

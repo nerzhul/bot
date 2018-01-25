@@ -13,6 +13,11 @@ type config struct {
 		Token         string `yaml:"token"`
 		BuildServerID string `yaml:"build-server-id"`
 	} `yaml:"scaleway"`
+	OpenWeatherMap struct {
+		APIKey string `yaml:"apikey"`
+		Lang   string `yaml:"lang"`
+		Unit   string `yaml:"unit"`
+	} `yaml:"openweathermap"`
 }
 
 var gconfig config
@@ -31,6 +36,9 @@ func (c *config) loadDefaultConfiguration() {
 		},
 	}
 	c.Scaleway.URL = "https://cp-par1.scaleway.com"
+	c.OpenWeatherMap.APIKey = ""
+	c.OpenWeatherMap.Lang = "en"
+	c.OpenWeatherMap.Unit = "C"
 }
 
 func loadConfiguration(path string) {

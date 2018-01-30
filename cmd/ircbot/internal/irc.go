@@ -172,6 +172,7 @@ func onIRCNotice(conn *irc.Conn, line *irc.Line) {
 
 func onIRCError(conn *irc.Conn, line *irc.Line) {
 	if len(line.Args) == 0 {
+		log.Warningf("Received error %s", line.Text())
 		return
 	}
 

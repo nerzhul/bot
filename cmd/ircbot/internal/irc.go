@@ -16,8 +16,10 @@ var ircDisconnected chan bool
 func joinConfiguredChannels(conn *irc.Conn) {
 	for _, channel := range gconfig.IRC.Channels {
 		if len(channel.Password) > 0 {
+			log.Infof("Try joining channel %s (with password) on %s", channel.Name, conn.Config().Server)
 			conn.Join(channel.Name, channel.Password)
 		} else {
+			log.Infof("Try joining channel %s on %s", channel.Name, conn.Config().Server)
 			conn.Join(channel.Name)
 		}
 	}

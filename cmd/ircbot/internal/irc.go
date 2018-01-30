@@ -13,8 +13,7 @@ import (
 var ircConn *irc.Conn
 var ircDisconnected chan bool
 
-func onIRCConnected(conn *irc.Conn, line *irc.Line) {
-	log.Infof("Connected to IRC on %s", conn.Config().Server)
+func joinConfiguredChannels(conn *irc.Conn) {
 	for _, channel := range gconfig.IRC.Channels {
 		if len(channel.Password) > 0 {
 			conn.Join(channel.Name, channel.Password)
@@ -22,6 +21,16 @@ func onIRCConnected(conn *irc.Conn, line *irc.Line) {
 			conn.Join(channel.Name)
 		}
 	}
+}
+
+func onIRCConnected(conn *irc.Conn, line *irc.Line) {
+	log.Infof("Connected to IRC on %s", conn.Config().Server)
+	// If we have a password, join later in the process
+	if len(gconfig.IRC.Password) == 0 {
+		return
+	}
+
+	joinConfiguredChannels(conn)
 }
 
 func onIRCDisconnected(conn *irc.Conn, line *irc.Line) {
@@ -152,9 +161,11 @@ func onIRCNotice(conn *irc.Conn, line *irc.Line) {
 			log.Infof("Authentication request from NickServ on %s", conn.Config().Server)
 			conn.Privmsg(line.Nick, fmt.Sprintf("IDENTIFY %s", gconfig.IRC.Password))
 		} else if strings.Contains(text, "You are now identified for") {
-			log.Infof("Authentication succeed on %s", conn.Config().Server)
+			log.Infof("Authentication succeed on %s.", conn.Config().Server)
+			joinConfiguredChannels(conn)
 		} else if strings.Contains(text, "Invalid password for") {
-			log.Infof("Authentication failed on %s", conn.Config().Server)
+			log.Infof("Authentication failed on %s, disconnecting.", conn.Config().Server)
+			conn.Close()
 		}
 	}
 }

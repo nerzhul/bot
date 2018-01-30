@@ -10,7 +10,7 @@ import (
 
 type ircChannelConfig struct {
 	Name           string `yaml:"name"`
-	Password       string `yaml:"string"`
+	Password       string `yaml:"password"`
 	AnswerCommands bool   `yaml:"answer-commands"`
 	Hello          bool   `yaml:"hello"`
 }

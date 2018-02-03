@@ -97,23 +97,24 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 		return
 	}
 
-	if text[0] != '!' {
-		ice := bot.IRCChatEvent{
+	// Publish chat event to handler
+	rabbitmqPublisher.Publish(
+		&bot.IRCChatEvent{
 			Type:    "privmsg",
 			Message: text,
 			Channel: channel,
 			User:    line.Nick,
-		}
+		},
+		"irc-chat",
+		&bot.EventOptions{
+			CorrelationID: uuid.NewV4().String(),
+			ExpirationMs:  1800000,
+			RoutingKey:    "irc-chat",
+		},
+	)
 
-		rabbitmqPublisher.Publish(
-			&ice,
-			"irc-chat",
-			&bot.EventOptions{
-				CorrelationID: uuid.NewV4().String(),
-				ExpirationMs:  1800000,
-				RoutingKey:    "irc-chat",
-			},
-		)
+	// Don't send non commands to commandhandler
+	if text[0] != '!' {
 		return
 	}
 

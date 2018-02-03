@@ -172,14 +172,14 @@ func (m *mattermostClient) handleWebSocketResponse(event *model.WebSocketEvent) 
 		return false
 	}
 
-	log.Debugf("Event received type: %s", event.Event)
+	log.Debugf("Event received type: %s, data %v", event.Event, event)
 	if event.Event != model.WEBSOCKET_EVENT_POSTED {
 		return true
 	}
 
 	post := model.PostFromJson(strings.NewReader(event.Data["post"].(string)))
 	if post != nil {
-		log.Debugf("Post received: %s", post)
+		log.Debugf("Post received: %v", post)
 		// ignore bot events
 		if post.UserId == mClient.user.Id {
 			return true

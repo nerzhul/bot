@@ -244,7 +244,13 @@ func (m *mattermostClient) handleWebSocketEvent(event *model.WebSocketEvent) boo
 			return true
 		}
 
-		m.sendCommandToRabbit(post.Message[1:], event.Broadcast.ChannelId, event.Broadcast.UserId)
+		if err := m.sendCommandToRabbit(post.Message[1:], event.Broadcast.ChannelId,
+			event.Broadcast.UserId); err != nil {
+			m.client.CreatePost(&model.Post{
+				ChannelId: event.Broadcast.ChannelId,
+				Message:   err.Error(),
+			})
+		}
 	}
 
 	return true
@@ -262,23 +268,38 @@ func (m *mattermostClient) sendIRCMessageToRabbit(message string, channel string
 	}
 
 	// Ignore non IRC channel forwarder
-	if chanInfos.DisplayName[0:4] != "irc-#" {
+	if chanInfos.DisplayName[0:5] != "irc-#" {
 		return nil
 	}
 
 	log.Debugf("Sender '%s' is allowed to send a message on IRC, forwarding message to IRC channel %s.",
-		sender, chanInfos.DisplayName[3:])
+		sender, chanInfos.DisplayName[4:])
 
 	if !verifyPublisher() {
-		log.Error("Failed to verify publisher, no command sent to broker")
+		log.Error("Failed to verify publisher, no command sent to broker. Notifying user.")
 		return fmt.Errorf("%s: unable to send message to broker, message not sent", sender)
 	}
 
-	return fmt.Errorf("%s: not implemented, message not sent", sender)
+	if !rabbitmqPublisher.Publish(
+		&bot.IRCChatEvent{
+			Message: message,
+			Channel: chanInfos.DisplayName[4:],
+			User:    sender,
+		},
+		"irc-chat",
+		&bot.EventOptions{
+			CorrelationID: uuid.NewV4().String(),
+			RoutingKey:    gconfig.Mattermost.IRCSenderRoutingKey,
+			ExpirationMs:  300000,
+		}) {
+		log.Errorf("Failed to publish irc chat message to broker. Notifying user.")
+		return fmt.Errorf("%s: unable to publish message to broker, message not sent", sender)
+	}
 
+	return nil
 }
 
-func (m *mattermostClient) sendCommandToRabbit(command string, channel string, user string) {
+func (m *mattermostClient) sendCommandToRabbit(command string, channel string, user string) error {
 	event := bot.CommandEvent{
 		Command: command,
 		Channel: channel,
@@ -288,13 +309,13 @@ func (m *mattermostClient) sendCommandToRabbit(command string, channel string, u
 	log.Infof("User %s sent command on channel %s: %s", event.User, event.Channel, event.Command)
 
 	if !verifyPublisher() {
-		log.Error("Failed to verify publisher, no command sent to broker")
-		return
+		log.Error("Failed to verify publisher, no command sent to broker. Notifying user.")
+		return fmt.Errorf("%s: unable to send message to broker, command not sent", user)
 	}
 
 	if !verifyConsumer() {
 		log.Error("Failed to verify consumer, no command sent to broker")
-		return
+		return fmt.Errorf("%s: broker consumer has a problem, command not sent", user)
 	}
 
 	consumerCfg := gconfig.RabbitMQ.GetConsumer("commands")
@@ -302,7 +323,7 @@ func (m *mattermostClient) sendCommandToRabbit(command string, channel string, u
 		log.Fatalf("RabbitMQ consumer configuration 'commands' not found, aborting.")
 	}
 
-	rabbitmqPublisher.Publish(
+	if !rabbitmqPublisher.Publish(
 		&event,
 		"command",
 		&bot.EventOptions{
@@ -310,5 +331,10 @@ func (m *mattermostClient) sendCommandToRabbit(command string, channel string, u
 			ReplyTo:       consumerCfg.RoutingKey,
 			ExpirationMs:  300000,
 		},
-	)
+	) {
+		log.Errorf("Failed to publish command to broker. Notifying user.")
+		return fmt.Errorf("%s: unable to publish message to broker, command not sent", user)
+	}
+
+	return nil
 }

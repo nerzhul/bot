@@ -9,28 +9,41 @@ import (
 
 var rabbitmqConsumer *bot.EventConsumer
 
-func consumeCommandResponses(msgs <-chan amqp.Delivery) {
+func consumeResponses(msgs <-chan amqp.Delivery) {
 	for d := range msgs {
-		response := bot.CommandResponse{}
-		err := json.Unmarshal(d.Body, &response)
-		if err != nil {
-			log.Errorf("Failed to decode command response : %v", err)
+		if d.Type == "irc-chat" {
+			consumeIRCChatMessage(&d)
+		} else {
+			consumeCommandResponse(&d)
 		}
-
-		if ircConn == nil {
-			d.Nack(false, true)
-		}
-
-		for _, msg := range strings.Split(response.Message, "\n") {
-			if response.MessageType == "notice" {
-				ircConn.Notice(response.Channel, msg)
-			} else {
-				ircConn.Privmsg(response.Channel, msg)
-			}
-		}
-
-		d.Ack(false)
 	}
+}
+
+func consumeIRCChatMessage(msg *amqp.Delivery) {
+	log.Debugf("Received message to send on IRC: %v", msg.Body)
+	msg.Ack(false)
+}
+
+func consumeCommandResponse(msg *amqp.Delivery) {
+	response := bot.CommandResponse{}
+	err := json.Unmarshal(msg.Body, &response)
+	if err != nil {
+		log.Errorf("Failed to decode command response : %v", err)
+	}
+
+	if ircConn == nil {
+		msg.Nack(false, true)
+	}
+
+	for _, msg := range strings.Split(response.Message, "\n") {
+		if response.MessageType == "notice" {
+			ircConn.Notice(response.Channel, msg)
+		} else {
+			ircConn.Privmsg(response.Channel, msg)
+		}
+	}
+
+	msg.Ack(false)
 }
 
 func verifyConsumer() bool {
@@ -41,24 +54,26 @@ func verifyConsumer() bool {
 			return false
 		}
 
-		consumerCfg := gconfig.RabbitMQ.GetConsumer("ircbot")
-		if consumerCfg == nil {
-			log.Fatalf("RabbitMQ consumer configuration 'ircbot' not found, aborting.")
-		}
+		for _, consumerName := range []string{"ircbot", "chat"} {
+			consumerCfg := gconfig.RabbitMQ.GetConsumer(consumerName)
+			if consumerCfg == nil {
+				log.Fatalf("RabbitMQ consumer configuration '%s' not found, aborting.", consumerName)
+			}
 
-		if !rabbitmqConsumer.DeclareQueue(consumerCfg.Queue) {
-			rabbitmqConsumer = nil
-			return false
-		}
+			if !rabbitmqConsumer.DeclareQueue(consumerCfg.Queue) {
+				rabbitmqConsumer = nil
+				return false
+			}
 
-		if !rabbitmqConsumer.BindExchange(consumerCfg.Queue, consumerCfg.Exchange, consumerCfg.RoutingKey) {
-			rabbitmqConsumer = nil
-			return false
-		}
+			if !rabbitmqConsumer.BindExchange(consumerCfg.Queue, consumerCfg.Exchange, consumerCfg.RoutingKey) {
+				rabbitmqConsumer = nil
+				return false
+			}
 
-		if !rabbitmqConsumer.Consume(consumerCfg.Queue, consumerCfg.ConsumerID, consumeCommandResponses, false) {
-			rabbitmqConsumer = nil
-			return false
+			if !rabbitmqConsumer.Consume(consumerCfg.Queue, consumerCfg.ConsumerID, consumeResponses, false) {
+				rabbitmqConsumer = nil
+				return false
+			}
 		}
 	}
 

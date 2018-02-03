@@ -10,17 +10,18 @@ type config struct {
 	RabbitMQ bot.RabbitMQConfig `yaml:"rabbitmq"`
 
 	Mattermost struct {
-		URL               string   `yaml:"url"`
-		WsURL             string   `yaml:"ws-url"`
-		IRCWebhookURL     string   `yaml:"irc-webhook-url"`
-		IRCAllowedSenders []string `yaml:"irc-allowed-senders"`
-		Email             string   `yaml:"email"`
-		Password          string   `yaml:"password"`
-		Username          string   `yaml:"username"`
-		Userfirst         string   `yaml:"user-first"`
-		Userlast          string   `yaml:"user-last"`
-		Team              string   `yaml:"team"`
-		TwitterChannel    string   `yaml:"twitter-channel"`
+		URL                 string   `yaml:"url"`
+		WsURL               string   `yaml:"ws-url"`
+		IRCWebhookURL       string   `yaml:"irc-webhook-url"`
+		IRCAllowedSenders   []string `yaml:"irc-allowed-senders"`
+		IRCSenderRoutingKey string   `yaml:"irc-sender-routing-key"`
+		Email               string   `yaml:"email"`
+		Password            string   `yaml:"password"`
+		Username            string   `yaml:"username"`
+		Userfirst           string   `yaml:"user-first"`
+		Userlast            string   `yaml:"user-last"`
+		Team                string   `yaml:"team"`
+		TwitterChannel      string   `yaml:"twitter-channel"`
 	} `yaml:"mattermost"`
 }
 
@@ -65,6 +66,7 @@ func (c *config) loadDefaultConfiguration() {
 	c.Mattermost.Userlast = "Bot"
 	c.Mattermost.Team = "MyTeam"
 	c.Mattermost.TwitterChannel = "twitter"
+	c.Mattermost.IRCSenderRoutingKey = "irc-chat-send"
 }
 
 func (c *config) isAllowedIRCSender(name string) bool {

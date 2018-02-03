@@ -79,7 +79,7 @@ func (ep *EventPublisher) Init() bool {
 // Publish publish event
 func (ep *EventPublisher) Publish(event Event, eventType string, options *EventOptions) bool {
 	if len(options.CorrelationID) == 0 {
-		ep.log.Fatalf("Cannot send achievement event with empty CorrelationId, aborting.")
+		ep.log.Fatalf("Cannot send event with empty CorrelationId, aborting.")
 		return false
 	}
 

@@ -5,6 +5,7 @@ mattermost:
   irc-webhook-url: "http://localhost:8065/hooks/blah"
   irc-allowed-senders:
     - "johndoe"
+  irc-sender-routing-key: "irc-chat-send"
   username: "bot"
   password: "password"
   email: "bot@bot.local"

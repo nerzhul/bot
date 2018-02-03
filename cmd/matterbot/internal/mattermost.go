@@ -167,6 +167,8 @@ func (m *mattermostClient) createChannelIfNeeded(channelName string, channelType
 	return true
 }
 
+// handle websocket events from Mattermost
+// return false when fatal error occur to close the channel
 func (m *mattermostClient) handleWebSocketEvent(event *model.WebSocketEvent) bool {
 	if event == nil {
 		return false
@@ -177,11 +179,30 @@ func (m *mattermostClient) handleWebSocketEvent(event *model.WebSocketEvent) boo
 		return true
 	}
 
+	if _, ok := event.Data["post"]; !ok {
+		log.Error("Malformed event found, 'post' key not found")
+		return true
+	}
+
+	if _, ok := event.Data["sender_name"]; !ok {
+		log.Error("Malformed event found, 'sender_name' key not found")
+		return true
+	}
+
+	sender := event.Data["sender_name"].(string)
+
 	post := model.PostFromJson(strings.NewReader(event.Data["post"].(string)))
 	if post != nil {
-		log.Debugf("Post received: %v", post)
-		// ignore bot events
-		if post.UserId == mClient.user.Id {
+		// ignore bot events and empty messages
+		if post.UserId == mClient.user.Id || len(post.Message) == 0 {
+			return true
+		}
+
+		log.Debugf("Post received from other user: %v", post)
+
+		if gconfig.isAllowedIRCSender(sender) && post.Message[0] != '!' {
+			log.Debugf("Sender '%s' is allowed to send a message on IRC, forwarding message to IRC channel %s.",
+				sender, event.Broadcast.ChannelId)
 			return true
 		}
 

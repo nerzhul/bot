@@ -39,7 +39,8 @@ func runMattermostClient() {
 	for {
 		mClient.init()
 		if mClient.isMattermostUp() {
-			mClient.createChannelIfNeeded(gconfig.Mattermost.TwitterChannel, model.CHANNEL_PRIVATE)
+			mClient.createChannelIfNeeded(gconfig.Mattermost.TwitterChannel,
+				gconfig.Mattermost.TwitterChannel, model.CHANNEL_PRIVATE)
 		}
 
 		mClient.run()
@@ -142,23 +143,39 @@ func (m *mattermostClient) getChannelInfo(channelName string) *model.Channel {
 	return channel
 }
 
-func (m *mattermostClient) createChannelIfNeeded(channelName string, channelType string) bool {
+func (m *mattermostClient) createChannelIfNeeded(channelName string, channelDisplayName string,
+	channelType string) bool {
 	if m.client == nil || m.team == nil {
 		log.Errorf("Client or team is nil, cannot create channel")
 		return false
 	}
 
-	if m.getChannelInfo(channelName) != nil {
+	if chanInfo := m.getChannelInfo(channelName); chanInfo != nil {
+		if chanInfo.DisplayName != channelDisplayName {
+			if _, resp := mClient.client.UpdateChannel(&model.Channel{
+				Name:        channelName,
+				DisplayName: channelDisplayName,
+				Purpose:     "IRC bridge with freenode %s channel",
+				Type:        channelType,
+				TeamId:      m.team.Id,
+			}); resp.Error != nil {
+				log.Errorf("Failed to update channel '%s'", channelName)
+				return false
+			}
+		}
+
 		return true
 	}
 
 	// Looks like we need to create the logging channel
-	channel := &model.Channel{}
-	channel.Name = channelName
-	channel.DisplayName = channelName
-	channel.Purpose = ""
-	channel.Type = channelType
-	channel.TeamId = m.team.Id
+	channel := &model.Channel{
+		Name:        channelName,
+		DisplayName: channelDisplayName,
+		Purpose:     "IRC bridge with freenode %s channel",
+		Type:        channelType,
+		TeamId:      m.team.Id,
+	}
+
 	if _, resp := m.client.CreateChannel(channel); resp.Error != nil {
 		log.Errorf("Failed to create channel '%s'", channelName)
 		return false

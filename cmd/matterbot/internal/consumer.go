@@ -75,7 +75,7 @@ func consumeIRCResponse(msg *amqp.Delivery) {
 	log.Debugf("Received IRC event %v", ircChatEvent)
 
 	channelName := strings.Replace(fmt.Sprintf("irc-%s", ircChatEvent.Channel), "#", "", -1)
-	mClient.createChannelIfNeeded(channelName, model.CHANNEL_OPEN)
+	mClient.createChannelIfNeeded(channelName, ircChatEvent.Channel, model.CHANNEL_OPEN)
 
 	chanInfo := mClient.getChannelInfo(channelName)
 	if chanInfo == nil {

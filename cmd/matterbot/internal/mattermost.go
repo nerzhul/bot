@@ -228,7 +228,7 @@ func (m *mattermostClient) handleWebSocketEvent(event *model.WebSocketEvent) boo
 		}
 
 		// ignore webhook events (permits to break event loop on the user)
-		if fromWebhook, ok := post.Props["from_webhook"]; ok && fromWebhook.(bool) {
+		if fromWebhook, ok := post.Props["from_webhook"]; ok && fromWebhook.(string) == "true" {
 			return true
 		}
 

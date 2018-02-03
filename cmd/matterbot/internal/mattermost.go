@@ -85,7 +85,7 @@ func (m *mattermostClient) run() bool {
 	for {
 		select {
 		case resp := <-webSocketClient.EventChannel:
-			if !m.handleWebSocketResponse(resp) {
+			if !m.handleWebSocketEvent(resp) {
 				goto end
 			}
 		}
@@ -167,7 +167,7 @@ func (m *mattermostClient) createChannelIfNeeded(channelName string, channelType
 	return true
 }
 
-func (m *mattermostClient) handleWebSocketResponse(event *model.WebSocketEvent) bool {
+func (m *mattermostClient) handleWebSocketEvent(event *model.WebSocketEvent) bool {
 	if event == nil {
 		return false
 	}

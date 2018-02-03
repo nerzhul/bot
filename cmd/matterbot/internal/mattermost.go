@@ -223,19 +223,17 @@ func (m *mattermostClient) handleWebSocketEvent(event *model.WebSocketEvent) boo
 		return true
 	}
 
-	eventProps := event.Data["props"].(map[string]interface{})
-
-	// ignore webhook events (permits to break event loop on the user)
-	if fromWebhook, ok := eventProps["from_webhook"]; ok && fromWebhook.(bool) {
-		return true
-	}
-
 	sender := event.Data["sender_name"].(string)
 
 	post := model.PostFromJson(strings.NewReader(event.Data["post"].(string)))
 	if post != nil {
 		// ignore bot events and empty messages
 		if post.UserId == mClient.user.Id || len(post.Message) == 0 {
+			return true
+		}
+
+		// ignore webhook events (permits to break event loop on the user)
+		if fromWebhook, ok := post.Props["from_webhook"]; ok && fromWebhook.(bool) {
 			return true
 		}
 

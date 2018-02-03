@@ -20,7 +20,22 @@ func consumeResponses(msgs <-chan amqp.Delivery) {
 }
 
 func consumeIRCChatMessage(msg *amqp.Delivery) {
-	log.Debugf("Received message to send on IRC: %v", msg.Body)
+	chatEvent := bot.IRCChatEvent{}
+	err := json.Unmarshal(msg.Body, &chatEvent)
+	if err != nil {
+		log.Errorf("Failed to decode chat event: %v", err)
+		msg.Nack(false, false)
+	}
+
+	if ircConn == nil {
+		msg.Nack(false, true)
+	}
+
+	log.Debugf("Received message to send on IRC channel '%s': %s", chatEvent.Channel, chatEvent.Message)
+	for _, msg := range strings.Split(chatEvent.Message, "\n") {
+		ircConn.Privmsg(chatEvent.Channel, msg)
+	}
+
 	msg.Ack(false)
 }
 
@@ -29,6 +44,7 @@ func consumeCommandResponse(msg *amqp.Delivery) {
 	err := json.Unmarshal(msg.Body, &response)
 	if err != nil {
 		log.Errorf("Failed to decode command response : %v", err)
+		msg.Nack(false, false)
 	}
 
 	if ircConn == nil {

@@ -2,6 +2,7 @@ package internal
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/satori/go.uuid"
 	"gitlab.com/nerzhul/bot"
@@ -135,8 +136,19 @@ func (m *mattermostClient) getChannelInfo(channelName string) *model.Channel {
 	var resp *model.Response
 
 	if channel, resp = m.client.GetChannelByName(channelName, m.team.Id, ""); resp.Error != nil {
-		log.Infof("Failed to get channel %s. Error: %s. Trying to create channel",
-			channelName, resp.Error.Message)
+		log.Infof("Failed to get channel %s. Error: %s", channelName, resp.Error.Message)
+		return nil
+	}
+
+	return channel
+}
+
+func (m *mattermostClient) getChannelInfoByID(channelID string) *model.Channel {
+	var channel *model.Channel
+	var resp *model.Response
+
+	if channel, resp = m.client.GetChannel(channelID, ""); resp.Error != nil {
+		log.Infof("Failed to get channel %s. Error: %s", channelID, resp.Error.Message)
 		return nil
 	}
 
@@ -217,9 +229,13 @@ func (m *mattermostClient) handleWebSocketEvent(event *model.WebSocketEvent) boo
 
 		log.Debugf("Post received from other user: %v", post)
 
-		if gconfig.isAllowedIRCSender(sender) && post.Message[0] != '!' {
-			log.Debugf("Sender '%s' is allowed to send a message on IRC, forwarding message to IRC channel %s.",
-				sender, event.Broadcast.ChannelId)
+		if post.Message[0] != '!' {
+			if err := m.sendIRCMessageToRabbit(post.Message, event.Broadcast.ChannelId, sender); err != nil {
+				m.client.CreatePost(&model.Post{
+					ChannelId: event.Broadcast.ChannelId,
+					Message:   err.Error(),
+				})
+			}
 			return true
 		}
 
@@ -228,39 +244,71 @@ func (m *mattermostClient) handleWebSocketEvent(event *model.WebSocketEvent) boo
 			return true
 		}
 
-		event := bot.CommandEvent{
-			Command: post.Message[1:],
-			Channel: event.Broadcast.ChannelId,
-			User:    event.Broadcast.UserId,
-		}
-
-		log.Infof("User %s sent command on channel %s: %s", event.User, event.Channel, event.Command)
-
-		if !verifyPublisher() {
-			log.Error("Failed to verify publisher, no command sent to broker")
-			return true
-		}
-
-		if !verifyConsumer() {
-			log.Error("Failed to verify consumer, no command sent to broker")
-			return true
-		}
-
-		consumerCfg := gconfig.RabbitMQ.GetConsumer("commands")
-		if consumerCfg == nil {
-			log.Fatalf("RabbitMQ consumer configuration 'commands' not found, aborting.")
-		}
-
-		rabbitmqPublisher.Publish(
-			&event,
-			"command",
-			&bot.EventOptions{
-				CorrelationID: uuid.NewV4().String(),
-				ReplyTo:       consumerCfg.RoutingKey,
-				ExpirationMs:  300000,
-			},
-		)
+		m.sendCommandToRabbit(post.Message[1:], event.Broadcast.ChannelId, event.Broadcast.UserId)
 	}
 
 	return true
+}
+
+func (m *mattermostClient) sendIRCMessageToRabbit(message string, channel string, sender string) error {
+	if !gconfig.isAllowedIRCSender(sender) {
+		return nil
+	}
+
+	chanInfos := m.getChannelInfoByID(channel)
+	if chanInfos == nil {
+		log.Errorf("Failed to find incoming user message channel %s, ignoring message.", channel)
+		return nil
+	}
+
+	// Ignore non IRC channel forwarder
+	if chanInfos.DisplayName[0:4] != "irc-#" {
+		return nil
+	}
+
+	log.Debugf("Sender '%s' is allowed to send a message on IRC, forwarding message to IRC channel %s.",
+		sender, chanInfos.DisplayName[3:])
+
+	if !verifyPublisher() {
+		log.Error("Failed to verify publisher, no command sent to broker")
+		return fmt.Errorf("%s: unable to send message to broker, message not sent", sender)
+	}
+
+	return fmt.Errorf("%s: not implemented, message not sent", sender)
+
+}
+
+func (m *mattermostClient) sendCommandToRabbit(command string, channel string, user string) {
+	event := bot.CommandEvent{
+		Command: command,
+		Channel: channel,
+		User:    user,
+	}
+
+	log.Infof("User %s sent command on channel %s: %s", event.User, event.Channel, event.Command)
+
+	if !verifyPublisher() {
+		log.Error("Failed to verify publisher, no command sent to broker")
+		return
+	}
+
+	if !verifyConsumer() {
+		log.Error("Failed to verify consumer, no command sent to broker")
+		return
+	}
+
+	consumerCfg := gconfig.RabbitMQ.GetConsumer("commands")
+	if consumerCfg == nil {
+		log.Fatalf("RabbitMQ consumer configuration 'commands' not found, aborting.")
+	}
+
+	rabbitmqPublisher.Publish(
+		&event,
+		"command",
+		&bot.EventOptions{
+			CorrelationID: uuid.NewV4().String(),
+			ReplyTo:       consumerCfg.RoutingKey,
+			ExpirationMs:  300000,
+		},
+	)
 }

@@ -159,7 +159,7 @@ func (m *mattermostClient) createChannelIfNeeded(channelName string, channelDisp
 				Type:        channelType,
 				TeamId:      m.team.Id,
 			}); resp.Error != nil {
-				log.Errorf("Failed to update channel '%s'", channelName)
+				log.Errorf("Failed to update channel '%s': %s", channelName, resp.Error.Message)
 				return false
 			}
 		}
@@ -177,7 +177,7 @@ func (m *mattermostClient) createChannelIfNeeded(channelName string, channelDisp
 	}
 
 	if _, resp := m.client.CreateChannel(channel); resp.Error != nil {
-		log.Errorf("Failed to create channel '%s'", channelName)
+		log.Errorf("Failed to create channel '%s': %s", channelName, resp.Error.Message)
 		return false
 	}
 

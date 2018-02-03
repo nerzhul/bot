@@ -218,11 +218,6 @@ func (m *mattermostClient) handleWebSocketEvent(event *model.WebSocketEvent) boo
 		return true
 	}
 
-	if _, ok := event.Data["props"]; !ok {
-		log.Error("Malformed event found, 'props' key not found")
-		return true
-	}
-
 	sender := event.Data["sender_name"].(string)
 
 	post := model.PostFromJson(strings.NewReader(event.Data["post"].(string)))

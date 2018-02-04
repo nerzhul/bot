@@ -188,6 +188,11 @@ func onIRCNotice(conn *irc.Conn, line *irc.Line) {
 		channel = line.Nick
 	}
 
+	// Don't send global channel messages to broker
+	if channel == "*" {
+		return
+	}
+
 	// Publish chat event to handler
 	rabbitmqPublisher.Publish(
 		&bot.IRCChatEvent{

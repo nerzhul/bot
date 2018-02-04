@@ -157,8 +157,6 @@ func onIRCNotice(conn *irc.Conn, line *irc.Line) {
 
 	text := line.Text()
 
-	log.Debug(line.Text())
-
 	if line.Nick == "NickServ" {
 		if strings.Contains(text, "This nickname is registered") {
 			log.Infof("Authentication request from NickServ on %s", conn.Config().Server)
@@ -170,7 +168,41 @@ func onIRCNotice(conn *irc.Conn, line *irc.Line) {
 			log.Infof("Authentication failed on %s, disconnecting.", conn.Config().Server)
 			conn.Close()
 		}
+
+		return
 	}
+
+	if !verifyPublisher() {
+		log.Error("Failed to verify publisher, no notice sent to broker")
+		return
+	}
+
+	if !verifyConsumer() {
+		log.Error("Failed to verify consumer, no notice sent to broker")
+		return
+	}
+
+	channel := line.Args[0]
+
+	if channel == conn.Me().Nick {
+		channel = line.Nick
+	}
+
+	// Publish chat event to handler
+	rabbitmqPublisher.Publish(
+		&bot.IRCChatEvent{
+			Type:    "notice",
+			Message: text,
+			Channel: channel,
+			User:    line.Nick,
+		},
+		"irc-chat",
+		&bot.EventOptions{
+			CorrelationID: uuid.NewV4().String(),
+			ExpirationMs:  1800000,
+			RoutingKey:    "irc-chat",
+		},
+	)
 }
 
 func onIRCError(conn *irc.Conn, line *irc.Line) {

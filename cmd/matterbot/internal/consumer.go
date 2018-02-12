@@ -74,7 +74,7 @@ func consumeIRCResponse(msg *amqp.Delivery) {
 
 	log.Debugf("Received IRC event %v", ircChatEvent)
 
-	if ircChatEvent.Channel == "*" {
+	if ircChatEvent.Channel == "*" || ircChatEvent.Channel == "$$*" {
 		msg.Ack(false)
 		return
 	}

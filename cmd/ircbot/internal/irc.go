@@ -189,7 +189,7 @@ func onIRCNotice(conn *irc.Conn, line *irc.Line) {
 	}
 
 	// Don't send global channel messages to broker
-	if channel == "*" {
+	if channel == "*" || channel == "$$*" {
 		return
 	}
 

@@ -8,6 +8,9 @@ import (
 	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/mattermost"
 	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/rabbitmq"
 	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/slack"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 // AppName application name
@@ -31,6 +34,16 @@ func StartApp(configFile string) {
 
 	rabbitmq.VerifyConsumer()
 	rabbitmq.VerifyPublisher()
+
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGHUP)
+
+	go func() {
+		for sig := range sigs {
+			common.Log.Infof("SIGHUP(%s) received, reloading configuration", sig)
+			common.LoadConfiguration(configFile)
+		}
+	}()
 
 	// Bind main thread to HTTP service
 	e := echo.New()

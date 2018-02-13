@@ -1,5 +1,11 @@
 package internal
 
+import (
+	"os"
+	"os/signal"
+	"syscall"
+)
+
 // AppName application name
 var AppName = "commandhandler"
 
@@ -23,6 +29,16 @@ func StartApp(configFile string) {
 
 	verifyPublisher()
 	verifyConsumer()
+
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGHUP)
+
+	go func() {
+		for sig := range sigs {
+			log.Infof("SIGHUP(%s) received, reloading configuration", sig)
+			loadConfiguration(configFile)
+		}
+	}()
 
 	runProcessor()
 

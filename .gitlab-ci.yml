@@ -39,7 +39,17 @@ build:
     paths:
       - artifacts/gitlab-hook
 
-documentation:swagger:
+doc:coverage:
+  stage: documentation
+  script:
+    - ./ci/coverage.sh
+  artifacts:
+    when: on_success
+    expire_in: 1 day
+    paths:
+      - artifacts/coverage.html
+
+doc:swagger:
   <<: *build_template
   stage: documentation
   dependencies:
@@ -66,10 +76,12 @@ pages:
   only:
     - master
   dependencies:
-    - documentation:swagger
+    - doc:swagger
+    - doc:coverage
   script:
     # At the beginning we are in go package path, not in CI_PROJECT_DIR
     - mkdir -p $CI_PROJECT_DIR/public/swagger/
+    - cp artifacts/coverage.html $CI_PROJECT_DIR/public/
     - cp artifacts/swagger.json $CI_PROJECT_DIR/public/swagger/
     - git clone https://github.com/swagger-api/swagger-ui.git $CI_PROJECT_DIR/swagger-ui -b ${SWAGGER_TAG}
     - cp -R $CI_PROJECT_DIR/swagger-ui/dist/* $CI_PROJECT_DIR/public/swagger/

@@ -2,7 +2,7 @@ image: golang:1.10
 
 variables:
   REPO_NAME: gitlab.com/nerzhul/bot
-  SWAGGER_TAG: v3.4.5
+  SWAGGER_TAG: v3.11.0
 
 before_script:
   - go version

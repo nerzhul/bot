@@ -9,4 +9,5 @@ echo 'mode: count' > ./system.cov
 tail -q -n +2 ./coverage/*.cov >> ./system.cov
 
 go tool cover -func=system.cov
+mkdir -p ${CI_PROJECT_DIR}/artifacts
 go tool cover -html=system.cov -o ${CI_PROJECT_DIR}/artifacts/coverage.html

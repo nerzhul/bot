@@ -61,7 +61,39 @@ func consumeIRCCommand(msg *amqp.Delivery) {
 		return
 	}
 
-	log.Debugf("Received command to handle '%s' from user '%s'", command.Command)
+	if len(command.Command) == 0 {
+		log.Errorf("Ignore empty command received from user '%s'", command.User)
+		msg.Ack(true)
+		return
+	}
+
+	log.Debugf("Received command to handle '%s' from user '%s'", command.User)
+	commandSpl := strings.Split(command.Command, " ")
+	switch commandSpl[0] {
+	case "join":
+		if len(commandSpl) != 2 {
+			log.Errorf("Command '%s' sent from user '%s' is malformed. 1 argument expected.",
+				commandSpl[0], command.User)
+			break
+		}
+		break
+	case "leave":
+		if len(commandSpl) != 2 {
+			log.Errorf("Command '%s' sent from user '%s' is malformed. 1 argument expected.",
+				commandSpl[0], command.User)
+			break
+		}
+		break
+	case "list":
+		if len(commandSpl) != 1 {
+			log.Errorf("Command '%s' sent from user '%s' is malformed. 0 argument expected.",
+				commandSpl[0], command.User)
+			break
+		}
+	default:
+		log.Warningf("Ignore invalid command '%s' received from user '%s'", commandSpl[0], command.User)
+		break
+	}
 	msg.Ack(true)
 }
 

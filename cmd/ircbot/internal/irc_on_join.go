@@ -3,6 +3,7 @@ package internal
 import (
 	"fmt"
 	irc "github.com/fluffle/goirc/client"
+	"gitlab.com/nerzhul/bot/rabbitmq"
 )
 
 func onIRCJoin(conn *irc.Conn, line *irc.Line) {
@@ -13,6 +14,15 @@ func onIRCJoin(conn *irc.Conn, line *irc.Line) {
 	if line.Nick == conn.Me().Nick {
 		log.Infof("Channel %s joined on %s", line.Args[0], conn.Config().Server)
 	}
+
+	asyncClient.publishChatEvent(
+		&rabbitmq.IRCChatEvent{
+			Type:    "notice",
+			Message: fmt.Sprintf("Channel '%s' joined by the bot", line.Args[0]),
+			Channel: line.Args[0],
+			User:    line.Nick,
+		},
+	)
 
 	channelCfg := gconfig.getIRCChannelConfig(line.Args[0])
 	if channelCfg == nil || !channelCfg.Hello {

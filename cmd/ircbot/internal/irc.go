@@ -42,6 +42,7 @@ func (i *ircClient) run() {
 		ircConn.HandleFunc(irc.DISCONNECTED, onIRCDisconnected)
 		ircConn.HandleFunc(irc.KICK, onIRCKick)
 		ircConn.HandleFunc(irc.JOIN, onIRCJoin)
+		ircConn.HandleFunc(irc.PART, onIRCPart)
 		ircConn.HandleFunc(irc.PRIVMSG, onIRCPrivMsg)
 		ircConn.HandleFunc(irc.NOTICE, onIRCNotice)
 		ircConn.HandleFunc(irc.ERROR, onIRCError)

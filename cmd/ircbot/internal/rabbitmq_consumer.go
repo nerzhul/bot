@@ -76,6 +76,7 @@ func consumeIRCCommand(msg *amqp.Delivery) {
 				commandSpl[0], command.User)
 			break
 		}
+		ircConn.Join(commandSpl[1])
 		break
 	case "leave":
 		if len(commandSpl) != 2 {
@@ -83,6 +84,7 @@ func consumeIRCCommand(msg *amqp.Delivery) {
 				commandSpl[0], command.User)
 			break
 		}
+		ircConn.Part(commandSpl[1])
 		break
 	case "list":
 		if len(commandSpl) != 1 {
@@ -90,6 +92,7 @@ func consumeIRCCommand(msg *amqp.Delivery) {
 				commandSpl[0], command.User)
 			break
 		}
+		// TODO: Not implemented
 	default:
 		log.Warningf("Ignore invalid command '%s' received from user '%s'", commandSpl[0], command.User)
 		break

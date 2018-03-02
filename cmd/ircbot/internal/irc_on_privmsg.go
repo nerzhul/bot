@@ -2,7 +2,6 @@ package internal
 
 import (
 	irc "github.com/fluffle/goirc/client"
-	"github.com/satori/go.uuid"
 	"gitlab.com/nerzhul/bot/rabbitmq"
 )
 
@@ -23,29 +22,23 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 		channel = line.Nick
 	}
 
-	if !verifyPublisher() {
+	if !asyncClient.verifyPublisher() {
 		log.Error("Failed to verify publisher, no message sent to broker")
 		return
 	}
 
-	if !verifyConsumer() {
+	if !asyncClient.verifyConsumer() {
 		log.Error("Failed to verify consumer, no message sent to broker")
 		return
 	}
 
 	// Publish chat event to handler
-	rabbitmqPublisher.Publish(
+	asyncClient.publishChatEvent(
 		&rabbitmq.IRCChatEvent{
 			Type:    "privmsg",
 			Message: text,
 			Channel: channel,
 			User:    line.Nick,
-		},
-		"irc-chat",
-		&rabbitmq.EventOptions{
-			CorrelationID: uuid.NewV4().String(),
-			ExpirationMs:  1800000,
-			RoutingKey:    "irc-chat",
 		},
 	)
 
@@ -75,13 +68,5 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 		log.Fatalf("RabbitMQ consumer configuration 'ircbot' not found, aborting.")
 	}
 
-	rabbitmqPublisher.Publish(
-		&ce,
-		"command",
-		&rabbitmq.EventOptions{
-			CorrelationID: uuid.NewV4().String(),
-			ReplyTo:       consumerCfg.RoutingKey,
-			ExpirationMs:  300000,
-		},
-	)
+	asyncClient.publishCommand(&ce, consumerCfg.RoutingKey)
 }

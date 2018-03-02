@@ -7,8 +7,6 @@ import (
 	"strings"
 )
 
-var rabbitmqConsumer *rabbitmq.EventConsumer
-
 func consumeResponses(msgs <-chan amqp.Delivery) {
 	for d := range msgs {
 		if d.Type == "irc-chat" {
@@ -27,10 +25,12 @@ func consumeIRCChatMessage(msg *amqp.Delivery) {
 	if err != nil {
 		log.Errorf("Failed to decode chat event: %v", err)
 		msg.Nack(false, false)
+		return
 	}
 
 	if ircConn == nil {
 		msg.Nack(false, true)
+		return
 	}
 
 	log.Debugf("Received message to send on IRC channel '%s': %s", chatEvent.Channel, chatEvent.Message)
@@ -42,7 +42,27 @@ func consumeIRCChatMessage(msg *amqp.Delivery) {
 }
 
 func consumeIRCCommand(msg *amqp.Delivery) {
+	command := rabbitmq.IRCCommand{}
+	err := json.Unmarshal(msg.Body, &command)
+	if err != nil {
+		log.Errorf("Failed to decode chat event: %v", err)
+		msg.Nack(false, false)
+		return
+	}
 
+	if ircConn == nil {
+		msg.Nack(false, true)
+		return
+	}
+
+	if !gconfig.isAllowedToUseCommand(command.User) {
+		log.Errorf("User '%s' is not allowed to use IRC bot commands. Dropping.", command.User)
+		msg.Ack(true)
+		return
+	}
+
+	log.Debugf("Received command to handle '%s' from user '%s'", command.Command)
+	msg.Ack(true)
 }
 
 func consumeCommandResponse(msg *amqp.Delivery) {
@@ -51,10 +71,12 @@ func consumeCommandResponse(msg *amqp.Delivery) {
 	if err != nil {
 		log.Errorf("Failed to decode command response : %v", err)
 		msg.Nack(false, false)
+		return
 	}
 
 	if ircConn == nil {
 		msg.Nack(false, true)
+		return
 	}
 
 	for _, msg := range strings.Split(response.Message, "\n") {
@@ -68,11 +90,11 @@ func consumeCommandResponse(msg *amqp.Delivery) {
 	msg.Ack(false)
 }
 
-func verifyConsumer() bool {
-	if rabbitmqConsumer == nil {
-		rabbitmqConsumer = rabbitmq.NewEventConsumer(log, &gconfig.RabbitMQ)
-		if !rabbitmqConsumer.Init() {
-			rabbitmqConsumer = nil
+func (rc *rabbitmqClient) verifyConsumer() bool {
+	if rc.consumer == nil {
+		rc.consumer = rabbitmq.NewEventConsumer(log, &gconfig.RabbitMQ)
+		if !rc.consumer.Init() {
+			rc.consumer = nil
 			return false
 		}
 
@@ -82,22 +104,22 @@ func verifyConsumer() bool {
 				log.Fatalf("RabbitMQ consumer configuration '%s' not found, aborting.", consumerName)
 			}
 
-			if !rabbitmqConsumer.DeclareQueue(consumerCfg.Queue) {
-				rabbitmqConsumer = nil
+			if !rc.consumer.DeclareQueue(consumerCfg.Queue) {
+				rc.consumer = nil
 				return false
 			}
 
-			if !rabbitmqConsumer.BindExchange(consumerCfg.Queue, consumerCfg.Exchange, consumerCfg.RoutingKey) {
-				rabbitmqConsumer = nil
+			if !rc.consumer.BindExchange(consumerCfg.Queue, consumerCfg.Exchange, consumerCfg.RoutingKey) {
+				rc.consumer = nil
 				return false
 			}
 
-			if !rabbitmqConsumer.Consume(consumerCfg.Queue, consumerCfg.ConsumerID, consumeResponses, false) {
-				rabbitmqConsumer = nil
+			if !rc.consumer.Consume(consumerCfg.Queue, consumerCfg.ConsumerID, consumeResponses, false) {
+				rc.consumer = nil
 				return false
 			}
 		}
 	}
 
-	return rabbitmqConsumer != nil
+	return rc.consumer != nil
 }

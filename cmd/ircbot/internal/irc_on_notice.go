@@ -3,7 +3,6 @@ package internal
 import (
 	"fmt"
 	irc "github.com/fluffle/goirc/client"
-	"github.com/satori/go.uuid"
 	"gitlab.com/nerzhul/bot/rabbitmq"
 	"strings"
 )
@@ -30,12 +29,12 @@ func onIRCNotice(conn *irc.Conn, line *irc.Line) {
 		return
 	}
 
-	if !verifyPublisher() {
+	if !asyncClient.verifyPublisher() {
 		log.Error("Failed to verify publisher, no notice sent to broker")
 		return
 	}
 
-	if !verifyConsumer() {
+	if !asyncClient.verifyConsumer() {
 		log.Error("Failed to verify consumer, no notice sent to broker")
 		return
 	}
@@ -52,18 +51,12 @@ func onIRCNotice(conn *irc.Conn, line *irc.Line) {
 	}
 
 	// Publish chat event to handler
-	rabbitmqPublisher.Publish(
+	asyncClient.publishChatEvent(
 		&rabbitmq.IRCChatEvent{
 			Type:    "notice",
 			Message: text,
 			Channel: channel,
 			User:    line.Nick,
-		},
-		"irc-chat",
-		&rabbitmq.EventOptions{
-			CorrelationID: uuid.NewV4().String(),
-			ExpirationMs:  1800000,
-			RoutingKey:    "irc-chat",
 		},
 	)
 }

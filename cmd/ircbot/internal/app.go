@@ -15,6 +15,8 @@ var AppVersion = "[unk]"
 // AppBuildDate application build date
 var AppBuildDate = "[unk]"
 
+var asyncClient *rabbitmqClient
+
 // StartApp initiate components
 // Should be called from main function
 func StartApp(configFile string) {
@@ -25,8 +27,10 @@ func StartApp(configFile string) {
 
 	loadConfiguration(configFile)
 
-	verifyPublisher()
-	verifyConsumer()
+	asyncClient := &rabbitmqClient{}
+
+	asyncClient.verifyPublisher()
+	asyncClient.verifyConsumer()
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGHUP)

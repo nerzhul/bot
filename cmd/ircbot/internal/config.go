@@ -19,12 +19,13 @@ type config struct {
 	RabbitMQ rabbitmq.RabbitMQConfig `yaml:"rabbitmq"`
 
 	IRC struct {
-		Server   string             `yaml:"server"`
-		Port     uint16             `yaml:"port"`
-		SSL      bool               `yaml:"ssl"`
-		Name     string             `yaml:"name"`
-		Password string             `yaml:"password"`
-		Channels []ircChannelConfig `yaml:"channels"`
+		Server              string             `yaml:"server"`
+		Port                uint16             `yaml:"port"`
+		SSL                 bool               `yaml:"ssl"`
+		Name                string             `yaml:"name"`
+		Password            string             `yaml:"password"`
+		Channels            []ircChannelConfig `yaml:"channels"`
+		AllowedCommandUsers []string           `yaml:"allowed-command-users"`
 	} `yaml:"irc"`
 }
 
@@ -67,6 +68,16 @@ func (c *config) getIRCChannelConfig(name string) *ircChannelConfig {
 	}
 
 	return nil
+}
+
+func (c *config) isAllowedToUseCommand(user string) bool {
+	for _, u := range c.IRC.AllowedCommandUsers {
+		if u == user {
+			return true
+		}
+	}
+
+	return false
 }
 
 func loadConfiguration(path string) {

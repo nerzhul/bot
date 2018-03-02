@@ -1,6 +1,9 @@
 package rabbitmq
 
-import "github.com/op/go-logging"
+import (
+	"github.com/op/go-logging"
+	"github.com/satori/go.uuid"
+)
 
 // Client the RabbitMQ publisher & consumer client linked with configuration
 type Client struct {
@@ -28,4 +31,15 @@ func (rc *Client) VerifyPublisher() bool {
 	}
 
 	return rc.Publisher != nil
+}
+
+// PublishCommand publish a command to RabbitMQ, and hope somebody we reply on the replyTo queue
+func (rc *Client) PublishCommand(cc *CommandEvent, replyTo string) bool {
+	return rc.Publisher.Publish(cc, "command",
+		&EventOptions{
+			CorrelationID: uuid.NewV4().String(),
+			ReplyTo:       replyTo,
+			ExpirationMs:  300000,
+		},
+	)
 }

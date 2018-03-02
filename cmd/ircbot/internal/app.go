@@ -38,7 +38,8 @@ func StartApp(configFile string) {
 		}
 	}()
 
-	runIRCClient()
+	irc := ircClient{}
+	irc.run()
 
 	log.Infof("Exiting %s", AppName)
 }

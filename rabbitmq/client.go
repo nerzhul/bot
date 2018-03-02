@@ -18,7 +18,8 @@ func NewClient(logger *logging.Logger, config *Config) *Client {
 	}
 }
 
-func (rc *Client) verifyPublisher() bool {
+// VerifyPublisher ensure publisher is properly created, else instantiate it
+func (rc *Client) VerifyPublisher() bool {
 	if rc.Publisher == nil {
 		rc.Publisher = NewEventPublisher(rc.logger, rc.config)
 		if !rc.Publisher.Init() {

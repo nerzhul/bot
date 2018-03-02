@@ -7,13 +7,13 @@ import (
 	"github.com/labstack/echo"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/streadway/amqp"
-	"gitlab.com/nerzhul/bot"
+	"gitlab.com/nerzhul/bot/rabbitmq"
 	"net/http"
 	"strings"
 	"time"
 )
 
-var rabbitmqConsumer *bot.EventConsumer
+var rabbitmqConsumer *rabbitmq.EventConsumer
 
 func consumeResponses(msgs <-chan amqp.Delivery) {
 	for d := range msgs {
@@ -35,7 +35,7 @@ func consumeCommandResponse(msg *amqp.Delivery) {
 		return
 	}
 
-	response := bot.CommandResponse{}
+	response := rabbitmq.CommandResponse{}
 	err := json.Unmarshal(msg.Body, &response)
 	if err != nil {
 		log.Errorf("Failed to decode command response : %v", err)
@@ -64,7 +64,7 @@ func consumeIRCResponse(msg *amqp.Delivery) {
 		return
 	}
 
-	ircChatEvent := bot.IRCChatEvent{}
+	ircChatEvent := rabbitmq.IRCChatEvent{}
 	err := json.Unmarshal(msg.Body, &ircChatEvent)
 	if err != nil {
 		log.Errorf("Failed to decode tweet : %v", err)
@@ -142,7 +142,7 @@ func consumeTwitterResponse(msg *amqp.Delivery) {
 		return
 	}
 
-	tweet := bot.TweetMessage{}
+	tweet := rabbitmq.TweetMessage{}
 	err := json.Unmarshal(msg.Body, &tweet)
 	if err != nil {
 		log.Errorf("Failed to decode tweet : %v", err)
@@ -176,7 +176,7 @@ func consumeTwitterResponse(msg *amqp.Delivery) {
 
 func verifyConsumer() bool {
 	if rabbitmqConsumer == nil {
-		rabbitmqConsumer = bot.NewEventConsumer(log, &gconfig.RabbitMQ)
+		rabbitmqConsumer = rabbitmq.NewEventConsumer(log, &gconfig.RabbitMQ)
 		if !rabbitmqConsumer.Init() {
 			rabbitmqConsumer = nil
 			return false

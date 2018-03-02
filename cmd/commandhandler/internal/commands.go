@@ -2,7 +2,7 @@ package internal
 
 import (
 	"fmt"
-	"gitlab.com/nerzhul/bot"
+	"gitlab.com/nerzhul/bot/rabbitmq"
 	"sort"
 	"strings"
 )
@@ -43,7 +43,7 @@ func (r *commandRouter) init() {
 	log.Infof("Router init done (%d commands registered).", len(r.commandList))
 }
 
-func (r *commandRouter) handleCommand(event *bot.CommandEvent, correlationID string, replyTo string) bool {
+func (r *commandRouter) handleCommand(event *rabbitmq.CommandEvent, correlationID string, replyTo string) bool {
 	log.Infof("Receive command event from user %s", event.User)
 	ecsplit := strings.SplitN(event.Command, " ", 2)
 	if len(ecsplit) == 0 {
@@ -61,7 +61,7 @@ func (r *commandRouter) handleCommand(event *bot.CommandEvent, correlationID str
 
 	log.Infof("Command %s (args: '%s') sent by %s on channel %s", command, commandArgs, event.User, event.Channel)
 
-	resp := bot.CommandResponse{
+	resp := rabbitmq.CommandResponse{
 		Channel: event.Channel,
 		User:    event.User,
 	}
@@ -83,7 +83,7 @@ func (r *commandRouter) handleCommand(event *bot.CommandEvent, correlationID str
 
 	rabbitmqPublisher.Publish(&resp,
 		"command-answer",
-		&bot.EventOptions{
+		&rabbitmq.EventOptions{
 			CorrelationID: correlationID,
 			RoutingKey:    replyTo,
 			ExpirationMs:  60 * 1000,

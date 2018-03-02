@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/satori/go.uuid"
-	"gitlab.com/nerzhul/bot"
+	"gitlab.com/nerzhul/bot/rabbitmq"
 	"strings"
 	"time"
 )
@@ -286,13 +286,13 @@ func (m *mattermostClient) sendIRCMessageToRabbit(message string, channel string
 	}
 
 	if !rabbitmqPublisher.Publish(
-		&bot.IRCChatEvent{
+		&rabbitmq.IRCChatEvent{
 			Message: message,
 			Channel: chanInfos.DisplayName[4:],
 			User:    sender,
 		},
 		"irc-chat",
-		&bot.EventOptions{
+		&rabbitmq.EventOptions{
 			CorrelationID: uuid.NewV4().String(),
 			RoutingKey:    gconfig.Mattermost.IRCSenderRoutingKey,
 			ExpirationMs:  300000,
@@ -305,7 +305,7 @@ func (m *mattermostClient) sendIRCMessageToRabbit(message string, channel string
 }
 
 func (m *mattermostClient) sendCommandToRabbit(command string, channel string, user string) error {
-	event := bot.CommandEvent{
+	event := rabbitmq.CommandEvent{
 		Command: command,
 		Channel: channel,
 		User:    user,
@@ -331,7 +331,7 @@ func (m *mattermostClient) sendCommandToRabbit(command string, channel string, u
 	if !rabbitmqPublisher.Publish(
 		&event,
 		"command",
-		&bot.EventOptions{
+		&rabbitmq.EventOptions{
 			CorrelationID: uuid.NewV4().String(),
 			ReplyTo:       consumerCfg.RoutingKey,
 			ExpirationMs:  300000,

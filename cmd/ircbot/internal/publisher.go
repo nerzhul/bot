@@ -1,14 +1,14 @@
 package internal
 
 import (
-	"gitlab.com/nerzhul/bot"
+	"gitlab.com/nerzhul/bot/rabbitmq"
 )
 
-var rabbitmqPublisher *bot.EventPublisher
+var rabbitmqPublisher *rabbitmq.EventPublisher
 
 func verifyPublisher() bool {
 	if rabbitmqPublisher == nil {
-		rabbitmqPublisher = bot.NewEventPublisher(log, &gconfig.RabbitMQ)
+		rabbitmqPublisher = rabbitmq.NewEventPublisher(log, &gconfig.RabbitMQ)
 		if !rabbitmqPublisher.Init() {
 			rabbitmqPublisher = nil
 		}

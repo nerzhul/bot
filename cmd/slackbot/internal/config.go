@@ -1,13 +1,13 @@
 package internal
 
 import (
-	"gitlab.com/nerzhul/bot"
+	"gitlab.com/nerzhul/bot/rabbitmq"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 )
 
 type config struct {
-	RabbitMQ bot.RabbitMQConfig `yaml:"rabbitmq"`
+	RabbitMQ rabbitmq.RabbitMQConfig `yaml:"rabbitmq"`
 
 	Slack struct {
 		APIKey         string `yaml:"api-key"`
@@ -22,7 +22,7 @@ func (c *config) loadDefaultConfiguration() {
 	c.RabbitMQ.EventExchange = "commands"
 	c.RabbitMQ.PublisherRoutingKey = "chat-command"
 
-	c.RabbitMQ.Consumers = map[string]bot.RabbitMQConsumer{
+	c.RabbitMQ.Consumers = map[string]rabbitmq.RabbitMQConsumer{
 		"commands": {
 			RoutingKey:      "slackbot",
 			ConsumerID:      "slackbot/commands",

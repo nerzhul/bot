@@ -4,7 +4,7 @@ import (
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
 	"github.com/satori/go.uuid"
-	"gitlab.com/nerzhul/bot"
+	"gitlab.com/nerzhul/bot/rabbitmq"
 	"time"
 )
 
@@ -41,7 +41,7 @@ func runTwitterClient() {
 		}
 
 		for _, tweet := range tweets {
-			tm := &bot.TweetMessage{
+			tm := &rabbitmq.TweetMessage{
 				Message:        tweet.Text,
 				Username:       tweet.User.Name,
 				UserScreenName: tweet.User.ScreenName,
@@ -56,7 +56,7 @@ func runTwitterClient() {
 			rabbitmqPublisher.Publish(
 				tm,
 				"tweet",
-				&bot.EventOptions{
+				&rabbitmq.EventOptions{
 					CorrelationID: uuid.NewV4().String(),
 					ExpirationMs:  3600000,
 				},

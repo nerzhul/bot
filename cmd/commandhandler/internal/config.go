@@ -1,13 +1,13 @@
 package internal
 
 import (
-	"gitlab.com/nerzhul/bot"
+	"gitlab.com/nerzhul/bot/rabbitmq"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 )
 
 type config struct {
-	RabbitMQ bot.RabbitMQConfig `yaml:"rabbitmq"`
+	RabbitMQ rabbitmq.RabbitMQConfig `yaml:"rabbitmq"`
 	Scaleway struct {
 		URL           string `yaml:"url"`
 		Token         string `yaml:"token"`
@@ -26,7 +26,7 @@ func (c *config) loadDefaultConfiguration() {
 	c.RabbitMQ.URL = "amqp://guest:guest@localhost:5672/"
 	c.RabbitMQ.EventExchange = "commands"
 	c.RabbitMQ.PublisherRoutingKey = ""
-	c.RabbitMQ.Consumers = map[string]bot.RabbitMQConsumer{
+	c.RabbitMQ.Consumers = map[string]rabbitmq.RabbitMQConsumer{
 		"commandhandler": {
 			RoutingKey:      "chat-command",
 			ConsumerID:      "botcommand",

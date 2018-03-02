@@ -1,13 +1,13 @@
 package common
 
 import (
-	"gitlab.com/nerzhul/bot"
+	"gitlab.com/nerzhul/bot/rabbitmq"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 )
 
 type config struct {
-	RabbitMQ bot.RabbitMQConfig `yaml:"rabbitmq"`
+	RabbitMQ rabbitmq.RabbitMQConfig `yaml:"rabbitmq"`
 
 	HTTP struct {
 		Port uint16 `yaml:"port"`

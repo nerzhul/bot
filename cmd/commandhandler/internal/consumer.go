@@ -3,14 +3,14 @@ package internal
 import (
 	"encoding/json"
 	"github.com/streadway/amqp"
-	"gitlab.com/nerzhul/bot"
+	"gitlab.com/nerzhul/bot/rabbitmq"
 )
 
-var rabbitmqConsumer *bot.EventConsumer
+var rabbitmqConsumer *rabbitmq.EventConsumer
 
 func consumeCommandQueries(msgs <-chan amqp.Delivery) {
 	for d := range msgs {
-		query := bot.CommandEvent{}
+		query := rabbitmq.CommandEvent{}
 		err := json.Unmarshal(d.Body, &query)
 		if err != nil {
 			log.Errorf("Failed to decode command event : %v", err)
@@ -32,7 +32,7 @@ func consumeCommandQueries(msgs <-chan amqp.Delivery) {
 
 func verifyConsumer() bool {
 	if rabbitmqConsumer == nil {
-		rabbitmqConsumer = bot.NewEventConsumer(log, &gconfig.RabbitMQ)
+		rabbitmqConsumer = rabbitmq.NewEventConsumer(log, &gconfig.RabbitMQ)
 		if !rabbitmqConsumer.Init() {
 			rabbitmqConsumer = nil
 			return false

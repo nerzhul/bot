@@ -3,7 +3,7 @@ package internal
 import (
 	"github.com/nlopes/slack"
 	"github.com/satori/go.uuid"
-	"gitlab.com/nerzhul/bot"
+	"gitlab.com/nerzhul/bot/rabbitmq"
 )
 
 var slackAPI *slack.Client
@@ -27,7 +27,7 @@ func runSlackClient() {
 				break
 			}
 
-			event := bot.CommandEvent{
+			event := rabbitmq.CommandEvent{
 				Command: ev.Text[1:],
 				Channel: ev.Channel,
 				User:    ev.User,
@@ -53,7 +53,7 @@ func runSlackClient() {
 			rabbitmqPublisher.Publish(
 				&event,
 				"command",
-				&bot.EventOptions{
+				&rabbitmq.EventOptions{
 					CorrelationID: uuid.NewV4().String(),
 					ReplyTo:       consumerCfg.RoutingKey,
 					ExpirationMs:  300000,

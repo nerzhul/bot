@@ -1,4 +1,4 @@
-package bot
+package rabbitmq
 
 import (
 	"github.com/op/go-logging"

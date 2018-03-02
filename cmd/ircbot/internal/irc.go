@@ -5,7 +5,7 @@ import (
 	"fmt"
 	irc "github.com/fluffle/goirc/client"
 	"github.com/satori/go.uuid"
-	"gitlab.com/nerzhul/bot"
+	"gitlab.com/nerzhul/bot/rabbitmq"
 	"strings"
 	"time"
 )
@@ -99,14 +99,14 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 
 	// Publish chat event to handler
 	rabbitmqPublisher.Publish(
-		&bot.IRCChatEvent{
+		&rabbitmq.IRCChatEvent{
 			Type:    "privmsg",
 			Message: text,
 			Channel: channel,
 			User:    line.Nick,
 		},
 		"irc-chat",
-		&bot.EventOptions{
+		&rabbitmq.EventOptions{
 			CorrelationID: uuid.NewV4().String(),
 			ExpirationMs:  1800000,
 			RoutingKey:    "irc-chat",
@@ -126,7 +126,7 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 		}
 	}
 
-	ce := bot.CommandEvent{
+	ce := rabbitmq.CommandEvent{
 		Command: text[1:],
 		Channel: channel,
 		User:    line.Nick,
@@ -142,7 +142,7 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 	rabbitmqPublisher.Publish(
 		&ce,
 		"command",
-		&bot.EventOptions{
+		&rabbitmq.EventOptions{
 			CorrelationID: uuid.NewV4().String(),
 			ReplyTo:       consumerCfg.RoutingKey,
 			ExpirationMs:  300000,
@@ -195,14 +195,14 @@ func onIRCNotice(conn *irc.Conn, line *irc.Line) {
 
 	// Publish chat event to handler
 	rabbitmqPublisher.Publish(
-		&bot.IRCChatEvent{
+		&rabbitmq.IRCChatEvent{
 			Type:    "notice",
 			Message: text,
 			Channel: channel,
 			User:    line.Nick,
 		},
 		"irc-chat",
-		&bot.EventOptions{
+		&rabbitmq.EventOptions{
 			CorrelationID: uuid.NewV4().String(),
 			ExpirationMs:  1800000,
 			RoutingKey:    "irc-chat",

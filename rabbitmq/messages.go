@@ -1,4 +1,4 @@
-package bot
+package rabbitmq
 
 import "encoding/json"
 
@@ -37,6 +37,24 @@ func (ice *IRCChatEvent) ToJSON() ([]byte, error) {
 	return jsonStr, nil
 }
 
+// IRCCommand event sent when a chat message arrives on a channel
+type IRCCommand struct {
+	Type    string `json:"type"`
+	Command string `json:"command"`
+	Channel string `json:"channel"`
+	User    string `json:"user"`
+}
+
+// ToJSON converts IRCCommand to JSON
+func (ice *IRCCommand) ToJSON() ([]byte, error) {
+	jsonStr, err := json.Marshal(ice)
+	if err != nil {
+		return nil, err
+	}
+
+	return jsonStr, nil
+}
+
 // CommandResponse command response received on RabbitMQ from command handler
 type CommandResponse struct {
 	Channel     string `json:"channel"`
@@ -59,7 +77,7 @@ func (gre *CommandResponse) ToJSON() ([]byte, error) {
 type TweetMessage struct {
 	Message        string `json:"message"`
 	Username       string `json:"username"`
-	UserScreenName string `json:"userèscreen_name"`
+	UserScreenName string `json:"user_screen_name"`
 	Date           string `json:"date"`
 }
 

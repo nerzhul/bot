@@ -3,16 +3,18 @@ package internal
 import (
 	"encoding/json"
 	"github.com/streadway/amqp"
-	"gitlab.com/nerzhul/bot"
+	"gitlab.com/nerzhul/bot/rabbitmq"
 	"strings"
 )
 
-var rabbitmqConsumer *bot.EventConsumer
+var rabbitmqConsumer *rabbitmq.EventConsumer
 
 func consumeResponses(msgs <-chan amqp.Delivery) {
 	for d := range msgs {
 		if d.Type == "irc-chat" {
 			consumeIRCChatMessage(&d)
+		} else if d.Type == "irc-command" {
+			consumeIRCCommand(&d)
 		} else {
 			consumeCommandResponse(&d)
 		}
@@ -20,7 +22,7 @@ func consumeResponses(msgs <-chan amqp.Delivery) {
 }
 
 func consumeIRCChatMessage(msg *amqp.Delivery) {
-	chatEvent := bot.IRCChatEvent{}
+	chatEvent := rabbitmq.IRCChatEvent{}
 	err := json.Unmarshal(msg.Body, &chatEvent)
 	if err != nil {
 		log.Errorf("Failed to decode chat event: %v", err)
@@ -39,8 +41,12 @@ func consumeIRCChatMessage(msg *amqp.Delivery) {
 	msg.Ack(false)
 }
 
+func consumeIRCCommand(msg *amqp.Delivery) {
+
+}
+
 func consumeCommandResponse(msg *amqp.Delivery) {
-	response := bot.CommandResponse{}
+	response := rabbitmq.CommandResponse{}
 	err := json.Unmarshal(msg.Body, &response)
 	if err != nil {
 		log.Errorf("Failed to decode command response : %v", err)
@@ -64,7 +70,7 @@ func consumeCommandResponse(msg *amqp.Delivery) {
 
 func verifyConsumer() bool {
 	if rabbitmqConsumer == nil {
-		rabbitmqConsumer = bot.NewEventConsumer(log, &gconfig.RabbitMQ)
+		rabbitmqConsumer = rabbitmq.NewEventConsumer(log, &gconfig.RabbitMQ)
 		if !rabbitmqConsumer.Init() {
 			rabbitmqConsumer = nil
 			return false

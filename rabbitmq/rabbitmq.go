@@ -1,4 +1,4 @@
-package bot
+package rabbitmq
 
 // RabbitMQConsumer single consumer object
 type RabbitMQConsumer struct {

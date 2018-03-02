@@ -5,16 +5,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/streadway/amqp"
-	"gitlab.com/nerzhul/bot"
 	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/common"
+	"gitlab.com/nerzhul/bot/rabbitmq"
 	"io/ioutil"
 	"net/http"
 )
 
 // Consumer rabbitmq consummer
-var Consumer *bot.EventConsumer
+var Consumer *rabbitmq.EventConsumer
 
-func pushCommandResponse(response *bot.CommandResponse) bool {
+func pushCommandResponse(response *rabbitmq.CommandResponse) bool {
 	common.Log.Debugf("Received command response for user %s (callback %s)", response.User, response.Channel)
 	pushResponse := fmt.Sprintf(`{"response_type": "ephemeral", "text": "%s"}`, response.Message)
 	req, err := http.NewRequest("POST", response.Channel, bytes.NewBuffer([]byte(pushResponse)))
@@ -51,7 +51,7 @@ func pushCommandResponse(response *bot.CommandResponse) bool {
 
 func consumeCommandResponses(msgs <-chan amqp.Delivery) {
 	for d := range msgs {
-		response := bot.CommandResponse{}
+		response := rabbitmq.CommandResponse{}
 		err := json.Unmarshal(d.Body, &response)
 		if err != nil {
 			common.Log.Errorf("Failed to decode command response : %v", err)
@@ -68,7 +68,7 @@ func consumeCommandResponses(msgs <-chan amqp.Delivery) {
 // VerifyConsumer verify and re-create rabbitmq connection if needed
 func VerifyConsumer() bool {
 	if Consumer == nil {
-		Consumer = bot.NewEventConsumer(common.Log, &common.GConfig.RabbitMQ)
+		Consumer = rabbitmq.NewEventConsumer(common.Log, &common.GConfig.RabbitMQ)
 		if !Consumer.Init() {
 			Consumer = nil
 			return false

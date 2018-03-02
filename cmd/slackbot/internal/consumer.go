@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"github.com/nlopes/slack"
 	"github.com/streadway/amqp"
-	"gitlab.com/nerzhul/bot"
+	"gitlab.com/nerzhul/bot/rabbitmq"
 	"time"
 )
 
-var rabbitmqConsumer *bot.EventConsumer
+var rabbitmqConsumer *rabbitmq.EventConsumer
 var slackMsgID = 0
 
 func consumeResponses(msgs <-chan amqp.Delivery) {
@@ -30,7 +30,7 @@ func consumeCommandResponse(msg *amqp.Delivery) {
 		return
 	}
 
-	response := bot.CommandResponse{}
+	response := rabbitmq.CommandResponse{}
 	err := json.Unmarshal(msg.Body, &response)
 	if err != nil {
 		log.Errorf("Failed to decode command response : %v", err)
@@ -56,7 +56,7 @@ func consumeTwitterResponse(msg *amqp.Delivery) {
 		return
 	}
 
-	tweet := bot.TweetMessage{}
+	tweet := rabbitmq.TweetMessage{}
 	err := json.Unmarshal(msg.Body, &tweet)
 	if err != nil {
 		log.Errorf("Failed to decode tweet : %v", err)
@@ -90,7 +90,7 @@ func consumeTwitterResponse(msg *amqp.Delivery) {
 
 func verifyConsumer() bool {
 	if rabbitmqConsumer == nil {
-		rabbitmqConsumer = bot.NewEventConsumer(log, &gconfig.RabbitMQ)
+		rabbitmqConsumer = rabbitmq.NewEventConsumer(log, &gconfig.RabbitMQ)
 		if !rabbitmqConsumer.Init() {
 			rabbitmqConsumer = nil
 			return false

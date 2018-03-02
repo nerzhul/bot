@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/labstack/echo"
 	"github.com/satori/go.uuid"
-	"gitlab.com/nerzhul/bot"
 	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/common"
-	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/rabbitmq"
+	myrabbitmq "gitlab.com/nerzhul/bot/cmd/webhookd/internal/rabbitmq"
+	"gitlab.com/nerzhul/bot/rabbitmq"
 	"strings"
 )
 
@@ -67,22 +67,22 @@ func handleGitlabMergeRequest(c echo.Context) bool {
 	notificationMessage := mrEvent.toNotificationString()
 
 	for _, channel := range channelsToPublish {
-		rEvent := bot.CommandResponse{
+		rEvent := rabbitmq.CommandResponse{
 			Message:     notificationMessage,
 			Channel:     channel,
 			User:        "",
 			MessageType: "notice",
 		}
 
-		if !rabbitmq.VerifyPublisher() {
+		if !myrabbitmq.VerifyPublisher() {
 			common.Log.Error("Failed to publish Gitlab Merge Request event")
 			return false
 		}
 
-		rabbitmq.Publisher.Publish(
+		myrabbitmq.Publisher.Publish(
 			&rEvent,
 			"gitlab-event",
-			&bot.EventOptions{
+			&rabbitmq.EventOptions{
 				CorrelationID: uuid.NewV4().String(),
 				ExpirationMs:  300000,
 			},

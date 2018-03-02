@@ -16,7 +16,7 @@ type ircChannelConfig struct {
 }
 
 type config struct {
-	RabbitMQ rabbitmq.RabbitMQConfig `yaml:"rabbitmq"`
+	RabbitMQ rabbitmq.Config `yaml:"rabbitmq"`
 
 	IRC struct {
 		Server              string             `yaml:"server"`
@@ -35,7 +35,7 @@ func (c *config) loadDefaultConfiguration() {
 	c.RabbitMQ.URL = "amqp://guest:guest@localhost:5672/"
 	c.RabbitMQ.EventExchange = "commands"
 	c.RabbitMQ.PublisherRoutingKey = "chat-command"
-	c.RabbitMQ.Consumers = map[string]rabbitmq.RabbitMQConsumer{
+	c.RabbitMQ.Consumers = map[string]rabbitmq.Consumer{
 		"ircbot": {
 			RoutingKey:      "ircbot",
 			ConsumerID:      "ircbot/commands",

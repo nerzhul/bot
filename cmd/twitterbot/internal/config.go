@@ -7,7 +7,7 @@ import (
 )
 
 type config struct {
-	RabbitMQ rabbitmq.RabbitMQConfig `yaml:"rabbitmq"`
+	RabbitMQ rabbitmq.Config `yaml:"rabbitmq"`
 
 	Twitter struct {
 		ConsumerKey    string `yaml:"consumer-key"`
@@ -23,7 +23,7 @@ func (c *config) loadDefaultConfiguration() {
 	c.RabbitMQ.URL = "amqp://guest:guest@localhost:5672/"
 	c.RabbitMQ.EventExchange = "commands"
 	c.RabbitMQ.PublisherRoutingKey = "twitterbot"
-	c.RabbitMQ.Consumers = map[string]rabbitmq.RabbitMQConsumer{
+	c.RabbitMQ.Consumers = map[string]rabbitmq.Consumer{
 		"twitterbot": {
 			RoutingKey:      "twitterbot",
 			ConsumerID:      "twitterbot",

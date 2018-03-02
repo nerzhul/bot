@@ -10,12 +10,12 @@ type EventConsumer struct {
 	conn             *amqp.Connection
 	channel          *amqp.Channel
 	log              *logging.Logger
-	config           *RabbitMQConfig
+	config           *Config
 	IncomingMessages chan amqp.Delivery
 }
 
 // NewEventConsumer creates a new EventPublisher with config & logger
-func NewEventConsumer(logger *logging.Logger, config *RabbitMQConfig) *EventConsumer {
+func NewEventConsumer(logger *logging.Logger, config *Config) *EventConsumer {
 	return &EventConsumer{
 		log:              logger,
 		config:           config,

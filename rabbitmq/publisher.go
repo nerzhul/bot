@@ -13,7 +13,7 @@ type EventPublisher struct {
 	conn    *amqp.Connection
 	channel *amqp.Channel
 	log     *logging.Logger
-	config  *RabbitMQConfig
+	config  *Config
 }
 
 // Event interface
@@ -30,7 +30,7 @@ type EventOptions struct {
 }
 
 // NewEventPublisher creates a new EventPublisher with config & logger
-func NewEventPublisher(logger *logging.Logger, config *RabbitMQConfig) *EventPublisher {
+func NewEventPublisher(logger *logging.Logger, config *Config) *EventPublisher {
 	return &EventPublisher{
 		log:    logger,
 		config: config,

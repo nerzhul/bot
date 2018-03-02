@@ -7,7 +7,7 @@ import (
 )
 
 type config struct {
-	RabbitMQ rabbitmq.RabbitMQConfig `yaml:"rabbitmq"`
+	RabbitMQ rabbitmq.Config `yaml:"rabbitmq"`
 
 	Slack struct {
 		APIKey         string `yaml:"api-key"`
@@ -22,7 +22,7 @@ func (c *config) loadDefaultConfiguration() {
 	c.RabbitMQ.EventExchange = "commands"
 	c.RabbitMQ.PublisherRoutingKey = "chat-command"
 
-	c.RabbitMQ.Consumers = map[string]rabbitmq.RabbitMQConsumer{
+	c.RabbitMQ.Consumers = map[string]rabbitmq.Consumer{
 		"commands": {
 			RoutingKey:      "slackbot",
 			ConsumerID:      "slackbot/commands",

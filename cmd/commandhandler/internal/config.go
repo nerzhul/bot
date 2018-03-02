@@ -7,7 +7,7 @@ import (
 )
 
 type config struct {
-	RabbitMQ rabbitmq.RabbitMQConfig `yaml:"rabbitmq"`
+	RabbitMQ rabbitmq.Config `yaml:"rabbitmq"`
 	Scaleway struct {
 		URL           string `yaml:"url"`
 		Token         string `yaml:"token"`
@@ -26,7 +26,7 @@ func (c *config) loadDefaultConfiguration() {
 	c.RabbitMQ.URL = "amqp://guest:guest@localhost:5672/"
 	c.RabbitMQ.EventExchange = "commands"
 	c.RabbitMQ.PublisherRoutingKey = ""
-	c.RabbitMQ.Consumers = map[string]rabbitmq.RabbitMQConsumer{
+	c.RabbitMQ.Consumers = map[string]rabbitmq.Consumer{
 		"commandhandler": {
 			RoutingKey:      "chat-command",
 			ConsumerID:      "botcommand",

@@ -7,7 +7,7 @@ import (
 )
 
 type config struct {
-	RabbitMQ rabbitmq.RabbitMQConfig `yaml:"rabbitmq"`
+	RabbitMQ rabbitmq.Config `yaml:"rabbitmq"`
 
 	HTTP struct {
 		Port uint16 `yaml:"port"`

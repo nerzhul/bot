@@ -15,7 +15,7 @@ func onIRCPart(conn *irc.Conn, line *irc.Line) {
 		log.Infof("Channel %s left on %s", line.Args[0], conn.Config().Server)
 	}
 
-	if !asyncClient.verifyPublisher() {
+	if !asyncClient.VerifyPublisher() {
 		return
 	}
 

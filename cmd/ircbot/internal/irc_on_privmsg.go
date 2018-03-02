@@ -22,7 +22,7 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 		channel = line.Nick
 	}
 
-	if !asyncClient.verifyPublisher() {
+	if !asyncClient.VerifyPublisher() {
 		log.Error("Failed to verify publisher, no message sent to broker")
 		return
 	}
@@ -68,5 +68,5 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 		log.Fatalf("RabbitMQ consumer configuration 'ircbot' not found, aborting.")
 	}
 
-	asyncClient.publishCommand(&ce, consumerCfg.RoutingKey)
+	asyncClient.PublishCommand(&ce, consumerCfg.RoutingKey)
 }

@@ -29,7 +29,7 @@ func onIRCNotice(conn *irc.Conn, line *irc.Line) {
 		return
 	}
 
-	if !asyncClient.verifyPublisher() {
+	if !asyncClient.VerifyPublisher() {
 		log.Error("Failed to verify publisher, no notice sent to broker")
 		return
 	}

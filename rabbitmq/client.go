@@ -21,6 +21,12 @@ func NewClient(logger *logging.Logger, config *Config) *Client {
 	}
 }
 
+// Init initialize client later. It should be used in composition
+func (rc *Client) Init(logger *logging.Logger, config *Config) {
+	rc.config = config
+	rc.logger = logger
+}
+
 // VerifyPublisher ensure publisher is properly created, else instantiate it
 func (rc *Client) VerifyPublisher() bool {
 	if rc.Publisher == nil {

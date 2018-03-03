@@ -54,8 +54,8 @@ func (rc *Client) PublishCommand(cc *CommandEvent, replyTo string) bool {
 }
 
 // PublishGitlabEvent publish incoming gitlab event to exchange
-func (rc *Client) PublishGitlabEvent(event *CommandResponse) {
-	rc.Publisher.Publish(event, "gitlab-event",
+func (rc *Client) PublishGitlabEvent(event *CommandResponse) bool {
+	return rc.Publisher.Publish(event, "gitlab-event",
 		&EventOptions{
 			CorrelationID: uuid.NewV4().String(),
 			ExpirationMs:  300000,

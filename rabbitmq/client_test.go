@@ -30,3 +30,30 @@ func TestClient_VerifyPublisher(t *testing.T) {
 
 	assert.Equal(t, true, c.VerifyPublisher())
 }
+
+func TestClient_PublishCommand(t *testing.T) {
+	c := NewClient(&logging.Logger{}, &testCfg, nil)
+	assert.NotEqual(t, nil, c)
+
+	assert.Equal(t, true, c.VerifyPublisher())
+
+	assert.Equal(t, true, c.PublishCommand(&CommandEvent{
+		Command: "help",
+		User:    "unittest",
+		Channel: "ci",
+	}, "blackhole"))
+}
+
+func TestClient_PublishGitlabEvent(t *testing.T) {
+	c := NewClient(&logging.Logger{}, &testCfg, nil)
+	assert.NotEqual(t, nil, c)
+
+	assert.Equal(t, true, c.VerifyPublisher())
+
+	assert.Equal(t, true, c.PublishGitlabEvent(&CommandResponse{
+		Message:     "event",
+		MessageType: "gitlab-event",
+		User:        "unittest",
+		Channel:     "ci",
+	}))
+}

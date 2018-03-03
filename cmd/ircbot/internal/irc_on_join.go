@@ -13,21 +13,21 @@ func onIRCJoin(conn *irc.Conn, line *irc.Line) {
 
 	if line.Nick == conn.Me().Nick {
 		log.Infof("Channel %s joined on %s", line.Args[0], conn.Config().Server)
-	}
 
-	if !asyncClient.VerifyPublisher() {
-		log.Error("Failed to verify publisher, no message sent to broker")
-		return
-	}
+		if !asyncClient.VerifyPublisher() {
+			log.Error("Failed to verify publisher, no message sent to broker")
+			return
+		}
 
-	asyncClient.publishChatEvent(
-		&rabbitmq.IRCChatEvent{
-			Type:    "notice",
-			Message: fmt.Sprintf("Channel '%s' joined by the bot", line.Args[0]),
-			Channel: line.Args[0],
-			User:    line.Nick,
-		},
-	)
+		asyncClient.publishChatEvent(
+			&rabbitmq.IRCChatEvent{
+				Type:    "notice",
+				Message: fmt.Sprintf("Channel '%s' joined by the bot", line.Args[0]),
+				Channel: line.Args[0],
+				User:    line.Nick,
+			},
+		)
+	}
 
 	channelCfg := gconfig.getIRCChannelConfig(line.Args[0])
 	if channelCfg == nil || !channelCfg.Hello {

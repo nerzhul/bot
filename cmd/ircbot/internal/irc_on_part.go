@@ -16,6 +16,7 @@ func onIRCPart(conn *irc.Conn, line *irc.Line) {
 	}
 
 	if !asyncClient.VerifyPublisher() {
+		log.Error("Failed to verify publisher, no message sent to broker")
 		return
 	}
 

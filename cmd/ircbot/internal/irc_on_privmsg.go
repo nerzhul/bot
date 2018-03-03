@@ -12,10 +12,6 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 
 	text := line.Text()
 
-	if len(text) < 2 {
-		return
-	}
-
 	channel := line.Args[0]
 
 	if channel == conn.Me().Nick {
@@ -43,7 +39,7 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 	)
 
 	// Don't send non commands to commandhandler
-	if text[0] != '!' {
+	if len(text) < 2 || text[0] != '!' {
 		return
 	}
 

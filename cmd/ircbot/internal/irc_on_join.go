@@ -15,6 +15,11 @@ func onIRCJoin(conn *irc.Conn, line *irc.Line) {
 		log.Infof("Channel %s joined on %s", line.Args[0], conn.Config().Server)
 	}
 
+	if !asyncClient.VerifyPublisher() {
+		log.Error("Failed to verify publisher, no message sent to broker")
+		return
+	}
+
 	asyncClient.publishChatEvent(
 		&rabbitmq.IRCChatEvent{
 			Type:    "notice",

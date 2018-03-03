@@ -6,12 +6,12 @@ import (
 )
 
 type rabbitmqClient struct {
-	rabbitmq.Client
+	*rabbitmq.Client
 }
 
 func newRabbitMQClient() *rabbitmqClient {
 	rc := &rabbitmqClient{}
-	rc.Client.Init(log, &gconfig.RabbitMQ)
+	rc.Client = rabbitmq.NewClient(log, &gconfig.RabbitMQ)
 	return rc
 }
 

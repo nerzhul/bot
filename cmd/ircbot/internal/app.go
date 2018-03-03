@@ -27,7 +27,7 @@ func StartApp(configFile string) {
 
 	loadConfiguration(configFile)
 
-	asyncClient := newRabbitMQClient()
+	asyncClient = newRabbitMQClient()
 
 	asyncClient.VerifyPublisher()
 	asyncClient.verifyConsumer()

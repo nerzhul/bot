@@ -23,7 +23,7 @@ func onIRCPrivMsg(conn *irc.Conn, line *irc.Line) {
 		return
 	}
 
-	if !asyncClient.verifyConsumer() {
+	if !asyncClient.VerifyConsumer() {
 		log.Error("Failed to verify consumer, no message sent to broker")
 		return
 	}

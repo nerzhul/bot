@@ -28,9 +28,11 @@ func StartApp(configFile string) {
 	loadConfiguration(configFile)
 
 	asyncClient = newRabbitMQClient()
+	asyncClient.AddConsumerName("ircbot")
+	asyncClient.AddConsumerName("chat")
 
 	asyncClient.VerifyPublisher()
-	asyncClient.verifyConsumer()
+	asyncClient.VerifyConsumer()
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGHUP)

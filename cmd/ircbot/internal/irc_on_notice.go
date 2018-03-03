@@ -34,7 +34,7 @@ func onIRCNotice(conn *irc.Conn, line *irc.Line) {
 		return
 	}
 
-	if !asyncClient.verifyConsumer() {
+	if !asyncClient.VerifyConsumer() {
 		log.Error("Failed to verify consumer, no notice sent to broker")
 		return
 	}

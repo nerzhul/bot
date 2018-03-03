@@ -124,37 +124,3 @@ func consumeCommandResponse(msg *amqp.Delivery) {
 
 	msg.Ack(false)
 }
-
-func (rc *rabbitmqClient) verifyConsumer() bool {
-	if rc.Consumer == nil {
-		rc.Consumer = rabbitmq.NewEventConsumer(log, &gconfig.RabbitMQ)
-		if !rc.Consumer.Init() {
-			rc.Consumer = nil
-			return false
-		}
-
-		for _, consumerName := range []string{"ircbot", "chat"} {
-			consumerCfg := gconfig.RabbitMQ.GetConsumer(consumerName)
-			if consumerCfg == nil {
-				log.Fatalf("RabbitMQ consumer configuration '%s' not found, aborting.", consumerName)
-			}
-
-			if !rc.Consumer.DeclareQueue(consumerCfg.Queue) {
-				rc.Consumer = nil
-				return false
-			}
-
-			if !rc.Consumer.BindExchange(consumerCfg.Queue, consumerCfg.Exchange, consumerCfg.RoutingKey) {
-				rc.Consumer = nil
-				return false
-			}
-
-			if !rc.Consumer.Consume(consumerCfg.Queue, consumerCfg.ConsumerID, consumeResponses, false) {
-				rc.Consumer = nil
-				return false
-			}
-		}
-	}
-
-	return rc.Consumer != nil
-}

@@ -11,7 +11,7 @@ type rabbitmqClient struct {
 
 func newRabbitMQClient() *rabbitmqClient {
 	rc := &rabbitmqClient{}
-	rc.Client = rabbitmq.NewClient(log, &gconfig.RabbitMQ)
+	rc.Client = rabbitmq.NewClient(log, &gconfig.RabbitMQ, consumeResponses)
 	return rc
 }
 

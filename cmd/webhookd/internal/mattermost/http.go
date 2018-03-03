@@ -3,7 +3,6 @@ package mattermost
 import (
 	"fmt"
 	"github.com/labstack/echo"
-	"github.com/satori/go.uuid"
 	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/common"
 	myrabbitmq "gitlab.com/nerzhul/bot/cmd/webhookd/internal/rabbitmq"
 	"gitlab.com/nerzhul/bot/rabbitmq"
@@ -73,14 +72,14 @@ func V1ApiMattermostCommand(c echo.Context) error {
 		return c.JSON(http.StatusForbidden, e.Body)
 	}
 
-	if !myrabbitmq.VerifyPublisher() {
+	if !myrabbitmq.AsyncClient.VerifyPublisher() {
 		common.Log.Error("Failed to verify publisher, no command sent to broker")
 		var e common.ErrorResponse
 		e.Body.Message = "Server error"
 		return c.JSON(http.StatusInternalServerError, e.Body)
 	}
 
-	if !myrabbitmq.VerifyPublisher() {
+	if !myrabbitmq.AsyncClient.VerifyConsumer() {
 		common.Log.Error("Failed to verify consumer, no command sent to broker")
 		var e common.ErrorResponse
 		e.Body.Message = "Server error"
@@ -98,16 +97,6 @@ func V1ApiMattermostCommand(c echo.Context) error {
 		User:    mcr.UserName,
 	}
 
-	myrabbitmq.Publisher.Publish(
-		&event,
-		"command",
-		&rabbitmq.EventOptions{
-			CorrelationID: uuid.NewV4().String(),
-			ReplyTo:       consumerCfg.RoutingKey,
-			ExpirationMs:  300000,
-			RoutingKey:    "chat-command",
-		},
-	)
-
+	myrabbitmq.AsyncClient.PublishCommand(&event, consumerCfg.RoutingKey)
 	return c.JSON(http.StatusOK, nil)
 }

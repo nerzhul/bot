@@ -11,9 +11,6 @@ import (
 	"net/http"
 )
 
-// Consumer rabbitmq consummer
-var Consumer *rabbitmq.EventConsumer
-
 func pushCommandResponse(response *rabbitmq.CommandResponse) bool {
 	common.Log.Debugf("Received command response for user %s (callback %s)", response.User, response.Channel)
 	pushResponse := fmt.Sprintf(`{"response_type": "ephemeral", "text": "%s"}`, response.Message)
@@ -63,37 +60,4 @@ func consumeCommandResponses(msgs <-chan amqp.Delivery) {
 			d.Ack(false)
 		}
 	}
-}
-
-// VerifyConsumer verify and re-create rabbitmq connection if needed
-func VerifyConsumer() bool {
-	if Consumer == nil {
-		Consumer = rabbitmq.NewEventConsumer(common.Log, &common.GConfig.RabbitMQ)
-		if !Consumer.Init() {
-			Consumer = nil
-			return false
-		}
-
-		consumerCfg := common.GConfig.RabbitMQ.GetConsumer("webhook")
-		if consumerCfg == nil {
-			common.Log.Fatalf("RabbitMQ consumer configuration 'webhook' not found, aborting.")
-		}
-
-		if !Consumer.DeclareQueue(consumerCfg.Queue) {
-			Consumer = nil
-			return false
-		}
-
-		if !Consumer.BindExchange(consumerCfg.Queue, consumerCfg.Exchange, consumerCfg.RoutingKey) {
-			Consumer = nil
-			return false
-		}
-
-		if !Consumer.Consume(consumerCfg.Queue, consumerCfg.ConsumerID, consumeCommandResponses, false) {
-			Consumer = nil
-			return false
-		}
-	}
-
-	return Consumer != nil
 }

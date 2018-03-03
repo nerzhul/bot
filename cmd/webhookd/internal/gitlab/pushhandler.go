@@ -2,7 +2,6 @@ package gitlab
 
 import (
 	"github.com/labstack/echo"
-	"github.com/satori/go.uuid"
 	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/common"
 	myrabbitmq "gitlab.com/nerzhul/bot/cmd/webhookd/internal/rabbitmq"
 	"gitlab.com/nerzhul/bot/rabbitmq"
@@ -96,19 +95,12 @@ func handleGitlabPush(c echo.Context) bool {
 			MessageType: "notice",
 		}
 
-		if !myrabbitmq.VerifyPublisher() {
+		if !myrabbitmq.AsyncClient.VerifyPublisher() {
 			common.Log.Error("Failed to publish Gitlab Push event")
 			return false
 		}
 
-		myrabbitmq.Publisher.Publish(
-			&rEvent,
-			"gitlab-event",
-			&rabbitmq.EventOptions{
-				CorrelationID: uuid.NewV4().String(),
-				ExpirationMs:  300000,
-			},
-		)
+		myrabbitmq.AsyncClient.PublishGitlabEvent(&rEvent)
 	}
 	return true
 }

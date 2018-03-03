@@ -1,21 +1,28 @@
 package rabbitmq
 
 import (
+	"github.com/satori/go.uuid"
 	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/common"
 	"gitlab.com/nerzhul/bot/rabbitmq"
 )
 
-// Publisher global rabbitmq publisher
-var Publisher *rabbitmq.EventPublisher
+var AsyncClient *rabbitmqClient
 
-// VerifyPublisher ensure publisher exists
-func VerifyPublisher() bool {
-	if Publisher == nil {
-		Publisher = rabbitmq.NewEventPublisher(common.Log, &common.GConfig.RabbitMQ)
-		if !Publisher.Init() {
-			Publisher = nil
-		}
-	}
+type rabbitmqClient struct {
+	*rabbitmq.Client
+}
 
-	return Publisher != nil
+func NewRabbitMQClient() *rabbitmqClient {
+	rc := &rabbitmqClient{}
+	rc.Client = rabbitmq.NewClient(common.Log, &common.GConfig.RabbitMQ, consumeCommandResponses)
+	return rc
+}
+
+func (rc *rabbitmqClient) PublishGitlabEvent(event *rabbitmq.CommandResponse) {
+	rc.Publisher.Publish(event, "gitlab-event",
+		&rabbitmq.EventOptions{
+			CorrelationID: uuid.NewV4().String(),
+			ExpirationMs:  300000,
+		},
+	)
 }

@@ -32,8 +32,10 @@ func StartApp(configFile string) {
 
 	common.LoadConfiguration(configFile)
 
-	rabbitmq.VerifyConsumer()
-	rabbitmq.VerifyPublisher()
+	rabbitmq.AsyncClient = rabbitmq.NewRabbitMQClient()
+	rabbitmq.AsyncClient.AddConsumerName("webhook")
+	rabbitmq.AsyncClient.VerifyPublisher()
+	rabbitmq.AsyncClient.VerifyConsumer()
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGHUP)

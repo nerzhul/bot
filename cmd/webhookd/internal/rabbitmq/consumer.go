@@ -52,6 +52,8 @@ func consumeCommandResponses(msgs <-chan amqp.Delivery) {
 		err := json.Unmarshal(d.Body, &response)
 		if err != nil {
 			common.Log.Errorf("Failed to decode command response : %v", err)
+			d.Nack(false, false)
+			return
 		}
 
 		if !pushCommandResponse(&response) {

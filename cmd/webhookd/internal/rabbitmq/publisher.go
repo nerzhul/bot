@@ -1,28 +1,21 @@
 package rabbitmq
 
 import (
-	"github.com/satori/go.uuid"
 	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/common"
 	"gitlab.com/nerzhul/bot/rabbitmq"
 )
 
-var AsyncClient *rabbitmqClient
+// AsyncClient the async client
+var AsyncClient *MyAsyncClient
 
-type rabbitmqClient struct {
+// MyAsyncClient the private webhook rabbit client
+type MyAsyncClient struct {
 	*rabbitmq.Client
 }
 
-func NewRabbitMQClient() *rabbitmqClient {
-	rc := &rabbitmqClient{}
+// NewRabbitMQClient create asynchronous client
+func NewRabbitMQClient() *MyAsyncClient {
+	rc := &MyAsyncClient{}
 	rc.Client = rabbitmq.NewClient(common.Log, &common.GConfig.RabbitMQ, consumeCommandResponses)
 	return rc
-}
-
-func (rc *rabbitmqClient) PublishGitlabEvent(event *rabbitmq.CommandResponse) {
-	rc.Publisher.Publish(event, "gitlab-event",
-		&rabbitmq.EventOptions{
-			CorrelationID: uuid.NewV4().String(),
-			ExpirationMs:  300000,
-		},
-	)
 }

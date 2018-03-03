@@ -74,14 +74,14 @@ func (r *commandRouter) handleCommand(event *rabbitmq.CommandEvent, correlationI
 			resp.Message = *cmdResult
 		}
 	} else {
-		if !verifyPublisher() {
+		if !asyncClient.VerifyPublisher() {
 			return false
 		}
 
 		resp.Message = "Invalid command. Call help command to know the available commands."
 	}
 
-	rabbitmqPublisher.Publish(&resp,
+	asyncClient.Publisher.Publish(&resp,
 		"command-answer",
 		&rabbitmq.EventOptions{
 			CorrelationID: correlationID,

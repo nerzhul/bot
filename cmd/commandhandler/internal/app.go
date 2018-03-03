@@ -16,6 +16,7 @@ var AppVersion = "[unk]"
 var AppBuildDate = "[unk]"
 
 var router *commandRouter
+var asyncClient *rabbitmqClient
 
 // StartApp initiate components
 // Should be called from main function
@@ -27,8 +28,10 @@ func StartApp(configFile string) {
 
 	loadConfiguration(configFile)
 
-	verifyPublisher()
-	verifyConsumer()
+	asyncClient = newRabbitMQClient()
+	asyncClient.AddConsumerName("commandhandler")
+	asyncClient.VerifyPublisher()
+	asyncClient.VerifyConsumer()
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGHUP)

@@ -31,11 +31,11 @@ func runProcessor() {
 
 func runStep() {
 	time.Sleep(time.Second * 2)
-	if !verifyPublisher() {
+	if !asyncClient.VerifyPublisher() {
 		return
 	}
 
-	if !verifyConsumer() {
+	if !asyncClient.VerifyConsumer() {
 		return
 	}
 }

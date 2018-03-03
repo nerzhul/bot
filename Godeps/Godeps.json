@@ -1,6 +1,6 @@
 {
 	"ImportPath": "gitlab.com/nerzhul/bot",
-	"GoVersion": "go1.9",
+	"GoVersion": "go1.10",
 	"GodepVersion": "v79",
 	"Packages": [
 		"./..."
@@ -19,6 +19,11 @@
 			"ImportPath": "github.com/cenkalti/backoff",
 			"Comment": "v1.1.0-3-g309aa71",
 			"Rev": "309aa717adbf351e92864cbedf9cca0b769a4b5a"
+		},
+		{
+			"ImportPath": "github.com/davecgh/go-spew/spew",
+			"Comment": "v1.1.0-12-g8991bc2",
+			"Rev": "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
 		},
 		{
 			"ImportPath": "github.com/dghubble/go-twitter/twitter",
@@ -135,6 +140,11 @@
 			"Rev": "9bf0212445a9fb4769aca5d2d86fbc381af39d52"
 		},
 		{
+			"ImportPath": "github.com/pmezard/go-difflib/difflib",
+			"Comment": "v1.0.0",
+			"Rev": "792786c7400a136282c1664665ae0a8db921c6c2"
+		},
+		{
 			"ImportPath": "github.com/satori/go.uuid",
 			"Comment": "v1.1.0-8-g5bf94b6",
 			"Rev": "5bf94b69c6b68ee1b541973bb8e1144db23a194b"
@@ -142,6 +152,11 @@
 		{
 			"ImportPath": "github.com/streadway/amqp",
 			"Rev": "54ded0531dfd699a7893861d39a7a949c5749bc9"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/assert",
+			"Comment": "v1.2.1-3-gbe8372a",
+			"Rev": "be8372ae8ec5c6daaed3cc28ebf73c54b737c240"
 		},
 		{
 			"ImportPath": "github.com/valyala/bytebufferpool",

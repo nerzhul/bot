@@ -5,4 +5,4 @@
 
 # Documentation
 
-Swagger: [![url](https://nerzhul.gitlab.io/gitlab-hook/swagger/)](https://nerzhul.gitlab.io/gitlab-hook/swagger/)
+Swagger: [![url](https://nerzhul.gitlab.io/bot/swagger/)](https://nerzhul.gitlab.io/bot/swagger/)

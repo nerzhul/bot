@@ -48,10 +48,12 @@ func (rc *Client) PublishCommand(cc *CommandEvent, replyTo string) bool {
 			CorrelationID: uuid.NewV4().String(),
 			ReplyTo:       replyTo,
 			ExpirationMs:  300000,
+			RoutingKey:    "chat-command",
 		},
 	)
 }
 
+// PublishGitlabEvent publish incoming gitlab event to exchange
 func (rc *Client) PublishGitlabEvent(event *CommandResponse) {
 	rc.Publisher.Publish(event, "gitlab-event",
 		&EventOptions{

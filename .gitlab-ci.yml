@@ -22,6 +22,8 @@ stages:
 
 test:unittests:
   stage: test
+  services:
+    - rabbitmq:latest
   script:
     - make test
 

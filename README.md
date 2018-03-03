@@ -1,4 +1,4 @@
-# Gitlab-Hook 
+# Nerzhul's bot
 
 [![pipeline status](https://gitlab.com/nerzhul/bot/badges/master/pipeline.svg)](https://gitlab.com/nerzhul/bot/commits/master)
 [![coverage report](https://gitlab.com/nerzhul/bot/badges/master/coverage.svg)](http://nerzhul.gitlab.io/bot/coverage.html)

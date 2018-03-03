@@ -6,6 +6,8 @@ import (
 )
 
 var testCfg = Config{
+	URL:           "amqp://guest:guest@rabbitmq/",
+	EventExchange: "events/unittests",
 	Consumers: map[string]Consumer{
 		"test": {
 			ConsumerID: "cid",

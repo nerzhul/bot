@@ -9,3 +9,24 @@ import (
 func TestNewClient(t *testing.T) {
 	assert.NotEqual(t, nil, NewClient(&logging.Logger{}, &testCfg, nil))
 }
+
+func TestClient_AddConsumerName(t *testing.T) {
+	c := NewClient(&logging.Logger{}, &testCfg, nil)
+	assert.NotEqual(t, nil, c)
+	c.AddConsumerName("test_consumer")
+	var found = false
+	for _, cn := range c.consumerNames {
+		if cn == "test_consumer" {
+			found = true
+		}
+	}
+
+	assert.Equal(t, true, found)
+}
+
+func TestClient_VerifyPublisher(t *testing.T) {
+	c := NewClient(&logging.Logger{}, &testCfg, nil)
+	assert.NotEqual(t, nil, c)
+
+	assert.Equal(t, true, c.VerifyPublisher())
+}

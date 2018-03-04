@@ -43,6 +43,8 @@ build:
 
 doc:coverage:
   stage: documentation
+  services:
+    - rabbitmq:latest
   script:
     - ./ci/coverage.sh
   artifacts:

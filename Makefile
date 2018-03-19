@@ -59,7 +59,7 @@ install: build
 	install -m 0755 "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/webhook" /usr/local/bin/webhook
 	install -m 0755 res/freebsd/webhook.sh /usr/local/etc/rc.d/webhook
 	install -m 0755 "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/ircbot" /usr/local/bin/ircbot
-	install -m 0755 res/freebsd/ircbot.sh /usr/local/etc/rc.d/ircbot
+	install -m 0755 cmd/ircbot/res/freebsd_ircbot.sh /usr/local/etc/rc.d/ircbot
 	install -m 0755 "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/matterbot" /usr/local/bin/matterbot
 	install -m 0755 res/freebsd/matterbot.sh /usr/local/etc/rc.d/matterbot
 	install -m 0755 "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/slackbot" /usr/local/bin/slackbot

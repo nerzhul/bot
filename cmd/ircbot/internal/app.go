@@ -17,6 +17,8 @@ var AppBuildDate = "[unk]"
 
 var asyncClient *rabbitmqClient
 
+var gIRCDB *ircDB
+
 // StartApp initiate components
 // Should be called from main function
 func StartApp(configFile string) {
@@ -26,6 +28,13 @@ func StartApp(configFile string) {
 	log.Infof("Build date: %s.", AppBuildDate)
 
 	loadConfiguration(configFile)
+
+	gIRCDB := ircDB{}
+	if !gIRCDB.init(&gconfig.DB) {
+		log.Fatal("Failed to initialize database connector, aborting.")
+	}
+
+	gconfig.loadDatabaseConfigurations()
 
 	asyncClient = newRabbitMQClient()
 	asyncClient.AddConsumerName("ircbot")

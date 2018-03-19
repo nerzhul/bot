@@ -2,7 +2,10 @@ image: golang:1.10
 
 variables:
   REPO_NAME: gitlab.com/nerzhul/bot
-  SWAGGER_TAG: v3.11.0
+  POSTGRES_DB: "unittests"
+  POSTGRES_USER: "unittests"
+  POSTGRES_PASSWORD: "unittests"
+  SWAGGER_TAG: v3.13.0
 
 before_script:
   - go version
@@ -24,6 +27,13 @@ test:unittests:
   stage: test
   services:
     - rabbitmq:latest
+    - postgres:latest
+  before_script:
+    - apt-get update -qyy > /dev/null
+    - apt-get install -qyy postgresql-client > /dev/null
+    - ./ci/initdb.sh
+    - ./ci/before_script.sh
+    - cd $GOPATH/src/$REPO_NAME
   script:
     - make test
 
@@ -45,7 +55,13 @@ doc:coverage:
   stage: documentation
   services:
     - rabbitmq:latest
+    - postgres:latest
   script:
+    - apt-get update -qyy > /dev/null
+    - apt-get install -qyy postgresql-client > /dev/null
+    - ./ci/initdb.sh
+    - ./ci/before_script.sh
+    - cd $GOPATH/src/$REPO_NAME
     - ./ci/coverage.sh
   artifacts:
     when: on_success

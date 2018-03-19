@@ -12,7 +12,7 @@
 		},
 		{
 			"ImportPath": "github.com/briandowns/openweathermap",
-			"Comment": "0.9-7-g722564b",
+			"Comment": "0.9",
 			"Rev": "0.9"
 		},
 		{
@@ -81,9 +81,19 @@
 			"Rev": "57409ada9da0f2afad6664c49502f8c50fbd8476"
 		},
 		{
+			"ImportPath": "github.com/lib/pq",
+			"Comment": "go1.0-cutoff-204-gb200422",
+			"Rev": "b2004221932bd6b13167ef654c81cffac36f7537"
+		},
+		{
+			"ImportPath": "github.com/lib/pq/oid",
+			"Comment": "go1.0-cutoff-204-gb200422",
+			"Rev": "b2004221932bd6b13167ef654c81cffac36f7537"
+		},
+		{
 			"ImportPath": "github.com/mattermost/mattermost-server/model",
-			"Comment": "v4.6.0",
-			"Rev": "v4.6.0"
+			"Comment": "v4.8.0",
+			"Rev": "v4.8.0"
 		},
 		{
 			"ImportPath": "github.com/mattn/go-colorable",
@@ -118,7 +128,7 @@
 		{
 			"ImportPath": "github.com/nlopes/slack",
 			"Comment": "v0.1.0-10-g5cde21b",
-			"Rev": "280245264a9d8c496e95ead447421d37cd95f93a"
+			"Rev": "5cde21b8b96a43fc3435a1f514123d14fd7eabdc"
 		},
 		{
 			"ImportPath": "github.com/op/go-logging",

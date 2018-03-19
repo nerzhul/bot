@@ -17,21 +17,22 @@ type ircChannelConfig struct {
 
 type config struct {
 	RabbitMQ rabbitmq.Config `yaml:"rabbitmq"`
+	DB       dbConfig        `yaml:"database"`
 
 	IRC struct {
-		Server              string             `yaml:"server"`
-		Port                uint16             `yaml:"port"`
-		SSL                 bool               `yaml:"ssl"`
-		Name                string             `yaml:"name"`
-		Password            string             `yaml:"password"`
-		Channels            []ircChannelConfig `yaml:"channels"`
-		AllowedCommandUsers []string           `yaml:"allowed-command-users"`
+		Server              string `yaml:"server"`
+		Port                uint16 `yaml:"port"`
+		SSL                 bool   `yaml:"ssl"`
+		Name                string `yaml:"name"`
+		Password            string `yaml:"password"`
+		Channels            []ircChannelConfig
+		AllowedCommandUsers []string `yaml:"allowed-command-users"`
 	} `yaml:"irc"`
 }
 
 var gconfig config
 
-func (c *config) loadDefaultConfiguration() {
+func (c *config) loadDefaultConfiguration() bool {
 	c.RabbitMQ.URL = "amqp://guest:guest@localhost:5672/"
 	c.RabbitMQ.EventExchange = "commands"
 	c.RabbitMQ.PublisherRoutingKey = "chat-command"
@@ -52,10 +53,15 @@ func (c *config) loadDefaultConfiguration() {
 		},
 	}
 
+	c.DB.URL = "host=postgres dbname=ircbot user=ircbot password=ircbot"
+	c.DB.MaxOpenConns = 10
+	c.DB.MaxIdleConns = 5
+
 	c.IRC.Server = "chat.freenode.net"
 	c.IRC.Port = 6697
 	c.IRC.SSL = true
 	c.IRC.Name = fmt.Sprintf("ircbot%s", time.Now().String())
+	return true
 }
 
 func (c *config) getIRCChannelConfig(name string) *ircChannelConfig {
@@ -101,4 +107,12 @@ func loadConfiguration(path string) {
 	}
 
 	log.Infof("Configuration loaded from '%s'.", path)
+}
+
+func (c *config) loadDatabaseConfigurations() {
+	var err error
+	c.IRC.Channels, err = gIRCDB.loadIRCChannelConfigs()
+	if err != nil {
+		log.Fatal("Unable to load IRC channels database configurations, aborting.")
+	}
 }

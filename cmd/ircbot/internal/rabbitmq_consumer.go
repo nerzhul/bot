@@ -2,6 +2,7 @@ package internal
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/streadway/amqp"
 	"gitlab.com/nerzhul/bot/rabbitmq"
 	"strings"
@@ -50,18 +51,30 @@ func consumeIRCCommand(msg *amqp.Delivery) {
 		return
 	}
 
+	resp := &rabbitmq.CommandResponse{
+		Channel:     command.Channel,
+		User:        command.User,
+		MessageType: "whisper",
+	}
+
 	if ircConn == nil {
-		msg.Nack(false, true)
+		resp.Message = "Unable to handle command, not connected to IRC."
+		sendIRCCommandResponse(resp, msg.CorrelationId, msg.ReplyTo)
+		msg.Ack(false)
 		return
 	}
 
 	if !gconfig.isAllowedToUseCommand(command.User) {
+		resp.Message = "You are not allowed to interact with IRC client. This will be reported."
+		sendIRCCommandResponse(resp, msg.CorrelationId, msg.ReplyTo)
 		log.Errorf("User '%s' is not allowed to use IRC bot commands. Dropping.", command.User)
 		msg.Ack(true)
 		return
 	}
 
 	if len(command.Command) == 0 {
+		resp.Message = "Invalid command, ignoring."
+		sendIRCCommandResponse(resp, msg.CorrelationId, msg.ReplyTo)
 		log.Errorf("Ignore empty command received from user '%s'", command.User)
 		msg.Ack(true)
 		return
@@ -71,32 +84,58 @@ func consumeIRCCommand(msg *amqp.Delivery) {
 	switch command.Command {
 	case "join":
 		if len(command.Arg1) == 0 {
+			resp.Message = "Invalid command, ignoring."
+			sendIRCCommandResponse(resp, msg.CorrelationId, msg.ReplyTo)
 			log.Errorf("Command '%s' sent from user '%s' is malformed. 1 argument expected.",
 				command.Command, command.User)
 			break
 		}
 		ircConn.Join(command.Arg1, command.Arg2)
+
+		resp.Message = fmt.Sprintf("Bot requested to join channel '%s'.", command.Arg1)
+		sendIRCCommandResponse(resp, msg.CorrelationId, msg.ReplyTo)
 		break
 	case "leave":
 		if len(command.Arg1) == 0 {
+			resp.Message = "Invalid command, ignoring."
+			sendIRCCommandResponse(resp, msg.CorrelationId, msg.ReplyTo)
 			log.Errorf("Command '%s' sent from user '%s' is malformed. 1 argument expected.",
 				command.Command, command.User)
 			break
 		}
 		ircConn.Part(command.Arg1)
+
+		resp.Message = fmt.Sprintf("Bot left channel '%s'.", command.Arg1)
+		sendIRCCommandResponse(resp, msg.CorrelationId, msg.ReplyTo)
 		break
 	case "list":
 		if len(command.Arg1) != 0 {
+			resp.Message = "Invalid command, ignoring."
+			sendIRCCommandResponse(resp, msg.CorrelationId, msg.ReplyTo)
 			log.Errorf("Command '%s' sent from user '%s' is malformed. 0 argument expected.",
 				command.Command, command.User)
 			break
 		}
 		// TODO: Not implemented
 	default:
+		resp.Message = "Invalid command, ignoring."
+		sendIRCCommandResponse(resp, msg.CorrelationId, msg.ReplyTo)
 		log.Warningf("Ignore invalid command '%s' received from user '%s'", command.Command, command.User)
 		break
 	}
+
 	msg.Ack(true)
+}
+
+func sendIRCCommandResponse(resp *rabbitmq.CommandResponse, correlationID string, replyTo string) {
+	asyncClient.Publisher.Publish(resp,
+		"irccommand-answer",
+		&rabbitmq.EventOptions{
+			CorrelationID: correlationID,
+			RoutingKey:    replyTo,
+			ExpirationMs:  60 * 1000,
+		},
+	)
 }
 
 func consumeCommandResponse(msg *amqp.Delivery) {

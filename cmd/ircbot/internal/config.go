@@ -38,7 +38,7 @@ func (c *config) loadDefaultConfiguration() bool {
 	c.RabbitMQ.PublisherRoutingKey = "chat-command"
 	c.RabbitMQ.Consumers = map[string]rabbitmq.Consumer{
 		"ircbot": {
-			RoutingKey:      "ircbot",
+			RoutingKey:      "irc-command",
 			ConsumerID:      "ircbot/commands",
 			Queue:           "ircbot/commands",
 			Exchange:        "commands",

@@ -1,6 +1,9 @@
 package rabbitmq
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 // CommandEvent event sent to command handler
 type CommandEvent struct {
@@ -39,14 +42,19 @@ func (ice *IRCChatEvent) ToJSON() ([]byte, error) {
 
 // IRCCommand event sent when a chat message arrives on a channel
 type IRCCommand struct {
-	Type    string `json:"type"`
 	Command string `json:"command"`
+	Arg1    string `json:"arg1"`
+	Arg2    string `json:"arg2"`
 	Channel string `json:"channel"`
 	User    string `json:"user"`
 }
 
 // ToJSON converts IRCCommand to JSON
 func (ice *IRCCommand) ToJSON() ([]byte, error) {
+	if ice.Command != "join" && ice.Command != "leave" && ice.Command != "list" {
+		return nil, fmt.Errorf("Invalid IRCCommand command field: %s, marshaling failed.\n", ice.Command)
+	}
+
 	jsonStr, err := json.Marshal(ice)
 	if err != nil {
 		return nil, err

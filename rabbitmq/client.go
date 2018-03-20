@@ -53,6 +53,18 @@ func (rc *Client) PublishCommand(cc *CommandEvent, replyTo string) bool {
 	)
 }
 
+// PublishIRCCommand publish an IRC command to RabbitMQ, and hope somebody we reply on the replyTo queue
+func (rc *Client) PublishIRCCommand(cc *IRCCommand, replyTo string) bool {
+	return rc.Publisher.Publish(cc, "irc-command",
+		&EventOptions{
+			CorrelationID: uuid.NewV4().String(),
+			ReplyTo:       replyTo,
+			ExpirationMs:  300000,
+			RoutingKey:    "irc-command",
+		},
+	)
+}
+
 // PublishGitlabEvent publish incoming gitlab event to exchange
 func (rc *Client) PublishGitlabEvent(event *CommandResponse) bool {
 	return rc.Publisher.Publish(event, "gitlab-event",

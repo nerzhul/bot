@@ -86,7 +86,13 @@ func V1ApiMattermostCommand(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, e.Body)
 	}
 
-	publicGenericCommand(mcr.Command[1:], mcr.Text, mcr.UserName, mcr.ResponseURL)
+	commandName := mcr.Command[1:]
+
+	if commandName == "irc-join" || commandName == "irc-leave" {
+		publishIRCCommand(commandName, mcr.Text, mcr.UserName, mcr.ResponseURL)
+	} else {
+		publicGenericCommand(commandName, mcr.Text, mcr.UserName, mcr.ResponseURL)
+	}
 	return c.JSON(http.StatusOK, nil)
 }
 
@@ -103,4 +109,23 @@ func publicGenericCommand(command string, text string, user string, callbackURL 
 	}
 
 	myrabbitmq.AsyncClient.PublishCommand(&event, consumerCfg.RoutingKey)
+}
+
+func publishIRCCommand(command string, text string, user string, callbackURL string) {
+	consumerCfg := common.GConfig.RabbitMQ.GetConsumer("webhook")
+	if consumerCfg == nil {
+		common.Log.Fatalf("RabbitMQ consumer configuration 'webhook' not found, aborting.")
+	}
+
+	// @TODO split text
+
+	event := rabbitmq.IRCCommand{
+		Command: command[4:],
+		Channel: callbackURL,
+		User:    user,
+		Arg1:    text,
+		Arg2:    "",
+	}
+
+	myrabbitmq.AsyncClient.PublishIRCCommand(&event, consumerCfg.RoutingKey)
 }

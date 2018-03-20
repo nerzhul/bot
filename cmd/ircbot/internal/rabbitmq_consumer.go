@@ -57,18 +57,19 @@ func consumeIRCCommand(msg *amqp.Delivery) {
 		MessageType: "whisper",
 	}
 
-	if ircConn == nil {
-		resp.Message = "Unable to handle command, not connected to IRC."
-		sendIRCCommandResponse(resp, msg.CorrelationId, msg.ReplyTo)
-		msg.Ack(false)
-		return
-	}
-
 	if !gconfig.isAllowedToUseCommand(command.User) {
 		resp.Message = "You are not allowed to interact with IRC client. This will be reported."
 		sendIRCCommandResponse(resp, msg.CorrelationId, msg.ReplyTo)
 		log.Errorf("User '%s' is not allowed to use IRC bot commands. Dropping.", command.User)
 		msg.Ack(true)
+		return
+	}
+
+	if ircConn == nil {
+		resp.Message = "Unable to handle command, not connected to IRC."
+		sendIRCCommandResponse(resp, msg.CorrelationId, msg.ReplyTo)
+		log.Warning("Received an IRC command whereas we are not connected, ignoring.")
+		msg.Ack(false)
 		return
 	}
 

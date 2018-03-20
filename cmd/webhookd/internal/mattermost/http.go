@@ -7,6 +7,7 @@ import (
 	myrabbitmq "gitlab.com/nerzhul/bot/cmd/webhookd/internal/rabbitmq"
 	"gitlab.com/nerzhul/bot/rabbitmq"
 	"net/http"
+	"strings"
 )
 
 // swagger:parameters getMattermostCommandResult
@@ -117,14 +118,18 @@ func publishIRCCommand(command string, text string, user string, callbackURL str
 		common.Log.Fatalf("RabbitMQ consumer configuration 'webhook' not found, aborting.")
 	}
 
-	// @TODO split text
+	cargs := strings.SplitN(text, " ", 2)
+	arg2 := ""
+	if len(cargs) > 1 {
+		arg2 = cargs[1]
+	}
 
 	event := rabbitmq.IRCCommand{
 		Command: command[4:],
 		Channel: callbackURL,
 		User:    user,
-		Arg1:    text,
-		Arg2:    "",
+		Arg1:    cargs[0],
+		Arg2:    arg2,
 	}
 
 	myrabbitmq.AsyncClient.PublishIRCCommand(&event, consumerCfg.RoutingKey)

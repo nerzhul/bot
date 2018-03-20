@@ -35,6 +35,15 @@ func (c *config) loadDefaultConfiguration() {
 	c.RabbitMQ.EventExchange = "gitlab"
 	c.RabbitMQ.EventExchangeDurable = true
 	c.RabbitMQ.PublisherRoutingKey = "gitlab/events"
+	c.RabbitMQ.Consumers = map[string]rabbitmq.Consumer{
+		"webhook": {
+			RoutingKey:      "webhook",
+			ConsumerID:      "webhook/commands",
+			Queue:           "webhook/commands",
+			Exchange:        "commands",
+			ExchangeDurable: false,
+		},
+	}
 
 	c.HTTP.Port = 8080
 	c.GitlabProjectsMapping = make(map[string][]string)

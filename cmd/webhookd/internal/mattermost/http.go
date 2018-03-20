@@ -86,17 +86,21 @@ func V1ApiMattermostCommand(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, e.Body)
 	}
 
+	publicGenericCommand(mcr.Command[1:], mcr.Text, mcr.UserName, mcr.ResponseURL)
+	return c.JSON(http.StatusOK, nil)
+}
+
+func publicGenericCommand(command string, text string, user string, callbackURL string) {
 	consumerCfg := common.GConfig.RabbitMQ.GetConsumer("webhook")
 	if consumerCfg == nil {
 		common.Log.Fatalf("RabbitMQ consumer configuration 'webhook' not found, aborting.")
 	}
 
 	event := rabbitmq.CommandEvent{
-		Command: fmt.Sprintf("%s %s", mcr.Command[1:], mcr.Text),
-		Channel: mcr.ResponseURL,
-		User:    mcr.UserName,
+		Command: fmt.Sprintf("%s %s", command, text),
+		Channel: callbackURL,
+		User:    user,
 	}
 
 	myrabbitmq.AsyncClient.PublishCommand(&event, consumerCfg.RoutingKey)
-	return c.JSON(http.StatusOK, nil)
 }

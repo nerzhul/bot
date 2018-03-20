@@ -51,6 +51,16 @@ func consumeIRCCommand(msg *amqp.Delivery) {
 		return
 	}
 
+	if len(command.User) == 0 {
+		log.Error("IRCCommand user field is empty")
+		msg.Nack(false, false)
+	}
+
+	if len(command.Channel) == 0 {
+		log.Error("IRCCommand channel field is empty")
+		msg.Nack(false, false)
+	}
+
 	resp := &rabbitmq.CommandResponse{
 		Channel:     command.Channel,
 		User:        command.User,
@@ -61,7 +71,7 @@ func consumeIRCCommand(msg *amqp.Delivery) {
 		resp.Message = "You are not allowed to interact with IRC client. This will be reported."
 		sendIRCCommandResponse(resp, msg.CorrelationId, msg.ReplyTo)
 		log.Errorf("User '%s' is not allowed to use IRC bot commands. Dropping.", command.User)
-		msg.Ack(true)
+		msg.Nack(false, false)
 		return
 	}
 
@@ -69,7 +79,7 @@ func consumeIRCCommand(msg *amqp.Delivery) {
 		resp.Message = "Unable to handle command, not connected to IRC."
 		sendIRCCommandResponse(resp, msg.CorrelationId, msg.ReplyTo)
 		log.Warning("Received an IRC command whereas we are not connected, ignoring.")
-		msg.Ack(false)
+		msg.Nack(false, false)
 		return
 	}
 
@@ -77,7 +87,7 @@ func consumeIRCCommand(msg *amqp.Delivery) {
 		resp.Message = "Invalid command, ignoring."
 		sendIRCCommandResponse(resp, msg.CorrelationId, msg.ReplyTo)
 		log.Errorf("Ignore empty command received from user '%s'", command.User)
-		msg.Ack(true)
+		msg.Nack(false, false)
 		return
 	}
 

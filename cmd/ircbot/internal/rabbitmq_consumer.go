@@ -54,11 +54,13 @@ func consumeIRCCommand(msg *amqp.Delivery) {
 	if len(command.User) == 0 {
 		log.Error("IRCCommand user field is empty")
 		msg.Nack(false, false)
+		return
 	}
 
 	if len(command.Channel) == 0 {
 		log.Error("IRCCommand channel field is empty")
 		msg.Nack(false, false)
+		return
 	}
 
 	resp := &rabbitmq.CommandResponse{

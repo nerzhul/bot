@@ -52,7 +52,7 @@ type IRCCommand struct {
 // ToJSON converts IRCCommand to JSON
 func (ice *IRCCommand) ToJSON() ([]byte, error) {
 	if ice.Command != "join" && ice.Command != "leave" && ice.Command != "list" {
-		return nil, fmt.Errorf("Invalid IRCCommand command field: %s, marshaling failed.\n", ice.Command)
+		return nil, fmt.Errorf("invalid IRCCommand command field: %s, marshaling failed", ice.Command)
 	}
 
 	jsonStr, err := json.Marshal(ice)

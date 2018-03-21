@@ -106,6 +106,9 @@ func consumeIRCCommand(msg *amqp.Delivery) {
 		ircConn.Join(command.Arg1, command.Arg2)
 
 		resp.Message = fmt.Sprintf("Bot requested to join channel '%s'.", command.Arg1)
+		if err := gIRCDB.SaveIRCChannelConfig(command.Arg1, command.Arg2); err != nil {
+			resp.Message += " But we failed to save the join state. It will be temporary."
+		}
 		sendIRCCommandResponse(resp, msg.CorrelationId, msg.ReplyTo)
 		break
 	case "leave":

@@ -8,10 +8,15 @@ CREATE TABLE irc_channel (
 );
 
 CREATE OR REPLACE FUNCTION register_irc_channel_config(n TEXT, p TEXT, ac BOOLEAN, hello BOOLEAN)
-	RETURNS SERIAL AS $$
+	RETURNS INT AS $$
+DECLARE
+	ret_id INT;
 BEGIN
-	RETURN QUERY INSERT INTO irc_channel (name, password, answer_commands, do_hello) VALUES (n, p, ac, hello) ON CONFLICT ON
-		CONSTRAINT irc_channel_name_key DO UPDATE SET name = n, password = p, answer_commands = ac, do_hello = hello
-	RETURNING id;
+	INSERT INTO irc_channel (name, password, answer_commands, do_hello) VALUES (n, p, ac, hello)
+	ON CONFLICT ON CONSTRAINT irc_channel_name_key DO
+	UPDATE SET name = n, password = p, answer_commands = ac, do_hello = hello
+	RETURNING id INTO ret_id;
+
+	RETURN ret_id;
 END;
 $$ LANGUAGE plpgsql;

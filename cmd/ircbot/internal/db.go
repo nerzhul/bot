@@ -75,6 +75,7 @@ func (db *ircDB) loadIRCChannelConfigs() ([]ircChannelConfig, error) {
 
 // SaveIRCChannelConfig save irc channel configuration for name channel with optional password
 func (db *ircDB) SaveIRCChannelConfig(name string, password string) error {
+	log.Debugf("Saving IRCChannel configuration for channel '%s'", name)
 	rows, err := db.nativeDB.Query(RegisterChannelConfigQuery, name, password)
 	if rows != nil {
 		defer rows.Close()

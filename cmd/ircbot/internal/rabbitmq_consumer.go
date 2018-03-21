@@ -93,7 +93,7 @@ func consumeIRCCommand(msg *amqp.Delivery) {
 		return
 	}
 
-	log.Debugf("Received command to handle '%s' from user '%s'", command.User)
+	log.Debugf("Received command to handle '%s' from user '%s'", command.Command, command.User)
 	switch command.Command {
 	case "join":
 		if len(command.Arg1) == 0 {

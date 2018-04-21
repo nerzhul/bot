@@ -8,6 +8,7 @@ import (
 	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/mattermost"
 	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/rabbitmq"
 	"gitlab.com/nerzhul/bot/cmd/webhookd/internal/slack"
+	"gitlab.com/nerzhul/bot/utils"
 	"os"
 	"os/signal"
 	"syscall"
@@ -29,6 +30,9 @@ func StartApp(configFile string) {
 
 	common.Log.Infof("Starting %s version %s.", AppName, AppVersion)
 	common.Log.Infof("Build date: %s.", AppBuildDate)
+	if utils.IsInDocker() {
+		common.Log.Infof("Application is running in a Docker container.")
+	}
 
 	common.LoadConfiguration(configFile)
 

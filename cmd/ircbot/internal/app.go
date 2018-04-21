@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"gitlab.com/nerzhul/bot/utils"
 	"os"
 	"os/signal"
 	"syscall"
@@ -26,6 +27,9 @@ func StartApp(configFile string) {
 
 	log.Infof("Starting %s version %s.", AppName, AppVersion)
 	log.Infof("Build date: %s.", AppBuildDate)
+	if utils.IsInDocker() {
+		log.Infof("Application is running in a Docker container.")
+	}
 
 	loadConfiguration(configFile)
 

@@ -99,6 +99,11 @@ func (rc *Client) VerifyConsumer() bool {
 				return false
 			}
 
+			if !rc.Consumer.DeclareExchange(consumerCfg.Exchange, consumerCfg.ExchangeDurable) {
+				rc.Consumer = nil
+				return false
+			}
+
 			if !rc.Consumer.BindExchange(consumerCfg.Queue, consumerCfg.Exchange, consumerCfg.RoutingKey) {
 				rc.Consumer = nil
 				return false

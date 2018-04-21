@@ -11,5 +11,5 @@ func TestIsInDocker(t *testing.T) {
 	_, err := os.Stat("/.dockerenv")
 	assert.Equal(t, err == nil, inDocker)
 	assert.Equal(t, err != nil && os.IsNotExist(err), !inDocker)
-	assert.Equal(t, err != nil && !os.IsNotExist(err), inDocker)
+	assert.Equal(t, err == nil && !os.IsNotExist(err), inDocker)
 }

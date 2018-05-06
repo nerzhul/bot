@@ -4,6 +4,7 @@ irc:
   port: 6697
   ssl: true
   name: "ircbot"
+  password: "randompass"
 database:
   url: "host=postgres dbname=ircbot user=ircbot password=ircbot"
   max-idle-conns: 5

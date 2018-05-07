@@ -26,7 +26,8 @@ func pushCommandResponse(response *rabbitmq.CommandResponse) bool {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		common.Log.Errorf("Unable to create http.Client: %v", err)
+		return false
 	}
 
 	defer resp.Body.Close()

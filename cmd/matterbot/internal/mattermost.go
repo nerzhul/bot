@@ -218,6 +218,16 @@ func (m *mattermostClient) handleWebSocketEvent(event *model.WebSocketEvent) boo
 		return true
 	}
 
+	if _, ok := event.Data["channel_type"]; !ok {
+		log.Error("Malformed event found, 'channel_type' key not found")
+		return true
+	}
+
+	if event.Data["channel_type"] != "O" && event.Data["channel_type"] != "P" {
+		log.Infof("Ignore event on non authorized channel_type %s", event.Data["channel_type"])
+		return true
+	}
+
 	sender := event.Data["sender_name"].(string)
 
 	post := model.PostFromJson(strings.NewReader(event.Data["post"].(string)))

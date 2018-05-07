@@ -21,6 +21,7 @@ mattermost:
   enable-hook: true
   tokens: []
   response-username: "webhook"
+  replacement-url: ""
 slack:
   enable-hook: true
   tokens: []

@@ -9,12 +9,22 @@ import (
 	"gitlab.com/nerzhul/bot/rabbitmq"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 )
 
 func pushCommandResponse(response *rabbitmq.CommandResponse) bool {
+	callbackUrl = response.Channel
+	if len(common.Config.Mattermost.ReplacementURL) > 0 {
+		r = regexp.MustCompile("^https?:\/\/.+\/.+$")
+		callbackURL = r.ReplaceAllString(
+			response.Channel, 
+			fmt.Sprintf("%s/$1", common.GConfig.Mattermost.ReplacementURL)
+		)
+	}
+
 	common.Log.Debugf("Received command response for user %s (callback %s)", response.User, response.Channel)
 	pushResponse := fmt.Sprintf(`{"response_type": "ephemeral", "text": "%s"}`, response.Message)
-	req, err := http.NewRequest("POST", response.Channel, bytes.NewBuffer([]byte(pushResponse)))
+	req, err := http.NewRequest("POST", callbackURL, bytes.NewBuffer([]byte(pushResponse)))
 	if err != nil {
 		common.Log.Errorf("HTTP request error: %v", err)
 		return false

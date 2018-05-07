@@ -19,6 +19,7 @@ type config struct {
 		EnableHook       bool     `yaml:"enable-hook"`
 		Tokens           []string `yaml:"tokens"`
 		ResponseUsername string   `yaml:"response-username"`
+		ReplacementURL string     `yaml:"replacement-url"`
 	} `yaml:"mattermost"`
 
 	Slack struct {
@@ -51,6 +52,7 @@ func (c *config) loadDefaultConfiguration() {
 	c.Mattermost.EnableHook = true
 	c.Mattermost.Tokens = []string{}
 	c.Mattermost.ResponseUsername = "webhook"
+	c.Mattermost.ReplacementURL = ""
 
 	c.Slack.EnableHook = true
 	c.Slack.Tokens = []string{}

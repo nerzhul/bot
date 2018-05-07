@@ -61,7 +61,8 @@ func (r *commandRouter) handlerStartBuilder(args string, user string, channel st
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		log.Errorf("Failed to create http.Client: %v", err)
+		return nil
 	}
 	defer resp.Body.Close()
 

@@ -9,8 +9,6 @@ import (
 )
 
 func consumeResponses(msg *amqp.Delivery) {
-	log.Infof("[cid=%s] Received message (id=%s) with type %s", msg.CorrelationId, msg.MessageId, msg.Type)
-
 	if msg.Type == "irc-chat" {
 		consumeIRCChatMessage(msg)
 	} else if msg.Type == "irc-command" {

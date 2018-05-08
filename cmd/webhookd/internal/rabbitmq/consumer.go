@@ -58,12 +58,6 @@ func pushCommandResponse(response *rabbitmq.CommandResponse) bool {
 }
 
 func consumeCommandResponses(msg *amqp.Delivery) {
-	common.Log.Infof("[cid=%s] Received message (id=%s) with type %s",
-		msg.CorrelationId,
-		msg.MessageId,
-		msg.Type,
-	)
-
 	response := rabbitmq.CommandResponse{}
 	err := json.Unmarshal(msg.Body, &response)
 	if err != nil {

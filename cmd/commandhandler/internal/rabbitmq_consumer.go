@@ -7,8 +7,6 @@ import (
 )
 
 func consumeCommandQueries(msg *amqp.Delivery) {
-	log.Infof("[cid=%s] Received message (id=%s) with type %s", msg.CorrelationId, msg.MessageId, msg.Type)
-
 	query := rabbitmq.CommandEvent{}
 	err := json.Unmarshal(msg.Body, &query)
 	if err != nil {

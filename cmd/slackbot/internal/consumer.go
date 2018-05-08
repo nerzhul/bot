@@ -13,8 +13,6 @@ var rabbitmqConsumer *rabbitmq.EventConsumer
 var slackMsgID = 0
 
 func consumeResponses(msg *amqp.Delivery) {
-	log.Infof("[cid=%s] Received message (id=%s) with type %s", msg.CorrelationId, msg.MessageId, msg.Type)
-
 	if msg.Type == "tweet" {
 		consumeTwitterResponse(msg)
 	} else {

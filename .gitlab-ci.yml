@@ -39,9 +39,9 @@ stages:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
   script:
     - cp cmd/${BOT_BINARY}/Dockerfile .
-    - docker build . -t ${CONTAINER_IMAGE}_${BOT_BINARY}-${CPU_ARCH}:$CI_COMMIT_REF_NAME -t ${CONTAINER_IMAGE}_${BOT_BINARY}-${CPU_ARCH}:latest
-    - docker push ${CONTAINER_IMAGE}_${BOT_BINARY}-${CPU_ARCH}:$CI_COMMIT_REF_NAME
-    - docker push ${CONTAINER_IMAGE}_${BOT_BINARY}-${CPU_ARCH}:latest
+    - docker build . -t ${CONTAINER_IMAGE}/${BOT_BINARY}-${CPU_ARCH}:$CI_COMMIT_REF_NAME -t ${CONTAINER_IMAGE}/${BOT_BINARY}-${CPU_ARCH}:latest
+    - docker push ${CONTAINER_IMAGE}/${BOT_BINARY}-${CPU_ARCH}:$CI_COMMIT_REF_NAME
+    - docker push ${CONTAINER_IMAGE}/${BOT_BINARY}-${CPU_ARCH}:latest
   tags:
     - arm64
 

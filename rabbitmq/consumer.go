@@ -118,7 +118,13 @@ func (ep *EventConsumer) BindExchange(queue string, exchange string, routingKey 
 }
 
 // ConsumeCallback callback function called on consuming
-type ConsumeCallback func(<-chan amqp.Delivery)
+type ConsumeCallback func(*amqp.Delivery)
+
+func consumeChannelResponses(msgs <-chan amqp.Delivery, cb ConsumeCallback) {
+	for d := range msgs {
+		cb(&d)
+	}
+}
 
 // Consume consume events on queue
 func (ep *EventConsumer) Consume(queue string, consumerID string, cb ConsumeCallback, autoAck bool) bool {
@@ -142,7 +148,7 @@ func (ep *EventConsumer) Consume(queue string, consumerID string, cb ConsumeCall
 		return false
 	}
 
-	go cb(msgs)
+	go consumeChannelResponses(msgs, cb)
 
 	ep.log.Infof("Start consuming on queue %s", queue)
 

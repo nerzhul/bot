@@ -57,22 +57,24 @@ func pushCommandResponse(response *rabbitmq.CommandResponse) bool {
 	return true
 }
 
-func consumeCommandResponses(msgs <-chan amqp.Delivery) {
-	for d := range msgs {
-		response := rabbitmq.CommandResponse{}
-		err := json.Unmarshal(d.Body, &response)
-		if err != nil {
-			common.Log.Errorf("Failed to decode command response : %v", err)
-			d.Nack(false, false)
-			return
-		}
+func consumeCommandResponses(msg *amqp.Delivery) {
+	common.Log.Infof("[cid=%s] Received message (id=%s) with type %s",
+		msg.CorrelationId,
+		msg.MessageId,
+		msg.Type,
+	)
 
-		common.Log.Infof("[cid=%s] Received message (id=%s) with type %s", d.CorrelationId, d.MessageId, d.Type)
+	response := rabbitmq.CommandResponse{}
+	err := json.Unmarshal(msg.Body, &response)
+	if err != nil {
+		common.Log.Errorf("Failed to decode command response : %v", err)
+		msg.Nack(false, false)
+		return
+	}
 
-		if !pushCommandResponse(&response) {
-			d.Nack(false, false)
-		} else {
-			d.Ack(false)
-		}
+	if !pushCommandResponse(&response) {
+		msg.Nack(false, false)
+	} else {
+		msg.Ack(false)
 	}
 }

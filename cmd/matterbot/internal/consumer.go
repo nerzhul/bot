@@ -15,17 +15,15 @@ import (
 
 var rabbitmqConsumer *rabbitmq.EventConsumer
 
-func consumeResponses(msgs <-chan amqp.Delivery) {
-	for d := range msgs {
-		log.Infof("[cid=%s] Received message (id=%s) with type %s", d.CorrelationId, d.MessageId, d.Type)
+func consumeResponses(msg *amqp.Delivery) {
+	log.Infof("[cid=%s] Received message (id=%s) with type %s", msg.CorrelationId, msg.MessageId, msg.Type)
 
-		if d.Type == "irc-chat" {
-			consumeIRCResponse(&d)
-		} else if d.Type == "tweet" {
-			consumeTwitterResponse(&d)
-		} else {
-			consumeCommandResponse(&d)
-		}
+	if msg.Type == "irc-chat" {
+		consumeIRCResponse(msg)
+	} else if msg.Type == "tweet" {
+		consumeTwitterResponse(msg)
+	} else {
+		consumeCommandResponse(msg)
 	}
 }
 

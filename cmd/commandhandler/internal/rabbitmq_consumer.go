@@ -6,24 +6,24 @@ import (
 	"gitlab.com/nerzhul/bot/rabbitmq"
 )
 
-func consumeCommandQueries(msgs <-chan amqp.Delivery) {
-	for d := range msgs {
-		query := rabbitmq.CommandEvent{}
-		err := json.Unmarshal(d.Body, &query)
-		if err != nil {
-			log.Errorf("Failed to decode command event : %v", err)
-		}
+func consumeCommandQueries(msg *amqp.Delivery) {
+	log.Infof("[cid=%s] Received message (id=%s) with type %s", msg.CorrelationId, msg.MessageId, msg.Type)
 
-		if router == nil {
-			router = &commandRouter{}
-			router.init()
-		}
+	query := rabbitmq.CommandEvent{}
+	err := json.Unmarshal(msg.Body, &query)
+	if err != nil {
+		log.Errorf("Failed to decode command event : %v", err)
+	}
 
-		// Consume command queries
-		if router.handleCommand(&query, d.CorrelationId, d.ReplyTo) {
-			d.Ack(false)
-		} else {
-			d.Nack(false, true)
-		}
+	if router == nil {
+		router = &commandRouter{}
+		router.init()
+	}
+
+	// Consume command queries
+	if router.handleCommand(&query, msg.CorrelationId, msg.ReplyTo) {
+		msg.Ack(false)
+	} else {
+		msg.Nack(false, true)
 	}
 }

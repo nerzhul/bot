@@ -8,17 +8,15 @@ import (
 	"strings"
 )
 
-func consumeResponses(msgs <-chan amqp.Delivery) {
-	for d := range msgs {
-		log.Infof("[cid=%s] Received message (id=%s) with type %s", d.CorrelationId, d.MessageId, d.Type)
+func consumeResponses(msg *amqp.Delivery) {
+	log.Infof("[cid=%s] Received message (id=%s) with type %s", msg.CorrelationId, msg.MessageId, msg.Type)
 
-		if d.Type == "irc-chat" {
-			consumeIRCChatMessage(&d)
-		} else if d.Type == "irc-command" {
-			consumeIRCCommand(&d)
-		} else {
-			consumeCommandResponse(&d)
-		}
+	if msg.Type == "irc-chat" {
+		consumeIRCChatMessage(msg)
+	} else if msg.Type == "irc-command" {
+		consumeIRCCommand(msg)
+	} else {
+		consumeCommandResponse(msg)
 	}
 }
 

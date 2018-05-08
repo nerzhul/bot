@@ -15,14 +15,14 @@ import (
 func pushCommandResponse(response *rabbitmq.CommandResponse) bool {
 	callbackURL := response.Channel
 	if len(common.GConfig.Mattermost.ReplacementURL) > 0 {
-		r := regexp.MustCompile(`^https?:\/\/.+\/.+$`)
+		r := regexp.MustCompile(`^https?:\/\/.+\/(.+)$`)
 		callbackURL = r.ReplaceAllString(
 			response.Channel,
 			fmt.Sprintf("%s/$1", common.GConfig.Mattermost.ReplacementURL),
 		)
 	}
 
-	common.Log.Debugf("Received command response for user %s (callback %s)", response.User, response.Channel)
+	common.Log.Infof("Received command response for user %s (callback %s)", response.User, response.Channel)
 	pushResponse := fmt.Sprintf(`{"response_type": "ephemeral", "text": "%s"}`, response.Message)
 	req, err := http.NewRequest("POST", callbackURL, bytes.NewBuffer([]byte(pushResponse)))
 	if err != nil {
@@ -66,6 +66,8 @@ func consumeCommandResponses(msgs <-chan amqp.Delivery) {
 			d.Nack(false, false)
 			return
 		}
+
+		common.Log.Infof("[cid=%s] Received message (id=%s) with type %s", d.CorrelationId, d.MessageId, d.Type)
 
 		if !pushCommandResponse(&response) {
 			d.Nack(false, false)

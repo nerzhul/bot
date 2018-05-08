@@ -17,6 +17,8 @@ var rabbitmqConsumer *rabbitmq.EventConsumer
 
 func consumeResponses(msgs <-chan amqp.Delivery) {
 	for d := range msgs {
+		log.Infof("[cid=%s] Received message (id=%s) with type %s", d.CorrelationId, d.MessageId, d.Type)
+
 		if d.Type == "irc-chat" {
 			consumeIRCResponse(&d)
 		} else if d.Type == "tweet" {

@@ -6,6 +6,7 @@ variables:
   POSTGRES_USER: "unittests"
   POSTGRES_PASSWORD: "unittests"
   SWAGGER_TAG: v3.13.0
+  CONTAINER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH
 
 before_script:
   - go version
@@ -16,12 +17,33 @@ stages:
   - test
   - build
   - release
+  - docker
   - documentation
   - deploy
 
 .build_template: &build_template
   script:
     - make build
+
+.docker_template: &docker_template
+  stage: docker
+  image: docker:stable
+  services:
+    - docker:dind
+  only:
+    - tags
+    - feature/docker_release
+  dependencies:
+    - release
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+  script:
+    - cp cmd/${BOT_BINARY}/Dockerfile .
+    - docker build . -t $CONTAINER_IMAGE_$BOT_BINARY-$CPU_ARCH:$CI_COMMIT_REF_NAME -t $CONTAINER_IMAGE_$BOT_BINARY-$CPU_ARCH:latest
+    - docker push $CONTAINER_IMAGE_$BOT_BINARY-$CPU_ARCH:$CI_COMMIT_REF_NAME
+    - docker push $CONTAINER_IMAGE_$BOT_BINARY-$CPU_ARCH:latest
+  tags:
+    - arm64
 
 test:unittests:
   stage: test
@@ -49,7 +71,7 @@ build:
     when: on_success
     expire_in: 1 day
     paths:
-      - artifacts/gitlab-hook
+      - artifacts/bot
 
 doc:coverage:
   stage: documentation
@@ -90,6 +112,18 @@ release:
     when: on_success
     paths:
       - artifacts/*
+
+docker:arm64:ircbot:
+  <<: *docker_template
+  variables:
+    BOT_BINARY: ircbot
+    CPU_ARCH: arm64
+
+docker:arm64:matterbot:
+  <<: *docker_template
+  variables:
+    BOT_BINARY: matterbot
+    CPU_ARCH: arm64
 
 pages:
   stage: deploy

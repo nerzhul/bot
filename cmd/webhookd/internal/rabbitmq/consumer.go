@@ -13,12 +13,12 @@ import (
 )
 
 func pushCommandResponse(response *rabbitmq.CommandResponse) bool {
-	callbackUrl = response.Channel
-	if len(common.Config.Mattermost.ReplacementURL) > 0 {
-		r = regexp.MustCompile("^https?:\/\/.+\/.+$")
+	callbackURL := response.Channel
+	if len(common.GConfig.Mattermost.ReplacementURL) > 0 {
+		r := regexp.MustCompile(`^https?:\/\/.+\/.+$`)
 		callbackURL = r.ReplaceAllString(
-			response.Channel, 
-			fmt.Sprintf("%s/$1", common.GConfig.Mattermost.ReplacementURL)
+			response.Channel,
+			fmt.Sprintf("%s/$1", common.GConfig.Mattermost.ReplacementURL),
 		)
 	}
 

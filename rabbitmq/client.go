@@ -95,21 +95,26 @@ func (rc *Client) VerifyConsumer() bool {
 			}
 
 			if !rc.Consumer.DeclareQueue(consumerCfg.Queue) {
+				rc.logger.Errorf("Failed to declare queue %s, dropping consumer", consumerCfg.Queue)
 				rc.Consumer = nil
 				return false
 			}
 
 			if !rc.Consumer.DeclareExchange(consumerCfg.Exchange, consumerCfg.ExchangeDurable) {
+				rc.logger.Errorf("Failed to declare exchange %s, dropping consumer", consumerCfg.Exchange)
 				rc.Consumer = nil
 				return false
 			}
 
 			if !rc.Consumer.BindExchange(consumerCfg.Queue, consumerCfg.Exchange, consumerCfg.RoutingKey) {
+				rc.logger.Errorf("Failed to bind exchange %s with queue %s, dropping consumer",
+					consumerCfg.Exchange, consumerCfg.Queue)
 				rc.Consumer = nil
 				return false
 			}
 
 			if !rc.Consumer.Consume(consumerCfg.Queue, consumerCfg.ConsumerID, rc.consumingCallback, false) {
+				rc.logger.Errorf("Failed to start consuming on queue %s, dropping consumer", consumerCfg.Queue)
 				rc.Consumer = nil
 				return false
 			}

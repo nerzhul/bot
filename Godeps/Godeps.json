@@ -41,15 +41,15 @@
 		},
 		{
 			"ImportPath": "github.com/fluffle/goirc/client",
-			"Rev": "a7abc67ac229ff40f2b09dbb4851585d99ec1aca"
+			"Rev": "fc1dfa1ceb8897bcaa5231b560b9319591d4ab0a"
 		},
 		{
 			"ImportPath": "github.com/fluffle/goirc/logging",
-			"Rev": "a7abc67ac229ff40f2b09dbb4851585d99ec1aca"
+			"Rev": "fc1dfa1ceb8897bcaa5231b560b9319591d4ab0a"
 		},
 		{
 			"ImportPath": "github.com/fluffle/goirc/state",
-			"Rev": "a7abc67ac229ff40f2b09dbb4851585d99ec1aca"
+			"Rev": "fc1dfa1ceb8897bcaa5231b560b9319591d4ab0a"
 		},
 		{
 			"ImportPath": "github.com/golang/mock/gomock",
@@ -92,8 +92,8 @@
 		},
 		{
 			"ImportPath": "github.com/mattermost/mattermost-server/model",
-			"Comment": "v4.8.0",
-			"Rev": "v4.8.0"
+			"Comment": "v4.9.2",
+			"Rev": "v4.9.2"
 		},
 		{
 			"ImportPath": "github.com/mattn/go-colorable",
@@ -161,7 +161,7 @@
 		},
 		{
 			"ImportPath": "github.com/streadway/amqp",
-			"Rev": "54ded0531dfd699a7893861d39a7a949c5749bc9"
+			"Rev": "8e4aba63da9fc5571e01c6a45dc809a58cbc5a68"
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/assert",

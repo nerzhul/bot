@@ -41,7 +41,6 @@ func (ep *EventConsumer) Init() bool {
 	}
 
 	ep.log.Infof("RabbitMQ channel opened on %s", ep.config.URL)
-
 	return true
 }
 

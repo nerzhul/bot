@@ -113,6 +113,12 @@ release:
     paths:
       - artifacts/*
 
+docker:arm64:commandhandler:
+  <<: *docker_template
+  variables:
+    BOT_BINARY: commandhandler
+    CPU_ARCH: arm64
+
 docker:arm64:ircbot:
   <<: *docker_template
   variables:

@@ -32,7 +32,6 @@ stages:
     - docker:dind
   only:
     - tags
-    - feature/docker_release
   dependencies:
     - release
   before_script:

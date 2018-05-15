@@ -14,6 +14,7 @@ type EventPublisher struct {
 	channel *amqp.Channel
 	log     *logging.Logger
 	config  *Config
+	valid   bool
 }
 
 // Event interface
@@ -34,16 +35,19 @@ func NewEventPublisher(logger *logging.Logger, config *Config) *EventPublisher {
 	return &EventPublisher{
 		log:    logger,
 		config: config,
+		valid:  false,
 	}
 }
 
 // Init initialize event publisher
 func (ep *EventPublisher) Init() bool {
+	ep.valid = false
+
 	var err error
 	ep.conn, err = amqp.Dial(ep.config.URL)
 	if err != nil {
 		ep.log.Errorf("Failed to connect to RabbitMQ: %s", err)
-		return false
+		return ep.valid
 	}
 
 	ep.log.Infof("Connected to RabbitMQ on %s", ep.config.URL)
@@ -51,7 +55,7 @@ func (ep *EventPublisher) Init() bool {
 	ep.channel, err = ep.conn.Channel()
 	if err != nil {
 		ep.log.Errorf("Failed to open a channel: %s", err)
-		return false
+		return ep.valid
 	}
 
 	ep.log.Infof("RabbitMQ channel opened on %s", ep.config.URL)
@@ -68,12 +72,18 @@ func (ep *EventPublisher) Init() bool {
 
 	if err != nil {
 		ep.log.Errorf("Failed to declare exchange %s: %s", ep.config.EventExchange, err)
-		return false
+		return ep.valid
 	}
 
 	ep.log.Infof("RabbitMQ exchange %s created on %s", ep.config.EventExchange, ep.config.URL)
 
-	return true
+	ep.valid = true
+	return ep.valid
+}
+
+// IsValid return the valid flag
+func (ep *EventPublisher) IsValid() bool {
+	return ep.valid
 }
 
 // Publish publish event
@@ -123,6 +133,8 @@ func (ep *EventPublisher) Publish(event Event, eventType string, options *EventO
 
 	if err != nil {
 		ep.log.Errorf("Failed to publish message to exchange %s: %s", ep.config.EventExchange, err)
+		// When publication failed, invalidate the publisher
+		ep.valid = false
 		return false
 	}
 

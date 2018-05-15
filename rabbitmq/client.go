@@ -31,6 +31,11 @@ func (rc *Client) AddConsumerName(name string) {
 
 // VerifyPublisher ensure publisher is properly created, else instantiate it
 func (rc *Client) VerifyPublisher() bool {
+	// If there is a publisher and it's not valid, drop it
+	if rc.Publisher != nil && !rc.Publisher.IsValid() {
+		rc.Publisher = nil
+	}
+
 	if rc.Publisher == nil {
 		rc.Publisher = NewEventPublisher(rc.logger, rc.config)
 		if !rc.Publisher.Init() {

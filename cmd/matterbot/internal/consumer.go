@@ -77,8 +77,6 @@ func consumeIRCResponse(msg *amqp.Delivery) {
 		return
 	}
 
-	// @TODO handle ircChatEvent.Type (currently only privmsg/notice is handled, we should handle topic)
-
 	channelDisplayName := fmt.Sprintf("irc-%s", ircChatEvent.Channel)
 	channelName := strings.Replace(channelDisplayName, "#", "", -1)
 	mClient.createChannelIfNeeded(channelName, channelDisplayName, model.CHANNEL_OPEN)
@@ -90,6 +88,27 @@ func consumeIRCResponse(msg *amqp.Delivery) {
 		return
 	}
 
+	if ircChatEvent.Type == "privmsg" || ircChatEvent.Type == "notice" {
+		handleIRCChatEventMessage(&ircChatEvent, channelName, msg)
+	} else if ircChatEvent.Type == "topic" {
+		header := new(string)
+		*header = ircChatEvent.Message
+
+		_, response := mClient.client.PatchChannel(chanInfo.Id, &model.ChannelPatch{
+			Header: header,
+		})
+
+		if response.Error != nil {
+			log.Errorf("Failed to update topic. Error was: %s", response.Error.Message)
+		}
+	} else {
+		log.Warningf("Ignore unknown irc chat event type '%s'", ircChatEvent.Type)
+		msg.Nack(false, false)
+	}
+
+}
+
+func handleIRCChatEventMessage(ircChatEvent *rabbitmq.IRCChatEvent, channelName string, msg *amqp.Delivery) {
 	mwe := mattermostWebhookEvent{
 		Text:     ircChatEvent.Message,
 		Username: ircChatEvent.User,

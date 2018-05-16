@@ -60,7 +60,7 @@ func (c *config) loadDefaultConfiguration() bool {
 	c.IRC.Server = "chat.freenode.net"
 	c.IRC.Port = 6697
 	c.IRC.SSL = true
-	c.IRC.Name = fmt.Sprintf("ircbot%s", time.Now().String())
+	c.IRC.Name = fmt.Sprintf("ircbot%d", time.Now().Unix())
 	return true
 }
 

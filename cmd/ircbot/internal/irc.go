@@ -46,6 +46,7 @@ func (i *ircClient) run() {
 		ircConn.HandleFunc(irc.PRIVMSG, onIRCPrivMsg)
 		ircConn.HandleFunc(irc.NOTICE, onIRCNotice)
 		ircConn.HandleFunc(irc.ERROR, onIRCError)
+		ircConn.HandleFunc(irc.TOPIC, onIRCTopic)
 
 		if err := ircConn.Connect(); err != nil {
 			log.Errorf("Connection error: %s\n", err.Error())

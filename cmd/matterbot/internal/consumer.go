@@ -77,6 +77,8 @@ func consumeIRCResponse(msg *amqp.Delivery) {
 		return
 	}
 
+	// @TODO handle ircChatEvent.Type (currently only privmsg/notice is handled, we should handle topic)
+
 	channelDisplayName := fmt.Sprintf("irc-%s", ircChatEvent.Channel)
 	channelName := strings.Replace(channelDisplayName, "#", "", -1)
 	mClient.createChannelIfNeeded(channelName, channelDisplayName, model.CHANNEL_OPEN)

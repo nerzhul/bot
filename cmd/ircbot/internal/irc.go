@@ -48,6 +48,9 @@ func (i *ircClient) run() {
 		ircConn.HandleFunc(irc.ERROR, onIRCError)
 		ircConn.HandleFunc(irc.TOPIC, onIRCTopic)
 
+		log.Infof("Connecting on IRC server %s:%d (username: %s)", gconfig.IRC.Server, gconfig.IRC.Port,
+			cfg.Me.Ident)
+
 		if err := ircConn.Connect(); err != nil {
 			log.Errorf("Connection error: %s\n", err.Error())
 			return

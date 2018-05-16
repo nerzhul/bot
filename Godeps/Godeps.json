@@ -92,8 +92,8 @@
 		},
 		{
 			"ImportPath": "github.com/mattermost/mattermost-server/model",
-			"Comment": "v4.9.2",
-			"Rev": "v4.9.2"
+			"Comment": "v4.10.0",
+			"Rev": "v4.10.0"
 		},
 		{
 			"ImportPath": "github.com/mattn/go-colorable",

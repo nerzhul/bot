@@ -28,13 +28,16 @@ func joinConfiguredChannels(conn *irc.Conn) {
 func (i *ircClient) run() {
 	for {
 		cfg := irc.NewConfig(gconfig.IRC.Name)
-		cfg.SSL = true
-		cfg.SSLConfig = &tls.Config{ServerName: gconfig.IRC.Server}
+		cfg.SSL = gconfig.IRC.SSL
+		if gconfig.IRC.SSL {
+			cfg.SSLConfig = &tls.Config{ServerName: gconfig.IRC.Server}
+		}
 		cfg.Server = fmt.Sprintf("%s:%d", gconfig.IRC.Server, gconfig.IRC.Port)
 		cfg.Me.Ident = gconfig.IRC.Name
 		cfg.Me.Name = "For Ironforge"
 		cfg.NewNick = func(n string) string { return n + "^" }
 		ircConn = irc.Client(cfg)
+		ircConn.EnableStateTracking()
 
 		ircDisconnected = make(chan bool)
 
@@ -47,6 +50,8 @@ func (i *ircClient) run() {
 		ircConn.HandleFunc(irc.NOTICE, onIRCNotice)
 		ircConn.HandleFunc(irc.ERROR, onIRCError)
 		ircConn.HandleFunc(irc.TOPIC, onIRCTopic)
+		ircConn.HandleFunc(irc.REGISTER, onIRCRegister)
+		ircConn.HandleFunc(irc.USER, onIRCUser)
 
 		log.Infof("Connecting on IRC server %s:%d (username: %s)", gconfig.IRC.Server, gconfig.IRC.Port,
 			cfg.Me.Ident)

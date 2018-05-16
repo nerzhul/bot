@@ -11,6 +11,10 @@ func onIRCJoin(conn *irc.Conn, line *irc.Line) {
 		return
 	}
 
+	if conn.StateTracker() == nil {
+		log.Fatal("IRC connection state tracker is nil")
+	}
+
 	if line.Nick == conn.Me().Nick {
 		log.Infof("Channel %s joined on %s", line.Args[0], conn.Config().Server)
 
@@ -19,6 +23,17 @@ func onIRCJoin(conn *irc.Conn, line *irc.Line) {
 			return
 		}
 
+		// Publish topic event to queue
+		asyncClient.publishChatEvent(
+			&rabbitmq.IRCChatEvent{
+				Type:    "topic",
+				Message: conn.StateTracker().GetChannel(line.Args[0]).Topic,
+				Channel: line.Args[0],
+				User:    line.Nick,
+			},
+		)
+
+		// publish join event to queue
 		asyncClient.publishChatEvent(
 			&rabbitmq.IRCChatEvent{
 				Type:    "notice",

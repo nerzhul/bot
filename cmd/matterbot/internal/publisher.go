@@ -7,7 +7,7 @@ import (
 var rabbitmqPublisher *rabbitmq.EventPublisher
 
 func verifyPublisher() bool {
-	if rabbitmqPublisher == nil {
+	if rabbitmqPublisher == nil || !rabbitmqPublisher.IsValid() {
 		rabbitmqPublisher = rabbitmq.NewEventPublisher(log, &gconfig.RabbitMQ)
 		if !rabbitmqPublisher.Init() {
 			rabbitmqPublisher = nil

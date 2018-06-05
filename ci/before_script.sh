@@ -8,8 +8,8 @@ git config --global url."git@gitlab.com:".insteadOf "https://gitlab.com/"
 mkdir -p ~/.ssh && echo -e "Host gitlab.com\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config
 
 # Godep & repo init
-go get github.com/tools/godep
+go get -u github.com/golang/dep/cmd/dep
 mkdir -p $GOPATH/src/$REPO_NAME
 mv $CI_PROJECT_DIR/* $GOPATH/src/$REPO_NAME/
 cd $GOPATH/src/$REPO_NAME
-godep restore
+dep ensure

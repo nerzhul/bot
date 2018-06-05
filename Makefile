@@ -21,8 +21,8 @@ msan: dep ## Run memory sanitizer
 	@go test -msan -short ${PKG_LIST}
 
 dep:
-	@go get -u github.com/tools/godep
-	@godep restore
+	@go get -u github.com/golang/dep/cmd/dep
+	@dep ensure
 	mkdir -p ${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/
 
 commandhandler: dep

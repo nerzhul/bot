@@ -3,20 +3,15 @@ package internal
 import (
 	"database/sql"
 	_ "github.com/lib/pq" // pq requires blank import
+	dblib "gitlab.com/nerzhul/bot/db"
 )
-
-type dbConfig struct {
-	URL          string `yaml:"url"`
-	MaxIdleConns int    `yaml:"max-idle-conns"`
-	MaxOpenConns int    `yaml:"max-open-conns"`
-}
 
 type ircDB struct {
 	nativeDB *sql.DB
-	config   *dbConfig
+	config   *dblib.Config
 }
 
-func (db *ircDB) init(config *dbConfig) bool {
+func (db *ircDB) init(config *dblib.Config) bool {
 	log.Infof("Connecting to IRC DB at %s", config.URL)
 	nativeDB, err := sql.Open("postgres", config.URL)
 	if err != nil {
@@ -38,7 +33,7 @@ func (db *ircDB) init(config *dbConfig) bool {
 }
 
 func (db *ircDB) ValidationQuery() bool {
-	rows, err := db.nativeDB.Query(ValidationQuery)
+	rows, err := db.nativeDB.Query(dblib.ValidationQuery)
 	if err != nil {
 		log.Errorf("Failed to run IRC validation query: %s", err)
 		return false

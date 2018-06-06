@@ -1,18 +1,25 @@
 package internal
 
 import (
+	"fmt"
+	"gitlab.com/nerzhul/bot/db"
 	"os"
 	"testing"
-	"gitlab.com/nerzhul/bot/db"
 )
 
 // TestMain unit tests ramp up
 func TestMain(m *testing.M) {
+	workDir, err := os.Getwd()
+	if err != nil {
+		println("Unable to find workdir.")
+		os.Exit(1)
+	}
 	gDB = &rcDB{
 		config: &db.Config{
-			URL:          "host=postgres dbname=unittests user=unittests password=unittests sslmode=disable",
-			MaxIdleConns: 5,
-			MaxOpenConns: 10,
+			URL:             "host=postgres dbname=unittests user=unittests password=unittests sslmode=disable",
+			MaxIdleConns:    5,
+			MaxOpenConns:    10,
+			MigrationSource: fmt.Sprintf("file://%s/../res/migrations", workDir),
 		},
 	}
 

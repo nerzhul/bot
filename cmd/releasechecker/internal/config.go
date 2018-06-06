@@ -2,14 +2,12 @@ package internal
 
 import (
 	"gitlab.com/nerzhul/bot/db"
-	"gitlab.com/nerzhul/bot/rabbitmq"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 )
 
 type config struct {
-	RabbitMQ rabbitmq.Config `yaml:"rabbitmq"`
-	DB       db.Config       `yaml:"database"`
+	DB db.Config `yaml:"database"`
 }
 
 var gconfig config
@@ -18,6 +16,7 @@ func (c *config) loadDefaultConfiguration() bool {
 	c.DB.URL = "host=postgres dbname=releasechecker user=releasechecker password=releasechecker"
 	c.DB.MaxOpenConns = 10
 	c.DB.MaxIdleConns = 5
+	c.DB.MigrationSource = "file:///migrations"
 
 	return true
 }

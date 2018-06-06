@@ -33,8 +33,10 @@ func StartApp(configFile string) {
 
 	loadConfiguration(configFile)
 
-	gIRCDB = &ircDB{}
-	if !gIRCDB.init(&gconfig.DB) {
+	gIRCDB = &ircDB{
+		config: &gconfig.DB,
+	}
+	if !gIRCDB.init() {
 		log.Fatal("Failed to initialize database connector, aborting.")
 	}
 

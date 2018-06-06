@@ -11,9 +11,13 @@ type ircDB struct {
 	config   *dblib.Config
 }
 
-func (db *ircDB) init(config *dblib.Config) bool {
-	log.Infof("Connecting to IRC DB at %s", config.URL)
-	nativeDB, err := sql.Open("postgres", config.URL)
+func (db *ircDB) init() bool {
+	if db.config == nil {
+		log.Fatalf("DB config is nil, aborting !")
+	}
+
+	log.Infof("Connecting to IRC DB at %s", db.config.URL)
+	nativeDB, err := sql.Open("postgres", db.config.URL)
 	if err != nil {
 		log.Errorf("Failed to connect to IRC DB: %s", err)
 		return false
@@ -25,8 +29,8 @@ func (db *ircDB) init(config *dblib.Config) bool {
 		return false
 	}
 
-	db.nativeDB.SetMaxIdleConns(config.MaxIdleConns)
-	db.nativeDB.SetMaxOpenConns(config.MaxOpenConns)
+	db.nativeDB.SetMaxIdleConns(db.config.MaxIdleConns)
+	db.nativeDB.SetMaxOpenConns(db.config.MaxOpenConns)
 
 	log.Infof("Connected to IRC DB.")
 	return true

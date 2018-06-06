@@ -1,0 +1,6 @@
+---
+database:
+  url: "host=postgres dbname=releasechecker user=releasechecker password=releasechecker"
+  max-idle-conns: 5
+  max-open-conns: 10
+  db-migration-source: "file:///migrations"

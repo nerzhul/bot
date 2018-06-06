@@ -31,8 +31,10 @@ func StartApp(configFile string) {
 
 	loadConfiguration(configFile)
 
-	gDB = &rcDB{}
-	if !gDB.init(&gconfig.DB) {
+	gDB = &rcDB{
+		config: &gconfig.DB,
+	}
+	if !gDB.init() {
 		log.Fatal("Failed to initialize database connector, aborting.")
 	}
 

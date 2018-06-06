@@ -60,7 +60,7 @@ func TestRcDB_Init_OK(t *testing.T) {
 }
 
 func TestRcDB_AddGithubRepository(t *testing.T) {
-	assert.Equal(t, true, gDB.AddGithubRepository("nerzhul", "bot"))
+	assert.Equal(t, true, gDB.AddGithubRepository("minetest", "minetest"))
 }
 
 func TestRcDB_GetGithubConfiguredRepositories(t *testing.T) {
@@ -71,4 +71,18 @@ func TestRcDB_GetGithubConfiguredRepositories(t *testing.T) {
 		assert.NotEmpty(t, r.name)
 		assert.NotEmpty(t, r.group)
 	}
+}
+
+func TestRcDB_RegisterRepositoryTag(t *testing.T) {
+	assert.Equal(t, true, gDB.RegisterRepositoryTag("minetest", "minetest", "0.4.15"))
+}
+
+func TestRcDB_IsGithubRepositoryTagRegistered(t *testing.T) {
+	exists, err := gDB.IsGithubRepositoryTagRegistered("minetest", "minetest", "0.4.15")
+	assert.Nil(t, err)
+	assert.Equal(t, true, exists)
+
+	exists, err = gDB.IsGithubRepositoryTagRegistered("testnonexistent", "testnonexistent", "0.0.0")
+	assert.Nil(t, err)
+	assert.Equal(t, false, exists)
 }

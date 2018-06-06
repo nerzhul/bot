@@ -126,3 +126,25 @@ func (db *rcDB) RegisterRepositoryTag(group string, name string, tag string) boo
 
 	return true
 }
+
+func (db *rcDB) IsGithubRepositoryTagRegistered(group string, name string, tag string) (bool, error) {
+	rows, err := db.nativeDB.Query(isGithubRepositoryTagRegistered, group, name, tag)
+	if rows != nil {
+		defer rows.Close()
+	}
+
+	if err != nil {
+		log.Errorf("Unable to check if Github repository tag is registered: %s", err)
+		return true, err
+	}
+
+	tagExists := false
+	if rows.Next() {
+		if err := rows.Scan(&tagExists); err != nil {
+			log.Errorf("Unable to check if Github repository tag is registered: %s", err)
+			return false, err
+		}
+	}
+
+	return tagExists, nil
+}

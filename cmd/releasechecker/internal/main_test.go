@@ -27,6 +27,9 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 
+	// Reinit some data
+	gDB.nativeDB.Exec("TRUNCATE TABLE github_repository_tags")
+
 	code := m.Run()
 
 	// Deinit code

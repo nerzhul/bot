@@ -58,3 +58,17 @@ func TestRcDB_Init_OK(t *testing.T) {
 
 	assert.Equal(t, true, tDB.init())
 }
+
+func TestRcDB_AddGithubRepository(t *testing.T) {
+	assert.Equal(t, true, gDB.AddGithubRepository("nerzhul", "bot"))
+}
+
+func TestRcDB_GetGithubConfiguredRepositories(t *testing.T) {
+	repositories, err := gDB.GetGithubConfiguredRepositories()
+	assert.Nil(t, err)
+	assert.NotNil(t, repositories)
+	for _, r := range repositories {
+		assert.NotEmpty(t, r.name)
+		assert.NotEmpty(t, r.group)
+	}
+}

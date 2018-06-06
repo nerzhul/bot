@@ -75,3 +75,37 @@ func (db *rcDB) ValidationQuery() bool {
 	rows.Close()
 	return true
 }
+
+func (db *rcDB) AddGithubRepository(group string, name string) bool {
+	_, err := db.nativeDB.Exec(addGithubRepositoryQuery, group, name)
+	if err != nil {
+		log.Errorf("Unable to add Github repository configuration to DB: %s", err)
+		return false
+	}
+
+	return true
+}
+
+func (db *rcDB) GetGithubConfiguredRepositories() ([]githubRepository, error) {
+	rows, err := db.nativeDB.Query(getGithubRepositories)
+	if err != nil {
+		log.Errorf("Unable to execute getGithubRepositories: %s", err)
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var repoList []githubRepository
+
+	for rows.Next() {
+		gr := githubRepository{}
+		if err := rows.Scan(&gr.group, &gr.name); err != nil {
+			log.Errorf("Unable to read getGithubRepositories: %s", err)
+			return nil, err
+		}
+
+		repoList = append(repoList, gr)
+	}
+
+	return repoList, nil
+}

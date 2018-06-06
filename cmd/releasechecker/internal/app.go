@@ -48,5 +48,9 @@ func StartApp(configFile string) {
 		}
 	}()
 
-	log.Infof("Exiting %s", AppName)
+	if !checkGithubNewTags() {
+		os.Exit(1)
+	}
+
+	log.Infof("%s has finished.", AppName)
 }

@@ -7,13 +7,15 @@ import (
 
 // TestMain unit tests ramp up
 func TestMain(m *testing.M) {
-	gIRCDB = &ircDB{}
+	gIRCDB = &ircDB{
+		config: &dbConfig{
+			URL:          "host=postgres dbname=unittests user=unittests password=unittests sslmode=disable",
+			MaxIdleConns: 5,
+			MaxOpenConns: 10,
+		},
+	}
 
-	if !gIRCDB.init(&dbConfig{
-		URL:          "host=postgres dbname=unittests user=unittests password=unittests sslmode=disable",
-		MaxIdleConns: 5,
-		MaxOpenConns: 10,
-	}) {
+	if !gIRCDB.init() {
 		os.Exit(1)
 	}
 

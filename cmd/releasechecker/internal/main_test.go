@@ -8,7 +8,7 @@ import (
 
 // TestMain unit tests ramp up
 func TestMain(m *testing.M) {
-	gIRCDB = &ircDB{
+	gDB = &rcDB{
 		config: &db.Config{
 			URL:          "host=postgres dbname=unittests user=unittests password=unittests sslmode=disable",
 			MaxIdleConns: 5,
@@ -16,7 +16,7 @@ func TestMain(m *testing.M) {
 		},
 	}
 
-	if !gIRCDB.init() {
+	if !gDB.init() {
 		os.Exit(1)
 	}
 

@@ -54,6 +54,13 @@ func (c *config) loadDefaultConfiguration() {
 			Exchange:        "twitter",
 			ExchangeDurable: false,
 		},
+		"announcements": {
+			RoutingKey:      "mattermost-announcements",
+			ConsumerID:      "matterbot/announcements",
+			Queue:           "matterbot/announcements",
+			Exchange:        "announcements",
+			ExchangeDurable: false,
+		},
 	}
 
 	c.Mattermost.URL = "http://localhost:8065"

@@ -98,3 +98,19 @@ func (ce *TweetMessage) ToJSON() ([]byte, error) {
 
 	return jsonStr, nil
 }
+
+// AnnouncementMessage announcement message
+type AnnouncementMessage struct {
+	Message string `json:"message"`
+	Channel string `json:"channel"`
+}
+
+// ToJSON converts to json
+func (ce *AnnouncementMessage) ToJSON() ([]byte, error) {
+	jsonStr, err := json.Marshal(ce)
+	if err != nil {
+		return nil, err
+	}
+
+	return jsonStr, nil
+}

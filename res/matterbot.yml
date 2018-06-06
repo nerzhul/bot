@@ -19,20 +19,26 @@ rabbitmq:
   publisher-routing-key: "chat-command"
   consumers:
     commands:
-      queue: "mattermost/commands"
+      queue: "matterbot/commands"
       exchange: "commands"
       exchange-durable: false
-      routing-key: "mattermost"
-      consumer-id: "mattermost/commands"
+      routing-key: "matterbot"
+      consumer-id: "matterbot/commands"
     irc:
-      queue: "mattermost/irc"
+      queue: "matterbot/irc"
       exchange: "commands"
       exchange-durable: false
       routing-key: "irc-chat"
-      consumer-id: "mattermost/irc"
+      consumer-id: "matterbot/irc"
     twitter:
-      queue: "mattermost/twitter"
+      queue: "matterbot/twitter"
       exchange: "twitter"
       exchange-durable: false
-      routing-key: "mattermost"
-      consumer-id: "mattermost/twitter"
+      routing-key: "matterbot"
+      consumer-id: "matterbot/twitter"
+    announcements:
+      queue: "matterbot/announcements"
+      exchange: "announcements"
+      exchange-durable: false
+      routing-key: "mattermost-announcements"
+      consumer-id: "matterbot/announcements"

@@ -20,9 +20,40 @@ func consumeResponses(msg *amqp.Delivery) {
 		consumeIRCResponse(msg)
 	} else if msg.Type == "tweet" {
 		consumeTwitterResponse(msg)
+	} else if msg.Type == "announcement" {
+		consumeAnnouncementMessage(msg)
 	} else {
 		consumeCommandResponse(msg)
 	}
+}
+
+func consumeAnnouncementMessage(msg *amqp.Delivery) {
+	if !mClient.isMattermostUp() {
+		log.Warningf("Mattermost client is not ready, waiting 1sec...")
+		time.Sleep(time.Second * 1)
+		msg.Nack(false, true)
+		return
+	}
+
+	announceMsg := rabbitmq.AnnouncementMessage{}
+	err := json.Unmarshal(msg.Body, &announceMsg)
+	if err != nil {
+		log.Errorf("Failed to decode announcement message : %v", err)
+	}
+
+	// Send message on mattermost
+	post := &model.Post{
+		ChannelId: announceMsg.Channel,
+		Message:   announceMsg.Message,
+	}
+
+	if _, resp := mClient.client.CreatePost(post); resp.Error != nil {
+		log.Errorf("Failed to send a message to '%s' channel.", announceMsg.Channel)
+		msg.Nack(false, true)
+		return
+	}
+
+	msg.Ack(false)
 }
 
 func consumeCommandResponse(msg *amqp.Delivery) {
@@ -199,7 +230,7 @@ func verifyConsumer() bool {
 			return false
 		}
 
-		for _, consumerName := range []string{"commands", "irc", "twitter"} {
+		for _, consumerName := range []string{"announcements", "commands", "irc", "twitter"} {
 			consumerCfg := gconfig.RabbitMQ.GetConsumer(consumerName)
 			if consumerCfg == nil {
 				log.Fatalf("RabbitMQ consumer configuration '%s' not found, aborting.", consumerName)

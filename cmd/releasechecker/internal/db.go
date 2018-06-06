@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"github.com/golang-migrate/migrate"
 	"github.com/golang-migrate/migrate/database/postgres"
-	_ "github.com/golang-migrate/migrate/source/file" // golang-migrate requires blank import
+	_ "github.com/golang-migrate/migrate/source/file"   // golang-migrate requires blank import
 	_ "github.com/golang-migrate/migrate/source/github" // golang-migrate requires blank import
-	_ "github.com/lib/pq" // pq requires blank import
+	_ "github.com/lib/pq"                               // pq requires blank import
 	dblib "gitlab.com/nerzhul/bot/db"
 )
 
@@ -17,7 +17,8 @@ type rcDB struct {
 
 func (db *rcDB) init() bool {
 	if db.config == nil {
-		log.Fatalf("DB config is nil, aborting !")
+		log.Errorf("DB config is nil !!!")
+		return false
 	}
 
 	log.Infof("Connecting to ReleaseChecker DB at %s", db.config.URL)
@@ -41,7 +42,7 @@ func (db *rcDB) init() bool {
 		return false
 	}
 
-	log.Infof("Connected to IRC DB.")
+	log.Infof("Connected to ReleaseChecker DB.")
 	return true
 }
 

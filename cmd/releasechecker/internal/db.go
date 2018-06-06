@@ -62,7 +62,14 @@ func (db *rcDB) runMigrations() bool {
 		return false
 	}
 
-	m.Steps(2)
+	defer m.Close()
+
+	err = m.Up()
+	if err != nil && err != migrate.ErrNoChange {
+		log.Errorf("ReleaseChecker DB Migration failed: %s", err)
+		return false
+	}
+
 	return true
 }
 
@@ -108,4 +115,14 @@ func (db *rcDB) GetGithubConfiguredRepositories() ([]githubRepository, error) {
 	}
 
 	return repoList, nil
+}
+
+func (db *rcDB) RegisterRepositoryTag(group string, name string, tag string) bool {
+	_, err := db.nativeDB.Exec(addGithubRepositoryTag, group, name, tag)
+	if err != nil {
+		log.Errorf("Unable to add Github repository tag to DB: %s", err)
+		return false
+	}
+
+	return true
 }

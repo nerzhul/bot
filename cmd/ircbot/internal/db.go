@@ -3,22 +3,21 @@ package internal
 import (
 	"database/sql"
 	_ "github.com/lib/pq" // pq requires blank import
+	dblib "gitlab.com/nerzhul/bot/db"
 )
-
-type dbConfig struct {
-	URL          string `yaml:"url"`
-	MaxIdleConns int    `yaml:"max-idle-conns"`
-	MaxOpenConns int    `yaml:"max-open-conns"`
-}
 
 type ircDB struct {
 	nativeDB *sql.DB
-	config   *dbConfig
+	config   *dblib.Config
 }
 
-func (db *ircDB) init(config *dbConfig) bool {
-	log.Infof("Connecting to IRC DB at %s", config.URL)
-	nativeDB, err := sql.Open("postgres", config.URL)
+func (db *ircDB) init() bool {
+	if db.config == nil {
+		log.Fatalf("DB config is nil, aborting !")
+	}
+
+	log.Infof("Connecting to IRC DB at %s", db.config.URL)
+	nativeDB, err := sql.Open("postgres", db.config.URL)
 	if err != nil {
 		log.Errorf("Failed to connect to IRC DB: %s", err)
 		return false
@@ -30,15 +29,15 @@ func (db *ircDB) init(config *dbConfig) bool {
 		return false
 	}
 
-	db.nativeDB.SetMaxIdleConns(config.MaxIdleConns)
-	db.nativeDB.SetMaxOpenConns(config.MaxOpenConns)
+	db.nativeDB.SetMaxIdleConns(db.config.MaxIdleConns)
+	db.nativeDB.SetMaxOpenConns(db.config.MaxOpenConns)
 
 	log.Infof("Connected to IRC DB.")
 	return true
 }
 
 func (db *ircDB) ValidationQuery() bool {
-	rows, err := db.nativeDB.Query(ValidationQuery)
+	rows, err := db.nativeDB.Query(dblib.ValidationQuery)
 	if err != nil {
 		log.Errorf("Failed to run IRC validation query: %s", err)
 		return false

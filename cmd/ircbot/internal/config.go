@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"gitlab.com/nerzhul/bot/db"
 	"gitlab.com/nerzhul/bot/rabbitmq"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -17,7 +18,7 @@ type ircChannelConfig struct {
 
 type config struct {
 	RabbitMQ rabbitmq.Config `yaml:"rabbitmq"`
-	DB       dbConfig        `yaml:"database"`
+	DB       db.Config       `yaml:"database"`
 
 	IRC struct {
 		Server              string `yaml:"server"`
@@ -60,7 +61,7 @@ func (c *config) loadDefaultConfiguration() bool {
 	c.IRC.Server = "chat.freenode.net"
 	c.IRC.Port = 6697
 	c.IRC.SSL = true
-	c.IRC.Name = fmt.Sprintf("ircbot%d", time.Now().Unix() % 100)
+	c.IRC.Name = fmt.Sprintf("ircbot%d", time.Now().Unix()%100)
 	return true
 }
 

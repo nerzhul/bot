@@ -8,7 +8,7 @@ import (
 )
 
 // AppName application name
-var AppName = "ircbot"
+var AppName = "releasechecker"
 
 // AppVersion application version (from git tag)
 var AppVersion = "[unk]"
@@ -16,9 +16,7 @@ var AppVersion = "[unk]"
 // AppBuildDate application build date
 var AppBuildDate = "[unk]"
 
-var asyncClient *rabbitmqClient
-
-var gIRCDB *ircDB
+var gDB *rcDB
 
 // StartApp initiate components
 // Should be called from main function
@@ -33,21 +31,12 @@ func StartApp(configFile string) {
 
 	loadConfiguration(configFile)
 
-	gIRCDB = &ircDB{
+	gDB = &rcDB{
 		config: &gconfig.DB,
 	}
-	if !gIRCDB.init() {
+	if !gDB.init() {
 		log.Fatal("Failed to initialize database connector, aborting.")
 	}
-
-	gconfig.loadDatabaseConfigurations()
-
-	asyncClient = newRabbitMQClient()
-	asyncClient.AddConsumerName("ircbot")
-	asyncClient.AddConsumerName("chat")
-
-	asyncClient.VerifyPublisher()
-	asyncClient.VerifyConsumer()
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGHUP)
@@ -59,8 +48,9 @@ func StartApp(configFile string) {
 		}
 	}()
 
-	irc := ircClient{}
-	irc.run()
+	if !checkGithubNewTags() {
+		os.Exit(1)
+	}
 
-	log.Infof("Exiting %s", AppName)
+	log.Infof("%s has finished.", AppName)
 }

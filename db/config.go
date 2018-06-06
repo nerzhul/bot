@@ -1,5 +1,6 @@
 package db
 
+// Config database configuration object
 type Config struct {
 	URL             string `yaml:"url"`
 	MaxIdleConns    int    `yaml:"max-idle-conns"`

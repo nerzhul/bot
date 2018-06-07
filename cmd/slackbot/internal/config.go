@@ -29,6 +29,7 @@ func (c *config) loadDefaultConfiguration() {
 			Queue:           "slackbot/commands",
 			Exchange:        "commands",
 			ExchangeDurable: false,
+			ExchangeType:    "direct",
 		},
 		"twitter": {
 			RoutingKey:      "slackbot",
@@ -36,6 +37,7 @@ func (c *config) loadDefaultConfiguration() {
 			Queue:           "slackbot/twitter",
 			Exchange:        "twitter",
 			ExchangeDurable: false,
+			ExchangeType:    "direct",
 		},
 	}
 

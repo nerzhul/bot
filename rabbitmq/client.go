@@ -105,7 +105,8 @@ func (rc *Client) VerifyConsumer() bool {
 				return false
 			}
 
-			if !rc.Consumer.DeclareExchange(consumerCfg.Exchange, consumerCfg.ExchangeDurable) {
+			if !rc.Consumer.DeclareExchange(consumerCfg.Exchange, consumerCfg.ExchangeType,
+				consumerCfg.ExchangeDurable) {
 				rc.logger.Errorf("Failed to declare exchange %s, dropping consumer", consumerCfg.Exchange)
 				rc.Consumer = nil
 				return false

@@ -13,9 +13,11 @@ rabbitmq:
       exchange-durable: false
       routing-key: "slackbot"
       consumer-id: "slackbot/commands"
+      exchange-type: "direct"
     twitter:
       queue: "slackbot/twitter"
       exchange: "twitter"
       exchange-durable: false
       routing-key: "slackbot"
       consumer-id: "slackbot/twitter"
+      exchange-type: "direct"

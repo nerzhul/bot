@@ -33,6 +33,7 @@ func (c *config) loadDefaultConfiguration() {
 			Queue:           "botcommand.direct",
 			Exchange:        "commands",
 			ExchangeDurable: false,
+			ExchangeType:    "direct",
 		},
 	}
 	c.Scaleway.URL = "https://cp-par1.scaleway.com"

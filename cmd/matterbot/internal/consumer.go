@@ -241,7 +241,8 @@ func verifyConsumer() bool {
 				return false
 			}
 
-			if !rabbitmqConsumer.DeclareExchange(consumerCfg.Exchange, consumerCfg.ExchangeDurable) {
+			if !rabbitmqConsumer.DeclareExchange(consumerCfg.Exchange, consumerCfg.ExchangeType,
+				consumerCfg.ExchangeDurable) {
 				rabbitmqConsumer = nil
 				return false
 			}

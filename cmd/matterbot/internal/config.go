@@ -39,6 +39,7 @@ func (c *config) loadDefaultConfiguration() {
 			Queue:           "matterbot/commands",
 			Exchange:        "commands",
 			ExchangeDurable: false,
+			ExchangeType:    "direct",
 		},
 		"irc": {
 			RoutingKey:      "irc-chat",
@@ -46,6 +47,7 @@ func (c *config) loadDefaultConfiguration() {
 			Queue:           "matterbot/irc",
 			Exchange:        "commands",
 			ExchangeDurable: false,
+			ExchangeType:    "direct",
 		},
 		"twitter": {
 			RoutingKey:      "matterbot",
@@ -53,6 +55,7 @@ func (c *config) loadDefaultConfiguration() {
 			Queue:           "matterbot/twitter",
 			Exchange:        "twitter",
 			ExchangeDurable: false,
+			ExchangeType:    "direct",
 		},
 		"announcements": {
 			RoutingKey:      "mattermost-announcements",
@@ -60,6 +63,7 @@ func (c *config) loadDefaultConfiguration() {
 			Queue:           "matterbot/announcements",
 			Exchange:        "announcements",
 			ExchangeDurable: false,
+			ExchangeType:    "fanout",
 		},
 	}
 

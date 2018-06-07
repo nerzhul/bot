@@ -19,7 +19,7 @@ type config struct {
 		EnableHook       bool     `yaml:"enable-hook"`
 		Tokens           []string `yaml:"tokens"`
 		ResponseUsername string   `yaml:"response-username"`
-		ReplacementURL string     `yaml:"replacement-url"`
+		ReplacementURL   string   `yaml:"replacement-url"`
 	} `yaml:"mattermost"`
 
 	Slack struct {
@@ -43,6 +43,7 @@ func (c *config) loadDefaultConfiguration() {
 			Queue:           "webhook/commands",
 			Exchange:        "commands",
 			ExchangeDurable: false,
+			ExchangeType:    "direct",
 		},
 	}
 

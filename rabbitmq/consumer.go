@@ -45,7 +45,7 @@ func (ep *EventConsumer) Init() bool {
 }
 
 // DeclareExchange declare exchange on event consumer
-func (ep *EventConsumer) DeclareExchange(name string, durable bool) bool {
+func (ep *EventConsumer) DeclareExchange(name string, exgType string, durable bool) bool {
 	if ep.channel == nil {
 		ep.log.Fatalf("Implementation error: Consumer channel is nil")
 		return false
@@ -53,7 +53,7 @@ func (ep *EventConsumer) DeclareExchange(name string, durable bool) bool {
 
 	err := ep.channel.ExchangeDeclare(
 		name,
-		"direct",
+		exgType,
 		durable,
 		false,
 		false,

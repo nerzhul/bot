@@ -44,6 +44,7 @@ func (c *config) loadDefaultConfiguration() bool {
 			Queue:           "ircbot/commands",
 			Exchange:        "commands",
 			ExchangeDurable: false,
+			ExchangeType:    "direct",
 		},
 		"chat": {
 			RoutingKey:      "irc-chat-send",
@@ -51,6 +52,7 @@ func (c *config) loadDefaultConfiguration() bool {
 			Queue:           "ircbot/chat",
 			Exchange:        "commands",
 			ExchangeDurable: false,
+			ExchangeType:    "direct",
 		},
 	}
 

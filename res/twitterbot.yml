@@ -11,3 +11,4 @@ rabbitmq:
   consumer-id: "twitterbot"
   consumer-routing-key: "twitterbot"
   queue: "twitterbot"
+  exchange-type: "direct"

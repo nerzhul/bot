@@ -6,6 +6,7 @@ type Consumer struct {
 	Queue           string `yaml:"queue"`
 	Exchange        string `yaml:"exchange"`
 	ExchangeDurable bool   `yaml:"exchange-durable"`
+	ExchangeType    string `yaml:"exchange-type"`
 	RoutingKey      string `yaml:"routing-key"`
 }
 

@@ -13,6 +13,7 @@ rabbitmq:
       exchange-durable: false
       routing-key: "webhook"
       consumer-id: "webhook/commands"
+      exchange-type: "direct"
 gitlab-projects-mapping:
   "group/projectname":
     - "#channel1"

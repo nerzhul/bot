@@ -30,6 +30,7 @@ func (c *config) loadDefaultConfiguration() {
 			Queue:           "twitterbot",
 			Exchange:        "commands",
 			ExchangeDurable: false,
+			ExchangeType:    "direct",
 		},
 	}
 

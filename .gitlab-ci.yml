@@ -130,6 +130,12 @@ docker:arm64:matterbot:
     BOT_BINARY: matterbot
     CPU_ARCH: arm64
 
+docker:arm64:releasechecker:
+  <<: *docker_template
+  variables:
+    BOT_BINARY: releasechecker
+    CPU_ARCH: arm64
+
 docker:arm64:webhookd:
   <<: *docker_template
   variables:

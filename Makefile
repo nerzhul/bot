@@ -41,6 +41,10 @@ matterbot: dep
 	@cd cmd/matterbot && \
     		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/matterbot"
 
+releasechecker: dep
+	@cd cmd/releasechecker && \
+    		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/releasechecker"
+
 slackbot: dep
 	@cd cmd/slackbot && \
     		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/slackbot"
@@ -49,7 +53,7 @@ twitterbot: dep
 	@cd cmd/twitterbot && \
     		go build  -ldflags "${BUILD_LD_FLAGS}" -o "${CI_PROJECT_DIR}/artifacts/${GOOS}_${GOARCH}/twitterbot"
 
-build: commandhandler webhook ircbot matterbot slackbot twitterbot
+build: commandhandler webhook ircbot matterbot releasechecker slackbot twitterbot
 
 install: build
 	install -d /usr/local/etc/rc.d

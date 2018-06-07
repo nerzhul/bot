@@ -43,12 +43,13 @@ func consumeAnnouncementMessage(msg *amqp.Delivery) {
 
 	// Send message on mattermost
 	post := &model.Post{
-		ChannelId: announceMsg.Channel,
-		Message:   announceMsg.Message,
+		ChannelId: gconfig.Mattermost.ReleaseAnnouncementsChannel,
+		Message: fmt.Sprintf("**%s** [%s](%s) has been released !",
+			announceMsg.What, announceMsg.Message, announceMsg.URL),
 	}
 
 	if _, resp := mClient.client.CreatePost(post); resp.Error != nil {
-		log.Errorf("Failed to send a message to '%s' channel.", announceMsg.Channel)
+		log.Errorf("Failed to send a message to '%s' channel.", gconfig.Mattermost.ReleaseAnnouncementsChannel)
 		msg.Nack(false, true)
 		return
 	}

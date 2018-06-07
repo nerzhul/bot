@@ -2,12 +2,14 @@ package internal
 
 import (
 	"gitlab.com/nerzhul/bot/db"
+	"gitlab.com/nerzhul/bot/rabbitmq"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 )
 
 type config struct {
-	DB db.Config `yaml:"database"`
+	DB       db.Config       `yaml:"database"`
+	RabbitMQ rabbitmq.Config `yaml:"rabbitmq"`
 }
 
 var gconfig config
@@ -17,6 +19,10 @@ func (c *config) loadDefaultConfiguration() bool {
 	c.DB.MaxOpenConns = 10
 	c.DB.MaxIdleConns = 5
 	c.DB.MigrationSource = "file:///migrations"
+
+	c.RabbitMQ.URL = "amqp://guest:guest@localhost:5672/"
+	c.RabbitMQ.EventExchange = "announcements"
+	c.RabbitMQ.PublisherRoutingKey = "github-release"
 
 	return true
 }

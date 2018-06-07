@@ -102,7 +102,8 @@ func (ce *TweetMessage) ToJSON() ([]byte, error) {
 // AnnouncementMessage announcement message
 type AnnouncementMessage struct {
 	Message string `json:"message"`
-	Channel string `json:"channel"`
+	URL     string `json:"url"`
+	What    string `json:"what"`
 }
 
 // ToJSON converts to json

@@ -10,18 +10,19 @@ type config struct {
 	RabbitMQ rabbitmq.Config `yaml:"rabbitmq"`
 
 	Mattermost struct {
-		URL                 string   `yaml:"url"`
-		WsURL               string   `yaml:"ws-url"`
-		IRCWebhookURL       string   `yaml:"irc-webhook-url"`
-		IRCAllowedSenders   []string `yaml:"irc-allowed-senders"`
-		IRCSenderRoutingKey string   `yaml:"irc-sender-routing-key"`
-		Email               string   `yaml:"email"`
-		Password            string   `yaml:"password"`
-		Username            string   `yaml:"username"`
-		Userfirst           string   `yaml:"user-first"`
-		Userlast            string   `yaml:"user-last"`
-		Team                string   `yaml:"team"`
-		TwitterChannel      string   `yaml:"twitter-channel"`
+		URL                         string   `yaml:"url"`
+		WsURL                       string   `yaml:"ws-url"`
+		IRCWebhookURL               string   `yaml:"irc-webhook-url"`
+		IRCAllowedSenders           []string `yaml:"irc-allowed-senders"`
+		IRCSenderRoutingKey         string   `yaml:"irc-sender-routing-key"`
+		Email                       string   `yaml:"email"`
+		Password                    string   `yaml:"password"`
+		Username                    string   `yaml:"username"`
+		Userfirst                   string   `yaml:"user-first"`
+		Userlast                    string   `yaml:"user-last"`
+		Team                        string   `yaml:"team"`
+		TwitterChannel              string   `yaml:"twitter-channel"`
+		ReleaseAnnouncementsChannel string   `yaml:"release-announcements-channel"`
 	} `yaml:"mattermost"`
 }
 
@@ -78,6 +79,7 @@ func (c *config) loadDefaultConfiguration() {
 	c.Mattermost.Team = "MyTeam"
 	c.Mattermost.TwitterChannel = "twitter"
 	c.Mattermost.IRCSenderRoutingKey = "irc-chat-send"
+	c.Mattermost.ReleaseAnnouncementsChannel = "releases-announcements"
 }
 
 func (c *config) isAllowedIRCSender(name string) bool {

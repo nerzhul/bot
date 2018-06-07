@@ -2,7 +2,9 @@ package internal
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/go-github/github"
+	"gitlab.com/nerzhul/bot/rabbitmq"
 )
 
 type githubRepository struct {
@@ -37,6 +39,18 @@ func checkGithubNewTags() bool {
 			}
 
 			if !registered {
+				// Unable to verify rabbitmq publisher, cancel this occurence
+				if !verifyPublisher() {
+					return false
+				}
+
+				publishAnnouncement(&rabbitmq.AnnouncementMessage{
+					Message: *t.Name,
+					What:    fmt.Sprintf("%s/%s", repo.group, repo.name),
+					URL: fmt.Sprintf("https://github.com/%s/%s/releases/tag/%s",
+						repo.group, repo.name, *t.Name),
+				})
+
 				if !gDB.RegisterRepositoryTag(repo.group, repo.name, *t.Name) {
 					return false
 				}

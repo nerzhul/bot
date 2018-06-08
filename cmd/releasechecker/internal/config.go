@@ -8,8 +8,9 @@ import (
 )
 
 type config struct {
-	DB       db.Config       `yaml:"database"`
-	RabbitMQ rabbitmq.Config `yaml:"rabbitmq"`
+	DB          db.Config       `yaml:"database"`
+	RabbitMQ    rabbitmq.Config `yaml:"rabbitmq"`
+	GithubToken string          `yaml:"github-token"`
 }
 
 var gconfig config
@@ -24,6 +25,8 @@ func (c *config) loadDefaultConfiguration() bool {
 	c.RabbitMQ.EventExchange = "announcements"
 	c.RabbitMQ.EventExchangeType = "fanout"
 	c.RabbitMQ.PublisherRoutingKey = "release"
+
+	c.GithubToken = ""
 
 	return true
 }

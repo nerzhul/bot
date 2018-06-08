@@ -9,3 +9,4 @@ rabbitmq:
   exchange: "announcements"
   exchange-type: "direct"
   publisher-routing-key: "release"
+github-token: ""

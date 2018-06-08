@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/google/go-github/github"
 	"gitlab.com/nerzhul/bot/rabbitmq"
+	"golang.org/x/oauth2"
+	"net/http"
 )
 
 type githubRepository struct {
@@ -21,12 +23,24 @@ func checkGithubNewTags() bool {
 		return false
 	}
 
-	client := github.NewClient(nil)
+	var httpClient *http.Client
+
+	ctx := context.Background()
+
+	// If there is a token defined, use it
+	if len(gconfig.GithubToken) > 0 {
+		ts := oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: gconfig.GithubToken},
+		)
+		httpClient = oauth2.NewClient(ctx, ts)
+	}
+
+	client := github.NewClient(httpClient)
 
 	for _, repo := range repositories {
 		log.Infof("Fetching tags for github.com:%s/%s.git", repo.group, repo.name)
 
-		tags, _, err := client.Repositories.ListTags(context.Background(), repo.group, repo.name, nil)
+		tags, _, err := client.Repositories.ListTags(ctx, repo.group, repo.name, nil)
 		if err != nil {
 			log.Errorf("Failed to list Github repository tags: %s", err)
 			return false

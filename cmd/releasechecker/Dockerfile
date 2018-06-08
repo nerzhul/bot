@@ -9,6 +9,6 @@ RUN addgroup -g 778 -S releasechecker && adduser -u 778 -D -S -G releasechecker 
 USER releasechecker
 WORKDIR /var/lib/releasechecker
 COPY --from=0 /artifacts/linux_arm64/releasechecker /usr/bin/releasechecker
-COPY res/migrations /var/lib/releasechecker/migrations
+COPY cmd/releasechecker/res/migrations /var/lib/releasechecker/migrations
 
 CMD ["/usr/bin/releasechecker", "--config=/etc/bot/releasechecker.yml"]

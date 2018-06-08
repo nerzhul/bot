@@ -3,9 +3,12 @@ package internal
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/labstack/echo"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/satori/go.uuid"
+	"github.com/streadway/amqp"
 	"gitlab.com/nerzhul/bot/rabbitmq"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -352,4 +355,49 @@ func (m *mattermostClient) sendCommandToRabbit(command string, channel string, u
 	}
 
 	return nil
+}
+
+func postMessageToMattermostViaWebhook(channelName string, text string, username string, msg *amqp.Delivery) {
+	mwe := mattermostWebhookEvent{
+		Text:     text,
+		Username: username,
+		Channel:  channelName,
+	}
+	mweStr, err := mwe.toJSON()
+
+	if err != nil {
+		log.Errorf("Failed to marshal mattermostWebhookEvent for channel %s and from user %s.",
+			channelName, username)
+		msg.Nack(false, false)
+		return
+	}
+
+	req, err := http.NewRequest("POST", gconfig.Mattermost.IRCWebhookURL,
+		strings.NewReader(string(mweStr)))
+	if err != nil {
+		log.Errorf("Failed to create POST request for mattermostWebhookEvent to mattermost, requeing.")
+		msg.Nack(false, true)
+		return
+	}
+
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Errorf("Failed to POST mattermostWebhookEvent to mattermost, requeing.")
+		msg.Nack(false, true)
+		return
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		log.Errorf("Mattermost didn't accept our mattermostWebhookEvent. Code: %d", resp.StatusCode)
+		msg.Nack(false, true)
+		return
+	}
+
+	msg.Ack(false)
 }

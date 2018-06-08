@@ -4,11 +4,9 @@ import (
 	"encoding/json"
 	//"fmt"
 	"fmt"
-	"github.com/labstack/echo"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/streadway/amqp"
 	"gitlab.com/nerzhul/bot/rabbitmq"
-	"net/http"
 	"strings"
 	"time"
 )
@@ -41,21 +39,9 @@ func consumeAnnouncementMessage(msg *amqp.Delivery) {
 		log.Errorf("Failed to decode announcement message : %v", err)
 	}
 
-	// Send message on mattermost
-	post := &model.Post{
-		ChannelId: gconfig.Mattermost.ReleaseAnnouncementsChannel,
-		Message: fmt.Sprintf("**%s** [%s](%s) has been released !",
-			announceMsg.What, announceMsg.Message, announceMsg.URL),
-	}
-
-	if _, resp := mClient.client.CreatePost(post); resp.Error != nil {
-		log.Errorf("Failed to send a message to '%s' channel: %s",
-			gconfig.Mattermost.ReleaseAnnouncementsChannel, resp.Error.Message)
-		msg.Nack(false, true)
-		return
-	}
-
-	msg.Ack(false)
+	postMessageToMattermostViaWebhook(gconfig.Mattermost.ReleaseAnnouncementsChannel,
+		fmt.Sprintf("**%s** [%s](%s) has been released !",
+			announceMsg.What, announceMsg.Message, announceMsg.URL), "ReleaseChecker", msg)
 }
 
 func consumeCommandResponse(msg *amqp.Delivery) {
@@ -140,48 +126,7 @@ func consumeIRCResponse(msg *amqp.Delivery) {
 }
 
 func handleIRCChatEventMessage(ircChatEvent *rabbitmq.IRCChatEvent, channelName string, msg *amqp.Delivery) {
-	mwe := mattermostWebhookEvent{
-		Text:     ircChatEvent.Message,
-		Username: ircChatEvent.User,
-		Channel:  channelName,
-	}
-	mweStr, err := mwe.toJSON()
-
-	if err != nil {
-		log.Errorf("Failed to marshal mattermostWebhookEvent for channel %s and from user %s.",
-			channelName, ircChatEvent.User)
-		msg.Nack(false, false)
-		return
-	}
-
-	req, err := http.NewRequest("POST", gconfig.Mattermost.IRCWebhookURL,
-		strings.NewReader(string(mweStr)))
-	if err != nil {
-		log.Errorf("Failed to create POST request for mattermostWebhookEvent to mattermost, requeing.")
-		msg.Nack(false, true)
-		return
-	}
-
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-
-	client := &http.Client{}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Errorf("Failed to POST mattermostWebhookEvent to mattermost, requeing.")
-		msg.Nack(false, true)
-		return
-	}
-
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		log.Errorf("Mattermost didn't accept our mattermostWebhookEvent. Code: %d", resp.StatusCode)
-		msg.Nack(false, true)
-		return
-	}
-
-	msg.Ack(false)
+	postMessageToMattermostViaWebhook(channelName, ircChatEvent.Message, ircChatEvent.User, msg)
 }
 
 func consumeTwitterResponse(msg *amqp.Delivery) {

@@ -35,6 +35,7 @@ func (c *config) loadDefaultConfiguration() {
 	c.RabbitMQ.URL = "amqp://guest:guest@localhost:5672/"
 	c.RabbitMQ.EventExchange = "gitlab"
 	c.RabbitMQ.EventExchangeDurable = true
+	c.RabbitMQ.EventExchangeType = "direct"
 	c.RabbitMQ.PublisherRoutingKey = "gitlab/events"
 	c.RabbitMQ.Consumers = map[string]rabbitmq.Consumer{
 		"webhook": {

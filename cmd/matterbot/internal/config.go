@@ -31,6 +31,7 @@ var gconfig config
 func (c *config) loadDefaultConfiguration() {
 	c.RabbitMQ.URL = "amqp://guest:guest@localhost:5672/"
 	c.RabbitMQ.EventExchange = "commands"
+	c.RabbitMQ.EventExchangeType = "direct"
 	c.RabbitMQ.PublisherRoutingKey = "chat-command"
 
 	c.RabbitMQ.Consumers = map[string]rabbitmq.Consumer{

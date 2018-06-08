@@ -62,7 +62,7 @@ func (ep *EventPublisher) Init() bool {
 
 	err = ep.channel.ExchangeDeclare(
 		ep.config.EventExchange,
-		"direct",
+		ep.config.EventExchangeType,
 		ep.config.EventExchangeDurable,
 		false,
 		false,

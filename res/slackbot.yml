@@ -6,6 +6,7 @@ rabbitmq:
   url: "amqp://guest:guest@localhost:5672/"
   exchange: "commands"
   publisher-routing-key: "chat-command"
+  exchange-type: "direct"
   consumers:
     commands:
       queue: "slackbot/commands"

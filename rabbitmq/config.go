@@ -15,6 +15,7 @@ type Config struct {
 	URL                  string `yaml:"url"`
 	EventExchange        string `yaml:"exchange"`
 	EventExchangeDurable bool   `yaml:"exchange-durable"`
+	EventExchangeType    string `yaml:"exchange-type"`
 	PublisherRoutingKey  string `yaml:"publisher-routing-key"`
 	Consumers            map[string]Consumer
 }

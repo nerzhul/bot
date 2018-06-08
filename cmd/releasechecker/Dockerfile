@@ -10,5 +10,7 @@ USER releasechecker
 WORKDIR /var/lib/releasechecker
 COPY --from=0 /artifacts/linux_arm64/releasechecker /usr/bin/releasechecker
 COPY cmd/releasechecker/res/migrations /var/lib/releasechecker/migrations
+COPY --from=0 /etc/ssl/certs /etc/ssl/certs
+COPY --from=0 /usr/share/ca-certificates /usr/share/ca-certificates
 
 CMD ["/usr/bin/releasechecker", "--config=/etc/bot/releasechecker.yml"]

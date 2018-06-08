@@ -49,7 +49,8 @@ func consumeAnnouncementMessage(msg *amqp.Delivery) {
 	}
 
 	if _, resp := mClient.client.CreatePost(post); resp.Error != nil {
-		log.Errorf("Failed to send a message to '%s' channel.", gconfig.Mattermost.ReleaseAnnouncementsChannel)
+		log.Errorf("Failed to send a message to '%s' channel: %s",
+			gconfig.Mattermost.ReleaseAnnouncementsChannel, resp.Error.Message)
 		msg.Nack(false, true)
 		return
 	}
@@ -78,7 +79,7 @@ func consumeCommandResponse(msg *amqp.Delivery) {
 	}
 
 	if _, resp := mClient.client.CreatePost(post); resp.Error != nil {
-		log.Errorf("Failed to send a message to '%s' channel.", response.Channel)
+		log.Errorf("Failed to send a message to '%s' channel: %s", response.Channel, resp.Error.Message)
 		msg.Nack(false, true)
 		return
 	}

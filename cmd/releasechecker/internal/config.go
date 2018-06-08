@@ -22,7 +22,7 @@ func (c *config) loadDefaultConfiguration() bool {
 
 	c.RabbitMQ.URL = "amqp://guest:guest@localhost:5672/"
 	c.RabbitMQ.EventExchange = "announcements"
-	c.RabbitMQ.PublisherRoutingKey = "github-release"
+	c.RabbitMQ.PublisherRoutingKey = "release"
 
 	return true
 }

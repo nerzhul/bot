@@ -1,4 +1,4 @@
-FROM arm64v8/golang:1.10.2
+FROM arm64v8/golang:1.10.3
 
 COPY . /go/src/gitlab.com/nerzhul/bot
 RUN cd /go/src/gitlab.com/nerzhul/bot \

@@ -47,6 +47,7 @@ func (db *rcDB) init() bool {
 }
 
 func (db *rcDB) runMigrations() bool {
+	log.Infof("Checking for schema migrations to perform...")
 	driver, err := postgres.WithInstance(db.nativeDB, &postgres.Config{})
 	if err != nil {
 		log.Errorf("Unable to create migration instance on ReleaseChecker DB: %s", err)
@@ -69,6 +70,8 @@ func (db *rcDB) runMigrations() bool {
 		log.Errorf("ReleaseChecker DB Migration failed: %s", err)
 		return false
 	}
+
+	log.Infof("Schema migrations done.")
 
 	return true
 }
@@ -142,6 +145,74 @@ func (db *rcDB) IsGithubRepositoryTagRegistered(group string, name string, tag s
 	if rows.Next() {
 		if err := rows.Scan(&tagExists); err != nil {
 			log.Errorf("Unable to check if Github repository tag is registered: %s", err)
+			return false, err
+		}
+	}
+
+	return tagExists, nil
+}
+
+// DockerHub
+
+func (db *rcDB) AddDockerHubImage(group string, name string) bool {
+	_, err := db.nativeDB.Exec(addDockerHubImageQuery, group, name)
+	if err != nil {
+		log.Errorf("Unable to add DockerHub image configuration to DB: %s", err)
+		return false
+	}
+
+	return true
+}
+
+func (db *rcDB) GetDockerHubConfiguredImages() ([]dockerHubImage, error) {
+	rows, err := db.nativeDB.Query(getDockerHubImages)
+	if err != nil {
+		log.Errorf("Unable to execute getDockerHubImages: %s", err)
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var imageList []dockerHubImage
+
+	for rows.Next() {
+		gr := dockerHubImage{}
+		if err := rows.Scan(&gr.group, &gr.name); err != nil {
+			log.Errorf("Unable to read getDockerHubImages: %s", err)
+			return nil, err
+		}
+
+		imageList = append(imageList, gr)
+	}
+
+	return imageList, nil
+}
+
+func (db *rcDB) RegisterDockerHubImageTag(group string, name string, tag string) bool {
+	_, err := db.nativeDB.Exec(addDockerHubImageTag, group, name, tag)
+	if err != nil {
+		log.Errorf("Unable to add DockerHub image tag to DB: %s", err)
+		return false
+	}
+
+	return true
+}
+
+func (db *rcDB) IsDockerHubImageTagRegistered(group string, name string, tag string) (bool, error) {
+	rows, err := db.nativeDB.Query(isDockerHubImageTagRegistered, group, name, tag)
+	if rows != nil {
+		defer rows.Close()
+	}
+
+	if err != nil {
+		log.Errorf("Unable to check if DockerHub image tag is registered: %s", err)
+		return true, err
+	}
+
+	tagExists := false
+	if rows.Next() {
+		if err := rows.Scan(&tagExists); err != nil {
+			log.Errorf("Unable to check if DockerHub image tag is registered: %s", err)
 			return false, err
 		}
 	}

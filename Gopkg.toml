@@ -51,7 +51,7 @@
 
 [[constraint]]
   name = "github.com/mattermost/mattermost-server"
-  version = "5.0.0"
+  version = "5.0.1"
 
 [[constraint]]
   name = "github.com/nlopes/slack"
@@ -75,7 +75,7 @@
 
 [[constraint]]
   name = "github.com/stretchr/testify"
-  version = "1.2.1"
+  version = "1.2.2"
 
 [[constraint]]
   name = "gopkg.in/yaml.v2"
@@ -87,4 +87,12 @@
 
 [[constraint]]
   name = "github.com/golang-migrate/migrate"
-  version = "3.2.0"
+  version = "3.3.0"
+
+[[constraint]]
+  name = "github.com/heroku/docker-registry-client"
+  branch = "master"
+
+[[override]]
+  name = "github.com/docker/distribution"
+  revision = "7484e51bf6af0d3b1a849644cdaced3cfcf13617"

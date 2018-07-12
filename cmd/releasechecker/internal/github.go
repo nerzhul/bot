@@ -68,8 +68,6 @@ func checkGithubNewTags() bool {
 				if !gDB.RegisterRepositoryTag(repo.group, repo.name, *t.Name) {
 					return false
 				}
-
-				// @TODO: send the notification
 			}
 		}
 	}

@@ -86,3 +86,31 @@ func TestRcDB_IsGithubRepositoryTagRegistered(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, false, exists)
 }
+
+func TestRcDB_AddDockerHubImage(t *testing.T) {
+	assert.Equal(t, true, gDB.AddDockerHubImage("arm64v8", "httpd"))
+}
+
+func TestRcDB_GetDockerHubConfiguredImages(t *testing.T) {
+	images, err := gDB.GetDockerHubConfiguredImages()
+	assert.Nil(t, err)
+	assert.NotNil(t, images)
+	for _, r := range images {
+		assert.NotEmpty(t, r.name)
+		assert.NotEmpty(t, r.group)
+	}
+}
+
+func TestRcDB_RegisterDockerHubImageTag(t *testing.T) {
+	assert.Equal(t, true, gDB.RegisterDockerHubImageTag("arm64v8", "httpd", "2.4.1"))
+}
+
+func TestRcDB_IsDockerHubImageTagRegistered(t *testing.T) {
+	exists, err := gDB.IsDockerHubImageTagRegistered("arm64v8", "httpd", "2.4.1")
+	assert.Nil(t, err)
+	assert.Equal(t, true, exists)
+
+	exists, err = gDB.IsDockerHubImageTagRegistered("testnonexistent", "testnonexistent", "0.0.0")
+	assert.Nil(t, err)
+	assert.Equal(t, false, exists)
+}

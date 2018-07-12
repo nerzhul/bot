@@ -48,9 +48,8 @@ func StartApp(configFile string) {
 		}
 	}()
 
-	if !checkGithubNewTags() {
-		os.Exit(1)
-	}
+	checkGithubNewTags()
+	checkDockerHubNewTags()
 
 	log.Infof("%s has finished.", AppName)
 }

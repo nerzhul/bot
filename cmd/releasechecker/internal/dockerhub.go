@@ -58,7 +58,7 @@ func checkDockerHubNewTags() bool {
 
 				publishAnnouncement(&rabbitmq.AnnouncementMessage{
 					Message: t,
-					What:    fmt.Sprintf("%s/%s docker image", image.group, image.name),
+					What:    fmt.Sprintf("%s/%s docker image tag", image.group, image.name),
 					URL: fmt.Sprintf("https://hub.docker.com/r/%s/%s/tags",
 						image.group, image.name),
 				})

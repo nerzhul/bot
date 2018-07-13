@@ -41,6 +41,10 @@ func checkDockerHubNewTags() bool {
 		}
 
 		for _, t := range tags {
+			// Ignore latest tag
+			if t == "latest" {
+				continue
+			}
 			registered, err := gDB.IsDockerHubImageTagRegistered(image.group, image.name, t)
 			if err != nil {
 				return false
@@ -54,7 +58,7 @@ func checkDockerHubNewTags() bool {
 
 				publishAnnouncement(&rabbitmq.AnnouncementMessage{
 					Message: t,
-					What:    fmt.Sprintf("%s/%s", image.group, image.name),
+					What:    fmt.Sprintf("%s/%s docker image", image.group, image.name),
 					URL: fmt.Sprintf("https://hub.docker.com/r/%s/%s/tags",
 						image.group, image.name),
 				})
